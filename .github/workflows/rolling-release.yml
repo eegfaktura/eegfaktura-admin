@@ -60,11 +60,13 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        # --legacy-peer-deps: package.json hat @mui/x-date-pickers@8.x neben
-        # @mui/material@5.x — npm 7+ erzwingt peer-dep-Kompatibilitaet, der
-        # alte lokale Build (Makefile) lief vermutlich mit aelterer npm oder
-        # erlaubt-Flag. Statt Source-Code-Eingriff: --legacy-peer-deps.
-        run: npm ci --legacy-peer-deps
+        # `npm install` statt `npm ci`: package-lock.json ist im Source-Repo
+        # nicht synchron mit package.json — diverse Pakete fehlen im Lock-File
+        # (@maskito/core, @mui/x-data-grid, etc.). `npm ci` erzwingt Sync und
+        # failt sofort, `npm install` regeneriert den Lock-Stand. Long-term-Fix
+        # waere `npm install && commit package-lock.json` im Source-Repo.
+        # --legacy-peer-deps: @mui/x-date-pickers@8.x clasht mit @mui/material@5.x.
+        run: npm install --legacy-peer-deps
 
       - name: Build SPA (npm run build -> ./build)
         run: npm run build
