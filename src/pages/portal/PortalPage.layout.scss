@@ -1,0 +1,13 @@
+
+.eeg-card {
+  min-width: 200px;
+  &.selected {
+    border-bottom: #2b6860  solid 5px;
+  }
+}
+
+.eeg-card-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
