@@ -146,12 +146,31 @@ jobs:
           subject-digest: ${{ steps.build.outputs.digest }}
           push-to-registry: true
 
-  # NOTE — Stufe 3: hier kommt ein zweiter Job `dispatch-deploy` rein,
-  # analog zu eegfaktura-filestore-rolling-release.yml.
-  # Erst aktivieren, wenn:
-  #   - Build oben mindestens 1x erfolgreich auf push-to-default-branch
-  #   - K8s-Manifest k8s/33-admin-frontend.yaml im Platform-Repo getestet
-  #     (zeigt schon auf ghcr.io/eegfaktura/eeg-registration-frontend:latest)
-  #   - Platform-Workflow deploy-on-dispatch.yml akzeptiert `deploy-admin-frontend`
-  #     bereits (Mapping ist drin)
-  #   - `PLATFORM_DEPLOY_PAT`-Secret im Source-Repo gesetzt
+  # Triggert das Platform-Repo, damit es den Cluster aktualisiert (Stufe 3).
+  # Laeuft nur bei push to default-branch (main/master), nicht bei PRs/Tags.
+  # Vorbedingung: PLATFORM_DEPLOY_PAT-Secret im Repo + Mapping
+  # `deploy-admin-frontend` in deploy-on-dispatch.yml (vorhanden) + Manifest
+  # k8s/33-admin-frontend.yaml zeigt auf vfeeg-development/...:latest (umgestellt).
+  dispatch-deploy:
+    needs: build-and-push-image
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy in platform repo
+        env:
+          GH_TOKEN: ${{ secrets.PLATFORM_DEPLOY_PAT }}
+        run: |
+          PAYLOAD=$(cat <<EOF
+          {
+            "event_type": "deploy-admin-frontend",
+            "client_payload": {
+              "image_tag": "latest",
+              "source_sha": "${GITHUB_SHA}",
+              "source_repo": "${GITHUB_REPOSITORY}",
+              "source_ref": "${GITHUB_REF}"
+            }
+          }
+          EOF
+          )
+          echo "$PAYLOAD" | gh api repos/vfeeg-development/eegfaktura-platform/dispatches --input -
+          echo "Dispatched deploy-admin-frontend for sha=${GITHUB_SHA:0:8}"
