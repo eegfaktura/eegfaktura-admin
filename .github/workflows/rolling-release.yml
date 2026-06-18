@@ -35,9 +35,10 @@ on:
 
 env:
   REGISTRY: "ghcr.io"
-  # Achtung: NICHT ${{ github.repository }} - das waere `eegfaktura/eegfaktura-admin`.
-  # Wir behalten den Legacy-Image-Namen aus der Makefile.
-  IMAGE_NAME: "eegfaktura/eeg-registration-frontend"
+  # Development-Tier (ADR-0005): Push nach vfeeg-development. Legacy-Image-Name
+  # eeg-registration-frontend (aus der Makefile) bewusst beibehalten — NICHT
+  # ${{ github.repository }} (= eegfaktura/eegfaktura-admin).
+  IMAGE_NAME: "vfeeg-development/eeg-registration-frontend"
 
 jobs:
   build-and-push-image:
@@ -124,7 +125,8 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          # Cross-Org-Push nach vfeeg-development — GITHUB_TOKEN reicht nicht.
+          password: ${{ secrets.VFEEG_DEV_PUSH_PAT }}
 
       - name: Build (PR) / Build and push (push)
         id: build
