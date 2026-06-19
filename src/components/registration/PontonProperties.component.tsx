@@ -21,7 +21,7 @@ const PontonPropertiesComponent: FC = () => {
     <Box className={"flex-col-mgap"} style={{padding: "16px"}} bgcolor={"background.paper"}>
       <h4>Netzbetreiber</h4>
       <OperatorSelect options={operators} control={control} name={"grid.id"} label="Netzbetreiber-ID"
-                      onSelect={(item) => item ? setValue("grid.name", item.name) : resetField("grid.name")}/>
+                      onSelect={(item) => item ? setValue("grid.name", item.name, {shouldValidate: true}) : resetField("grid.name")}/>
       <FormInputComponent name={"grid.name"} label="Netzbetreiber-Name" control={control}
                           rules={{required: "Netzbetreiber-Name fehlt"}} type="text"/>
 
