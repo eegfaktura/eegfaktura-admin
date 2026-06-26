@@ -1,46 +1,63 @@
-# Getting Started with Create React App
+# eegfaktura-admin
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+> Registration and administration web UI for the eegfaktura suite.
 
-## Available Scripts
+A single-page React application for onboarding and administering renewable energy
+communities (EEGs): registering EEGs and participants, managing metering points
+and grid-operator assignments, and performing administrative updates to EEG state.
+It talks to `eegfaktura-admin-backend` and authenticates via Keycloak (OIDC).
+(Container image: `eeg-registration-frontend`.)
 
-In the project directory, you can run:
+Part of the **eegfaktura** suite — an open-source billing and management platform
+for Austrian renewable energy communities (*Erneuerbare-Energiegemeinschaften*, EEG).
 
-### `npm start`
+## Tech stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- **TypeScript**, **React 18** (Create React App / `react-scripts`)
+- **Material-UI (MUI 5)** + MUI X Data Grid
+- **Redux Toolkit** + react-redux
+- **Keycloak / OIDC** (`keycloak-js`, `oidc-client-ts`, `react-oidc-context`)
+- react-hook-form + yup, react-router 6, `xlsx`
+- Served in production by **Caddy**
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Structure
 
-### `npm test`
+- `src/` — `components/`, `pages/`, `services/` (`EegService`, `PortalService`,
+  `AuthService`), `redux/`, `routes/`, `model/`
+- Entry point: `src/index.tsx`; runtime Keycloak config is fetched from
+  `public/config/keycloak-config.json`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Build
 
-### `npm run build`
+```bash
+npm install
+npm run build      # production bundle in build/
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Run
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Dev server:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+npm start          # http://localhost:3000
+```
 
-### `npm run eject`
+`setupProxy.js` proxies `/admin`, `/api` and `/cash` to local backend services.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+Docker: the built image serves `build/` via Caddy on port **8080**.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Configuration
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+- `REACT_APP_ADMIN_SERVER_URL` — admin backend base path (default `/admin`)
+- Runtime OIDC config: `public/config/keycloak-config.json` (authority, realm, client)
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Ports: dev **3000**; container **8080**.
 
-## Learn More
+## Dependencies
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- **eegfaktura-admin-backend** — REST API under `/admin`
+- **Keycloak** — OIDC authentication
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## License
+
+GNU Affero General Public License v3.0 (AGPL-3.0) — see [`LICENSE`](LICENSE).
