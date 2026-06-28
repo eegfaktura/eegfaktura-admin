@@ -1,11 +1,10 @@
 # Ziel: NEUE Workflow-Datei in eegfaktura/eegfaktura-admin (existiert dort
 # bisher nicht). Frontend-SPA, Caddy-served. Build-Flow:
 #   1. npm ci + npm run build -> erzeugt build/
-#   2. Dummy keycloak-config.json erzeugen (wird im Cluster per ConfigMap
-#      `eegfaktura-web-keycloak` ueberschrieben, muss nur im Build-Context
-#      existieren damit der `ADD keycloak-config.json /srv` im Dockerfile
-#      nicht failed).
-#   3. docker/build-push-action -> GHCR
+#   2. docker/build-push-action -> GHCR
+#      (keycloak-config.json ist als Caddy-Env-Template eingecheckt und wird
+#      via `ADD keycloak-config.json /srv` gebacken; Caddy rendert es zur
+#      Laufzeit aus KEYCLOAK_URL/_REALM/_CLIENT_ID — kein Runtime-Mount noetig)
 #
 # Image-Pfad: ghcr.io/eegfaktura/eeg-registration-frontend (Legacy-Name aus
 # der Makefile beibehalten, damit kein Image-Rename noetig ist).
@@ -80,13 +79,6 @@ jobs:
         env:
           TSC_COMPILE_ON_ERROR: "true"
         run: npm run build
-
-      - name: Stub keycloak-config.json for Docker build context
-        run: |
-          # Dockerfile macht `ADD keycloak-config.json /srv`. Im Cluster wird
-          # die Datei per ConfigMap-Mount (eegfaktura-web-keycloak) ueber-
-          # schrieben, deshalb reicht eine leere JSON.
-          echo '{}' > keycloak-config.json
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
