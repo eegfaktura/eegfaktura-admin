@@ -1,26 +1,24 @@
 # Changelog
 
-Alle nennenswerten Änderungen an **eegfaktura-admin (Admin-Frontend)** werden hier dokumentiert.
+All notable changes to **eegfaktura-admin (admin frontend)** are documented here.
 
-Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/),
-die Versionierung an den Deployment-Release-Tags. Detail-Diffs bleiben im `git log`;
-dieser Changelog hebt die für Überblick und Betrieb relevanten Änderungen hervor.
+The format is based on [Keep a Changelog](https://keepachangelog.com/), and
+versioning follows the deployment release tags. Detailed diffs stay in the `git log`;
+this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
 ## [1.0.0] – 2026-06-28
 
-Erster vollständig aus öffentlichem Quellcode gebauter Produktiv-Release.
+First production release built entirely from public source.
 
 ### Fixed
-- Konfiguration: `keycloak-config.json` wird als Env-Template ins Image gebacken
-  statt als leeres `{}`. (#7)
-- Registrierung: Validierungsfehler beim Netzbetreiber-Namen wird bei ID-Auswahl
-  abgeräumt. (#5)
+- Configuration: `keycloak-config.json` is baked into the image as an env template
+  instead of an empty `{}`. (#7)
+- Registration: clears the grid-operator name validation error on ID selection. (#5)
 
 ### Changed
-- Quellcode aus Sourcemaps wiederhergestellt, damit der Admin-Frontend aus Source
-  baut. (#1)
-- CI: Push in den Development-Tier der Registry mit Auto-Rollout-Bridge
+- Restored source files from source maps so the admin frontend builds from source. (#1)
+- CI: push to the registry's development tier with an auto-rollout bridge
   (dispatch-deploy). (#3, #4)
-- AGPL-3.0-Lizenz ergänzt; README mit Service-Überblick und Tech-Stack. (#2, #6)
+- Added AGPL-3.0 license; README with service overview and tech stack. (#2, #6)
