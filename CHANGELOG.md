@@ -8,8 +8,6 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
-## [1.0.1] – 2026-06-30
-
 ### Fixed
 - Portal manager: the metering point "Aktiv"/"Inaktiv" dates can now be edited
   reliably. The native `type="date"` inputs followed the browser locale for the
