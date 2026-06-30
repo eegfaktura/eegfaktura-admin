@@ -8,6 +8,19 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+## [1.0.1] – 2026-06-30
+
+### Fixed
+- Portal manager: the metering point "Aktiv"/"Inaktiv" dates can now be edited
+  reliably. The native `type="date"` inputs followed the browser locale for the
+  segment order ("month is weird") and frequently dropped the entered value;
+  replaced them with a localized MUI DatePicker (`DD.MM.YYYY`) in both the
+  process-state dialog and the date-cell editors. (#14)
+
+### Changed
+- Added `@mui/x-date-pickers` and a root `LocalizationProvider` (moment adapter,
+  `de` locale) so date entry is consistent across the admin web. (#14)
+
 ## [1.0.0] – 2026-06-28
 
 First production release built entirely from public source.

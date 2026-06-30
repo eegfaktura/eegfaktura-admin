@@ -11,12 +11,12 @@ import {
   FormControl, FormControlLabel,
   IconButton,
   Radio,
-  RadioGroup,
-  TextField
+  RadioGroup
 } from "@mui/material";
 import { ModeEditRounded } from '@mui/icons-material';
 
 import {DataGrid, GridColDef, GridRenderCellParams, useGridApiRef} from "@mui/x-data-grid";
+import {DatePicker} from "@mui/x-date-pickers";
 import moment from 'moment'
 import {Controller, FormState, useForm} from "react-hook-form";
 import {Api} from "../../services/eeg.service";
@@ -146,20 +146,12 @@ const ProcessStateEditor: FC<{params: GridRenderCellParams<Metering, string>, up
               rules={{ required: true }}
               control={control}
               name="activeSince"
-              render={({ field }) => (<TextField
-                id="date"
+              render={({ field }) => (<DatePicker
                 label="Active seit ..."
-                type="date"
-              // defaultValue={moment(params.row.activeSince).format("YYYY-MM-DD")}
-                sx={{ width: 220, padding: "2 2" }}
-                size="small"
-                required={true}
-              // onChange={(e) => setActiveDate(moment(e.target.value).toDate())}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                {...field}
-                value={moment(field.value).format("YYYY-MM-DD")}
+                format="DD.MM.YYYY"
+                value={field.value ? moment(field.value) : null}
+                onChange={(newValue) => { if (newValue) field.onChange(newValue.toDate()) }}
+                slotProps={{textField: {id: "date", size: "small", required: true, sx: {width: 220}}}}
                 />)}
             />}
             <FormControlLabel value="INACTIVE" control={<Radio />} label="Zählpunkt INACTIVE" />
@@ -167,18 +159,12 @@ const ProcessStateEditor: FC<{params: GridRenderCellParams<Metering, string>, up
                 rules={{ required: true }}
                 control={control}
                 name="inactiveSince"
-                render={({ field }) => (<TextField
-                  id="date"
+                render={({ field }) => (<DatePicker
                   label="Inactive seit ..."
-                  type="date"
-                  sx={{ width: 220, padding: "2 2" }}
-                  size="small"
-                  required={true}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  {...field}
-                  value={moment(field.value).format("YYYY-MM-DD")}
+                  format="DD.MM.YYYY"
+                  value={field.value ? moment(field.value) : null}
+                  onChange={(newValue) => { if (newValue) field.onChange(newValue.toDate()) }}
+                  slotProps={{textField: {id: "date", size: "small", required: true, sx: {width: 220}}}}
                 />)}
             />}
             <FormControlLabel value="INIT" control={<Radio />} label="Registrierung noch nicht gestartet" />
