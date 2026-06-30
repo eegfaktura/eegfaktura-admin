@@ -8,6 +8,8 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+## [1.0.1] – 2026-06-30
+
 ### Security
 - Pinned vulnerable transitive dependencies via npm `overrides` to clear the
   critical Dependabot alerts: `@babel/traverse` ≥7.23.2, `form-data` ≥3.0.4,
