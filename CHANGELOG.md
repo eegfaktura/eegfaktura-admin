@@ -8,6 +8,12 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+### Security
+- Pinned vulnerable transitive dependencies via npm `overrides` to clear the
+  critical Dependabot alerts: `@babel/traverse` ≥7.23.2, `form-data` ≥3.0.4,
+  `shell-quote` ≥1.8.4 (all from the `react-scripts` build/test toolchain) and
+  `crypto-js` ≥4.2.0 (via `oidc-client-ts`). No runtime behaviour change.
+
 ### Fixed
 - Portal manager: the metering point "Aktiv"/"Inaktiv" dates can now be edited
   reliably. The native `type="date"` inputs followed the browser locale for the
