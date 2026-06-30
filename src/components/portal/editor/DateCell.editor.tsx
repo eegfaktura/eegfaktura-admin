@@ -5,7 +5,8 @@ import {AdminUpdateData} from "../../../model/admin.model";
 import {Api} from "../../../services/eeg.service";
 import {Controller, useForm} from "react-hook-form";
 import {editDialog} from "../CellEdit.dialog";
-import {FormControl, TextField} from "@mui/material";
+import {FormControl} from "@mui/material";
+import {DatePicker} from "@mui/x-date-pickers";
 import moment from "moment/moment";
 import {CellEditElement} from "./CellEdit.element";
 
@@ -46,18 +47,12 @@ export const DateCellEditor: FC<{params: GridRenderCellParams<Metering, any>, la
               rules={{ required: true }}
               control={control}
               name={propertyName}
-              render={({ field }) => (<TextField
-                id="date"
+              render={({ field }) => (<DatePicker
                 label={label}
-                type="date"
-                sx={{ width: 220, padding: "2 2" }}
-                size="small"
-                required={true}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                {...field}
-                value={moment(field.value as Date).format("YYYY-MM-DD")}
+                format="DD.MM.YYYY"
+                value={field.value ? moment(field.value as moment.MomentInput) : null}
+                onChange={(newValue) => { if (newValue) field.onChange(newValue.toDate()) }}
+                slotProps={{textField: {id: "date", size: "small", required: true, sx: {width: 220}}}}
               />)}
             />
           </FormControl>

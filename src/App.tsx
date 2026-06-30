@@ -5,6 +5,9 @@ import { routes } from "./routes";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import {hasAuthParams, useAuth} from "react-oidc-context";
 import {createTheme, ThemeOptions, ThemeProvider} from "@mui/material";
+import {LocalizationProvider} from "@mui/x-date-pickers";
+import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
+import "moment/locale/de";
 
 export const IDENTITY_CONFIG = {
   response_type: "id_token token",
@@ -47,6 +50,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
+    <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale="de">
     <div>
       <BrowserRouter>
         <Routes>
@@ -56,6 +60,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </div>
+    </LocalizationProvider>
     </ThemeProvider>
   );
 }
