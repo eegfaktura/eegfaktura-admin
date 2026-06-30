@@ -67,5 +67,11 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "overrides": {
+    "@babel/traverse": "^7.23.2",
+    "form-data": "^3.0.4",
+    "shell-quote": "^1.8.4",
+    "crypto-js": "^4.2.0"
   }
 }
