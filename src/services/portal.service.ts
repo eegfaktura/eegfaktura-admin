@@ -91,4 +91,30 @@ export class PortalService {
       }
     });
   }
+
+  // Ops: delete raw energy data of one metering point in a time range (dryRun previews
+  // the affected amount without writing). The tenant travels in the body; admin-backend
+  // gates on the superuser role and forwards to energystore.
+  async deleteRawData(props: { tenant: string, ecId: string, meteringPoint: string, start: number, end: number, dryRun: boolean }): Promise<RawDataDeleteResult> {
+    const token = await this.getUser()
+    const res = await fetch(`${ADMIN_API_SERVER}/admin/energystore/rawdata/delete`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(props)
+    });
+    if (!res.ok) {
+      throw new Error(`Anfrage fehlgeschlagen (${res.status})`);
+    }
+    return await res.json();
+  }
+}
+
+export interface RawDataDeleteResult {
+  meteringPoint: string,
+  affectedTimesteps: number,
+  sumKwh: number,
+  deleted: boolean,
 }

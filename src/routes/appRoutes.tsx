@@ -4,9 +4,10 @@ import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import RegistrationPage from "../pages/registration/Registration.page";
 import RegistrationPontonPage from "../pages/registration/RegistrationPonton.page";
 import RegistrationPageLayout from "../pages/registration/RegistrationPageLayout";
-import {EditNoteTwoTone, ManageAccountsTwoTone} from "@mui/icons-material";
+import {DeleteForeverTwoTone, EditNoteTwoTone, ManageAccountsTwoTone} from "@mui/icons-material";
 import PortalPageLayout from "../pages/portal/PortalPageLayout";
 import PortalOverview from "../pages/portal/PortalOverview";
+import RawDataDeletePage from "../pages/ops/RawDataDeletePage";
 
 const appRoutes: RouteType[] = [
   {
@@ -43,6 +44,15 @@ const appRoutes: RouteType[] = [
     sidebarProps: {
       displayText: "Portal Manager",
       icon: <ManageAccountsTwoTone/>
+    },
+  },
+  {
+    element: <RawDataDeletePage/>,
+    state: "rawDataDelete",
+    path: "/rawdata-delete",
+    sidebarProps: {
+      displayText: "Energiedaten löschen",
+      icon: <DeleteForeverTwoTone/>
     },
   }
   //   child: [

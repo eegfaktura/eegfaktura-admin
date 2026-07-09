@@ -8,6 +8,14 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+### Added
+- Ops page "Energiedaten löschen" (`/rawdata-delete`): delete the raw energy data of a single
+  metering point within a time range (energystore v1). Two-step flow — dry-run preview shows the
+  affected timesteps + summed kWh, then a double-confirm (retype the metering point) executes the
+  irreversible zeroing. Calls admin-backend `POST /admin/energystore/rawdata/delete`
+  (`{tenant, ecId, meteringPoint, start, end, dryRun}`) with the operator bearer; the backend gates
+  on the `superuser` role.
+
 ### Changed
 - CI: Preview-Deployments (ADR-0007) — Push auf `preview/**` baut+deployt on-demand in die Dev-Zone (sha-pinned, kein `:latest`), Auto-Reset bei Branch-Delete.
 
