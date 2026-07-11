@@ -8,6 +8,19 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+## [1.1.0] – 2026-07-11
+
+### Added
+- Ops page "Energiedaten löschen" (`/rawdata-delete`): delete the raw energy data of a single
+  metering point within a time range (energystore v1). Two-step flow — dry-run preview shows the
+  affected timesteps + summed kWh, then a double-confirm (retype the metering point) executes the
+  irreversible zeroing. Calls **energystore directly** (`POST ${REACT_APP_ENERGY_SERVER_URL}/eeg/v2/
+  {ecId}/rawdata/delete`, same-origin via the admin host's `/energystore` route) with the operator
+  bearer + `tenant` header — no backend-to-backend hop; energystore enforces the `superuser` role on
+  the endpoint. The community field is labelled **Gemeinschafts-ID** (the long `AT…` community id from
+  the EEG properties, not the short EC-Nummer) with a helper text. Requires each environment's admin
+  ingress to expose `/energystore` → energystore (dev done; prod via gitops).
+
 ### Changed
 - CI: Preview-Deployments (ADR-0007) — Push auf `preview/**` baut+deployt on-demand in die Dev-Zone (sha-pinned, kein `:latest`), Auto-Reset bei Branch-Delete.
 
