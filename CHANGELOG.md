@@ -8,25 +8,20 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+## [1.1.0] – 2026-07-11
+
 ### Added
 - Ops page "Energiedaten löschen" (`/rawdata-delete`): delete the raw energy data of a single
   metering point within a time range (energystore v1). Two-step flow — dry-run preview shows the
   affected timesteps + summed kWh, then a double-confirm (retype the metering point) executes the
-  irreversible zeroing. Calls admin-backend `POST /admin/energystore/rawdata/delete`
-  (`{tenant, ecId, meteringPoint, start, end, dryRun}`) with the operator bearer; the backend gates
-  on the `superuser` role.
+  irreversible zeroing. Calls **energystore directly** (`POST ${REACT_APP_ENERGY_SERVER_URL}/eeg/v2/
+  {ecId}/rawdata/delete`, same-origin via the admin host's `/energystore` route) with the operator
+  bearer + `tenant` header — no backend-to-backend hop; energystore enforces the `superuser` role on
+  the endpoint. The community field is labelled **Gemeinschafts-ID** (the long `AT…` community id from
+  the EEG properties, not the short EC-Nummer) with a helper text. Requires each environment's admin
+  ingress to expose `/energystore` → energystore (dev done; prod via gitops).
 
 ### Changed
-- Ops page "Energiedaten löschen" now calls **energystore directly** (`POST
-  ${REACT_APP_ENERGY_SERVER_URL}/eeg/v2/{ecId}/rawdata/delete`, same-origin via the admin host's
-  `/energystore` route) instead of proxying through admin-backend. This removes the only
-  backend-to-backend REST hop (restoring the "web orchestrates; no sync backend↔backend REST"
-  topology) and the aud/ENERGYSTORE_URL coupling it required. energystore already enforces the
-  superuser role on this endpoint. Requires each environment's admin ingress to expose
-  `/energystore` → energystore (added in dev; prod via gitops).
-- Ops page "Energiedaten löschen": the `EC / ecId` field is renamed to **Gemeinschafts-ID** to match
-  the term used in the EEG properties in the main web app (it expects the long `AT…` community id, not
-  the short EC-Nummer). Added a helper text to prevent entering the EC-Nummer by mistake.
 - CI: Preview-Deployments (ADR-0007) — Push auf `preview/**` baut+deployt on-demand in die Dev-Zone (sha-pinned, kein `:latest`), Auto-Reset bei Branch-Delete.
 
 ## [1.0.1] – 2026-06-30
