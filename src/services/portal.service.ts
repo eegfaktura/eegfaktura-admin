@@ -4,6 +4,7 @@ import moment from "moment";
 import {AdminUpdateData} from "../model/admin.model";
 
 const ADMIN_API_SERVER = process.env.REACT_APP_ADMIN_SERVER_URL;
+const ENERGY_SERVER = process.env.REACT_APP_ENERGY_SERVER_URL;
 
 export class PortalService {
 
@@ -93,17 +94,25 @@ export class PortalService {
   }
 
   // Ops: delete raw energy data of one metering point in a time range (dryRun previews
-  // the affected amount without writing). The tenant travels in the body; admin-backend
-  // gates on the superuser role and forwards to energystore.
+  // the affected amount without writing). Calls energystore directly (same-origin via the
+  // admin host's /energystore route) — no backend-to-backend hop. energystore's
+  // superuser-aware middleware authorizes the cross-tenant call; the tenant travels as a
+  // header, the ecId as a path segment.
   async deleteRawData(props: { tenant: string, ecId: string, meteringPoint: string, start: number, end: number, dryRun: boolean }): Promise<RawDataDeleteResult> {
     const token = await this.getUser()
-    const res = await fetch(`${ADMIN_API_SERVER}/admin/energystore/rawdata/delete`, {
+    const res = await fetch(`${ENERGY_SERVER}/eeg/v2/${encodeURIComponent(props.ecId)}/rawdata/delete`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'tenant': props.tenant,
       },
-      body: JSON.stringify(props)
+      body: JSON.stringify({
+        meteringPoint: props.meteringPoint,
+        start: props.start,
+        end: props.end,
+        dryRun: props.dryRun,
+      })
     });
     if (!res.ok) {
       throw new Error(`Anfrage fehlgeschlagen (${res.status})`);

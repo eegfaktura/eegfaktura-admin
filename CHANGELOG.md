@@ -17,6 +17,13 @@ this changelog highlights the changes relevant for overview and operations.
   on the `superuser` role.
 
 ### Changed
+- Ops page "Energiedaten löschen" now calls **energystore directly** (`POST
+  ${REACT_APP_ENERGY_SERVER_URL}/eeg/v2/{ecId}/rawdata/delete`, same-origin via the admin host's
+  `/energystore` route) instead of proxying through admin-backend. This removes the only
+  backend-to-backend REST hop (restoring the "web orchestrates; no sync backend↔backend REST"
+  topology) and the aud/ENERGYSTORE_URL coupling it required. energystore already enforces the
+  superuser role on this endpoint. Requires each environment's admin ingress to expose
+  `/energystore` → energystore (added in dev; prod via gitops).
 - Ops page "Energiedaten löschen": the `EC / ecId` field is renamed to **Gemeinschafts-ID** to match
   the term used in the EEG properties in the main web app (it expects the long `AT…` community id, not
   the short EC-Nummer). Added a helper text to prevent entering the EC-Nummer by mistake.
