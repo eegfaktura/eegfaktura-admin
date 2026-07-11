@@ -83,7 +83,8 @@ const RawDataDeletePage: FC = () => {
       <Stack spacing={2}>
         <TextField label="Tenant (z. B. RC100000)" value={tenant}
                    onChange={(e) => {setTenant(e.target.value); resetFlow();}} fullWidth/>
-        <TextField label="EC / ecId" value={ecId}
+        <TextField label="Gemeinschafts-ID" value={ecId}
+                   helperText="Lange AT…-Nummer aus den EEG-Eigenschaften (nicht die EC-Nummer)"
                    onChange={(e) => {setEcId(e.target.value); resetFlow();}} fullWidth/>
         <TextField label="Zählpunkt" value={meteringPoint}
                    onChange={(e) => {setMeteringPoint(e.target.value); resetFlow();}} fullWidth/>

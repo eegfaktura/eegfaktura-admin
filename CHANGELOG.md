@@ -17,6 +17,9 @@ this changelog highlights the changes relevant for overview and operations.
   on the `superuser` role.
 
 ### Changed
+- Ops page "Energiedaten löschen": the `EC / ecId` field is renamed to **Gemeinschafts-ID** to match
+  the term used in the EEG properties in the main web app (it expects the long `AT…` community id, not
+  the short EC-Nummer). Added a helper text to prevent entering the EC-Nummer by mistake.
 - CI: Preview-Deployments (ADR-0007) — Push auf `preview/**` baut+deployt on-demand in die Dev-Zone (sha-pinned, kein `:latest`), Auto-Reset bei Branch-Delete.
 
 ## [1.0.1] – 2026-06-30
