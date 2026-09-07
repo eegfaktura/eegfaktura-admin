@@ -8,6 +8,13 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+## [1.1.1] – 2026-09-07
+
+### Changed
+- Dependency maintenance only: `@remix-run/router`/`react-router-dom`, `brace-expansion`,
+  `body-parser`/`express`, `immutable` and `websocket-driver` updated, plus Dependabot now
+  watching the `docker` ecosystem. No functional changes to the admin portal.
+
 ## [1.1.0] – 2026-07-11
 
 ### Added
