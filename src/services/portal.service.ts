@@ -115,10 +115,63 @@ export class PortalService {
       })
     });
     if (!res.ok) {
-      throw new Error(`Anfrage fehlgeschlagen (${res.status})`);
+      throw new Error(await describeRawDataDeleteError(res));
     }
     return await res.json();
   }
+}
+
+// Turns a failed response into something the operator can act on. The previous
+// message was just "Anfrage fehlgeschlagen (403)", which cost a round of support
+// questions: a 403 here almost always means the account lacks the superuser realm
+// role, and nothing in the UI said so.
+//
+// Two shapes come back from energystore: the delete handler answers with
+// {"error": "..."} (rest/common.go respondWithError), while the auth middleware
+// writes a bare status with no body at all. So the server detail is appended when
+// there is one, but the explanation must stand on its own without it.
+async function describeRawDataDeleteError(res: Response): Promise<string> {
+  let detail = "";
+  try {
+    const raw = await res.text();
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        detail = typeof parsed?.error === "string" ? parsed.error : raw;
+      } catch {
+        detail = raw;
+      }
+      detail = detail.trim().slice(0, 200);
+    }
+  } catch {
+    // Body unreadable — the status alone still carries the explanation below.
+  }
+
+  let message: string;
+  switch (res.status) {
+    case 401:
+      message = "Nicht angemeldet oder Sitzung abgelaufen (401). Bitte neu anmelden und erneut versuchen.";
+      break;
+    case 403:
+      message = "Keine Berechtigung (403). Dieses Werkzeug setzt die Realm-Rolle „superuser“ voraus. "
+        + "Wurde sie gerade erst zugewiesen, ist einmal Ab- und Anmelden nötig — Rollen stehen im "
+        + "Token und werden bei der Ausstellung festgeschrieben.";
+      break;
+    case 400:
+      message = "Ungültige Eingabe (400). Bitte Gemeinschafts-ID (lange AT…-Nummer), Zählpunkt und "
+        + "Zeitraum prüfen.";
+      break;
+    case 404:
+      message = "Nicht gefunden (404). Gemeinschafts-ID prüfen — für diese EEG gibt es keinen "
+        + "Datenbestand in energystore.";
+      break;
+    default:
+      message = res.status >= 500
+        ? `Serverfehler (${res.status}). Der Dienst konnte die Anfrage nicht verarbeiten; bitte später erneut versuchen.`
+        : `Anfrage fehlgeschlagen (${res.status}).`;
+  }
+
+  return detail ? `${message} [Server: ${detail}]` : message;
 }
 
 export interface RawDataDeleteResult {

@@ -78,6 +78,8 @@ const RawDataDeletePage: FC = () => {
         Löscht die Energiedaten <strong>eines Zählpunkts</strong> im gewählten Zeitraum
         (energystore&nbsp;v1). Die Werte werden auf 0 gesetzt — <strong>endgültig, kein
         Undo</strong>. Zuerst Vorschau, dann zur Bestätigung den Zählpunkt erneut eingeben.
+        <br/>
+        Erfordert die Realm-Rolle <strong>superuser</strong> — auch für die Vorschau.
       </Alert>
 
       <Stack spacing={2}>

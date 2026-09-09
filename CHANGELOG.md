@@ -24,6 +24,19 @@ this changelog highlights the changes relevant for overview and operations.
   The page also states that a freshly assigned role needs a new sign-in, since roles are frozen
   into the token when it is issued — the question that follows immediately otherwise.
 
+### Changed
+- The raw-data delete tool now explains why a request was rejected instead of showing
+  "Anfrage fehlgeschlagen (403)". A 403 here almost always means the account lacks the
+  `superuser` realm role, and nothing said so — it cost a round of support questions before
+  anyone looked at the server logs. The page now names the requirement up front in the warning
+  box, and the error text spells out the fix, including that a freshly assigned role only takes
+  effect after signing out and back in (roles are frozen into the token when it is issued).
+
+  Both response shapes are handled: energystore's delete handler answers with
+  `{"error": "..."}`, while its auth middleware writes a bare status with no body at all. The
+  server detail is appended when present, but each message stands on its own without it.
+  401, 400, 404 and 5xx get their own wording for the same reason.
+
 ## [1.1.1] – 2026-09-07
 
 ### Changed
