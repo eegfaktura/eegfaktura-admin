@@ -8,6 +8,8 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+## [1.1.2] – 2026-09-09
+
 ### Security
 - The portal now shows a single, explicit "no access" page to accounts without the `superuser`
   realm role, instead of a fully navigable UI that fails with 403 on every action. The role is
