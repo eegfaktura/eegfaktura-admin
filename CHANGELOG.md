@@ -8,6 +8,22 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+### Security
+- The portal now shows a single, explicit "no access" page to accounts without the `superuser`
+  realm role, instead of a fully navigable UI that fails with 403 on every action. The role is
+  read from the access token, which already carries `realm_access.roles` — no Keycloak change
+  needed.
+
+  To be explicit about what this is: **a display decision, not a security control.** The
+  boundary is enforced server-side (admin-backend requires the role on all routes since 1.0.3,
+  energystore additionally on the raw-data delete). The token is decoded here, not verified —
+  verifying a signature in the browser would secure nothing the server does not decide anyway.
+  The point is that someone without the role learns why, in one place, instead of hitting a
+  bare 403 on each attempt.
+
+  The page also states that a freshly assigned role needs a new sign-in, since roles are frozen
+  into the token when it is issued — the question that follows immediately otherwise.
+
 ### Changed
 - The raw-data delete tool now explains why a request was rejected instead of showing
   "Anfrage fehlgeschlagen (403)". A 403 here almost always means the account lacks the

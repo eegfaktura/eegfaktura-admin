@@ -7,6 +7,8 @@ import {hasAuthParams, useAuth} from "react-oidc-context";
 import {createTheme, ThemeOptions, ThemeProvider} from "@mui/material";
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
+import AccessDenied from "./components/layout/AccessDenied";
+import {hasSuperuserRole} from "./services/superuser";
 import "moment/locale/de";
 
 export const IDENTITY_CONFIG = {
@@ -47,6 +49,24 @@ function App() {
       auth.signinRedirect();
     }
   }, [auth.isAuthenticated, auth.activeNavigator, auth.isLoading, auth.signinRedirect]);
+
+  // Dieses Portal ist ein Betriebswerkzeug: es verwaltet Stammdaten und Energiedaten
+  // ueber alle Energiegemeinschaften hinweg. Der Keycloak-Client ist ein oeffentlicher
+  // Client mit Standard-Flow, jeder Realm-Nutzer kann sich also anmelden. Wer die Rolle
+  // nicht hat, bekommt hier EINE klare Meldung statt einer scheinbar bedienbaren
+  // Oberflaeche, die bei jeder Aktion mit 403 abbricht.
+  //
+  // Durchgesetzt wird die Berechtigung serverseitig (admin-backend); dies ist die
+  // Anzeige dazu, kein Ersatz.
+  const superuser = hasSuperuserRole(auth.user?.access_token);
+
+  if (auth.isAuthenticated && !superuser) {
+    return (
+      <ThemeProvider theme={theme}>
+        <AccessDenied/>
+      </ThemeProvider>
+    );
+  }
 
   return (
     <ThemeProvider theme={theme}>
