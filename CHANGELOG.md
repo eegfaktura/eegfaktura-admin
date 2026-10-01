@@ -8,6 +8,15 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+### Security
+- The image no longer runs as root. Caddy listens above port 1024 per `caddy.conf`, so the
+  privileges were never needed. A dedicated `app` user (UID/GID 1000) owns Caddy's XDG
+  directories `/data` and `/config`; without that it fails on startup while writing its own
+  state. The served files under `/var/www` stay root-owned, Caddy only reads them.
+- The base image is pinned to `caddy:2.8.4` instead of `caddy:latest`. A floating tag meant
+  every build could pull an arbitrary new Caddy version without anyone noticing. Same version
+  as eegfaktura-web.
+
 ### Added
 - CI builds `env/**` branches and deploys the resulting image into the matching feature
   environment (ADR-0008): a push to `env/<name>` pins this service in namespace `env-<name>`
