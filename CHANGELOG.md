@@ -8,6 +8,8 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+## [1.1.3] – 2026-10-04
+
 ### Security
 - The image no longer runs as root. Caddy listens above port 1024 per `caddy.conf`, so the
   privileges were never needed. A dedicated `app` user (UID/GID 1000) owns Caddy's XDG
