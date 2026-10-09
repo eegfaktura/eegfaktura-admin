@@ -1,7 +1,8 @@
 # Tests on every pull request: the unit tests (Jest through react-scripts) and the full suite (the
 # tests with coverage, then the production build as rolling-release.yml makes it). "Type check"
 # reports the TypeScript errors the release build skips (TSC_COMPILE_ON_ERROR, known-errors #4) on
-# its own, so the test jobs keep a clean signal; it stays red until they are fixed.
+# its own, so the test jobs keep a clean signal; it stays red until they are fixed. The stale CRA
+# sample test src/App.test.tsx (known-errors #3) runs only in "Known errors".
 # Versions fixed, each release older than 7 days (checked 2026-10-09): Node 20.18.0, npm as shipped
 # with it, dependencies exactly from package-lock.json (npm ci). Actions pinned by commit SHA.
 
@@ -43,7 +44,7 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Unit tests
-        run: npx react-scripts test --watchAll=false
+        run: npx react-scripts test --watchAll=false --testPathIgnorePatterns src/App.test.tsx
 
   full:
     name: Full test suite
@@ -65,7 +66,7 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Tests with coverage
-        run: npx react-scripts test --watchAll=false --coverage
+        run: npx react-scripts test --watchAll=false --coverage --testPathIgnorePatterns src/App.test.tsx
 
       - name: Production build
         env:
@@ -93,3 +94,25 @@ jobs:
 
       - name: tsc
         run: npx tsc --noEmit
+
+  known:
+    name: Known errors
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Stale CRA sample test (known-errors #3)
+        run: npx react-scripts test --watchAll=false src/App.test.tsx
