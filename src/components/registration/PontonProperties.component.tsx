@@ -1,5 +1,5 @@
 import React, {FC} from "react";
-import {useFormContext, useWatch} from "react-hook-form";
+import {useFormContext} from "react-hook-form";
 import {Box} from "@mui/material";
 import FormInputComponent from "../form/FormInput.component";
 import FormCheckboxComponent from "../form/FormCheckbox.component";
@@ -12,7 +12,6 @@ const PontonPropertiesComponent: FC = () => {
   const {control, watch, setValue, resetField} = useFormContext()
 
   const online = watch ? watch("online") : false
-  const [commType] = useWatch({control: control, name: ['pontonInfo.pontonCommType']})
 
   const operators = useSelector(selectGridOperators)
 
@@ -36,24 +35,7 @@ const PontonPropertiesComponent: FC = () => {
                            options={[
                              {key: "NONE", value: "ignorieren / bereits konfiguriert"},
                              {key: "KEP", value: "Kep Server"},
-                             {key: "MAIL", value: "E-Mail"},
                            ]} disabled={!online}></FormSelectComponent>
-      {commType === 'MAIL' &&
-          <>
-              <FormInputComponent name={"pontonInfo.host"} label="Ponton SMTP Hostname" control={control} type="text"
-                                  disabled={!online}/>
-              <FormInputComponent name={"pontonInfo.port"} label="Ponton SMTP Portnummer" control={control} type="text"
-                                  disabled={!online}/>
-              <FormInputComponent name={"pontonInfo.username"} label="Ponton SMTP Username" control={control}
-                                  type="text" disabled={!online}/>
-              <FormInputComponent name={"pontonInfo.password"} label="Passwort" control={control} type="password"
-                                  disabled={!online}/>
-              <FormInputComponent name={"pontonInfo.confirmPassword"} label="Passwort bestätigen" control={control}
-                                  type="password"
-                                  rules={online ? {validate: (value: string) => (watch ? value === watch("pontonInfo.password") : false) || "Ponton Passwords do not match"} : undefined}
-                                  disabled={!online}/>
-          </>
-      }
     </Box>
     </form>
   )

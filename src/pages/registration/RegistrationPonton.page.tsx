@@ -16,9 +16,9 @@ const RegistrationPontonPage: FC = () => {
     tenant: "", rcNumber: "", pontonInfo: {password: "", domain: "edanet.at", username: "", pontonCommType: "KEP"},
   } as PontonRegister
 
-  const {handleSubmit, control, setValue, watch, formState: {errors}, reset} = useForm<PontonRegister>({defaultValues: pontonReg})
+  const {handleSubmit, control, setValue, formState: {errors}, reset} = useForm<PontonRegister>({defaultValues: pontonReg})
 
-  const [commType, rcNumber] = useWatch({control: control, name: ['pontonInfo.pontonCommType', 'rcNumber']})
+  const rcNumber = useWatch({control: control, name: 'rcNumber'})
 
   useEffect(() => {
     setValue("tenant", rcNumber)
@@ -79,20 +79,7 @@ const RegistrationPontonPage: FC = () => {
 
       <FormSelectComponent control={control} label={"Ponton Kommunikation"} name={"pontonInfo.pontonCommType"} options={[
         {key: "KEP", value: "Kep Server"},
-        {key: "MAIL", value: "E-Mail"},
       ]}></FormSelectComponent>
-      {commType === 'MAIL' &&
-          <>
-              <FormInputComponent name={"pontonInfo.domain"} label="Ponton SMTP Domain Name" control={control} type="text"
-                                  rules={{required: "Email Domainname fehlt!"}}/>
-              <FormInputComponent name={"pontonInfo.username"} label="Ponton SMTP Username" control={control} type="text"
-                                  rules={{required: "Email Benutzername fehlt!"}}/>
-              <FormInputComponent name={"pontonInfo.password"} label="Passwort" control={control} type="password"
-                                  rules={{required: "Passwort fehlt!"}}/>
-              <FormInputComponent name={"pontonInfo.confirmPassword"} label="Passwort bestätigen" control={control} type="password"
-                                  rules={{validate: (value: string) => (watch ? value === watch("pontonInfo.password") : false) || "Ponton Passwords do not match"}}/>
-          </>
-      }
       <div style={{flex: "0 1 40px"}}>
         <Box sx={{display: 'flex', flexDirection: 'row', pt: 2}}>
           <Box sx={{flex: '1 1 auto'}}/>

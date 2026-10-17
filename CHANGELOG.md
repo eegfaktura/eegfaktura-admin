@@ -21,6 +21,10 @@ this changelog highlights the changes relevant for overview and operations.
 ### Removed
 - The unused service function `getEegUser` (`GET /eeg/users`, no caller in the UI) and its
   `EegUsers` model; eegfaktura-admin-backend#25 removes the endpoint.
+- The Ponton communication type "E-Mail" (`MAIL`) and its SMTP fields in the EEG registration
+  and the Ponton registration form. The mail transport is no longer used and
+  eegfaktura-admin-backend#25 rejects it with 400. "Kep Server" and (in the EEG registration)
+  "ignorieren / bereits konfiguriert" stay; the model still accepts `MAIL`.
 
 ## [1.1.3] – 2026-10-04
 
