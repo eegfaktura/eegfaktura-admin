@@ -77,8 +77,6 @@ jobs:
     name: Type check
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # Report-only: known type errors are reported, not blocking.
-    continue-on-error: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -94,15 +92,20 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
+      # Report-only: known type errors are reported, not blocking.
       - name: tsc
+        id: check
+        continue-on-error: true
         run: npx tsc --noEmit
+
+      - name: Report-only result
+        if: steps.check.outcome == 'failure'
+        run: echo "::warning title=Type check::report-only, not blocking - tsc reports type errors (see the tsc step)"
 
   known:
     name: Known errors
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # Report-only: known failing tests are reported, not blocking.
-    continue-on-error: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -118,5 +121,12 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
+      # Report-only: known failing tests are reported, not blocking.
       - name: Stale CRA sample test
+        id: check
+        continue-on-error: true
         run: npx react-scripts test --watchAll=false src/App.test.tsx
+
+      - name: Report-only result
+        if: steps.check.outcome == 'failure'
+        run: echo "::warning title=Known errors::report-only, not blocking - a known failing test failed (see the test step)"
