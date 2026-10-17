@@ -8,6 +8,24 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+### Fixed
+- The Ponton registration page no longer reports success when the registration failed.
+  admin-backend answers `POST /eeg/ponton` with HTTP 200 and puts the real outcome as
+  `status`/`message` in the body; the UI now treats a body status outside 200–299 as an error
+  and shows the backend's message, with the hint that the registration at Ponton may already
+  have happened. The page also displays its success/error message at all (it was set but never
+  rendered), keeps the form filled after an error and disables "Finish" while the request
+  runs. Requires eegfaktura-admin-backend#25: older admin-backend
+  versions report status 500 even on success, so this must not be released before it.
+
+### Removed
+- The unused service function `getEegUser` (`GET /eeg/users`, no caller in the UI) and its
+  `EegUsers` model; eegfaktura-admin-backend#25 removes the endpoint.
+- The Ponton communication type "E-Mail" (`MAIL`) and its SMTP fields in the EEG registration
+  and the Ponton registration form. The mail transport is no longer used and
+  eegfaktura-admin-backend#25 rejects it with 400. "Kep Server" and (in the EEG registration)
+  "ignorieren / bereits konfiguriert" stay; the model still accepts `MAIL`.
+
 ## [1.1.3] – 2026-10-04
 
 ### Security

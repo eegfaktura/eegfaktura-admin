@@ -1,4 +1,4 @@
-import {EegMember, EegParticipant, EegRegister, EegUsers, GridOperator, PontonRegister} from "../model/eeg.model";
+import {EegMember, EegParticipant, EegRegister, GridOperator, PontonRegister, PontonRegisterResponse} from "../model/eeg.model";
 import {AuthService} from "./auth.service";
 import {PortalService} from "./portal.service";
 
@@ -96,7 +96,7 @@ export class EegService {
     });
   }
 
-  async registerPonton(ponton: PontonRegister): Promise<EegRegister> {
+  async registerPonton(ponton: PontonRegister): Promise<PontonRegisterResponse | undefined> {
     return await fetch(`${ADMIN_API_SERVER}/eeg/ponton`, {
       method: 'POST',
       headers: await this.withSecureHeaders({
@@ -105,27 +105,21 @@ export class EegService {
       body: JSON.stringify(ponton)
     }).then(this.handleErrors).then(async res => {
       if (res.status === 200) {
-        const data = await res.json();
+        let data: PontonRegisterResponse;
+        try {
+          data = await res.json();
+        } catch (e) {
+          throw new APIError(res.status, 500, "Ponton-Registrierung: ungültige Antwort vom Server");
+        }
+        // admin-backend answers HTTP 200 and reports the outcome as status/message in the body
+        if (typeof data?.status === "number" && (data.status < 200 || data.status > 299)) {
+          throw new APIError(res.status, data.status,
+            `${data.message || "Ponton-Registrierung fehlgeschlagen"} (Registrierung bei Ponton evtl. bereits erfolgt; ein erneuter Versuch kann "bereits registriert" melden.)`);
+        }
         return data;
       }
     });
   }
-  async getEegUser(tenant: string): Promise<EegUsers[]> {
-    const token = await this.getUser()
-    // const token = "1234"
-    return await fetch(`${ADMIN_API_SERVER}/eeg/users`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
-    }).then(this.handleErrors).then(async res => {
-      if (res.status === 200) {
-        const data = await res.json();
-        return data.users;
-      }
-    });
-  }
-
   async getEeg(): Promise<EegMember[]> {
     const token = await this.getUser()
     // const token = "1234"
