@@ -9,6 +9,7 @@ import FormSelectComponent from "../../components/form/FormSelect.component";
 
 const RegistrationPontonPage: FC = () => {
   const [open, setOpen] = React.useState(false);
+  const [pending, setPending] = React.useState(false);
   const [message, setMessage] = React.useState<{message: string, severity: "success" | "error" | "warning" | "info" | undefined}>({message: "", severity: "success"});
 
   const pontonReg: PontonRegister = {
@@ -26,18 +27,19 @@ const RegistrationPontonPage: FC = () => {
 
   const onSubmit = (data: PontonRegister) => {
     try {
+      setPending(true)
       Api.eegService.registerPonton(data)
         .then(r => {
-          setMessage({message: "Mitglied wurde angelegt!", severity: "success"})
+          setMessage({message: "Ponton-Registrierung abgeschlossen.", severity: "success"})
           setOpen(true)
           reset()
         })
         .catch((e: APIError) => {
           console.error(e)
-          setMessage({message: e.message || "Error beim Anlegen des Mitglieds", severity: "error"})
+          setMessage({message: e.message || "Ponton-Registrierung fehlgeschlagen", severity: "error"})
           setOpen(true)
-          reset()
         })
+        .finally(() => setPending(false))
     } catch (e) {
       console.error(e)
     }
@@ -94,7 +96,7 @@ const RegistrationPontonPage: FC = () => {
       <div style={{flex: "0 1 40px"}}>
         <Box sx={{display: 'flex', flexDirection: 'row', pt: 2}}>
           <Box sx={{flex: '1 1 auto'}}/>
-          <Button variant="contained" onClick={handleSubmit(onSubmit)}>
+          <Button variant="contained" onClick={handleSubmit(onSubmit)} disabled={pending}>
             Finish
           </Button>
         </Box>

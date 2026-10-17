@@ -12,12 +12,12 @@ const ponton = {
 
 const authService = {getToken: async () => "token"} as unknown as AuthService
 
-const mockFetch = (httpStatus: number, body: unknown) => {
+const mockFetch = (httpStatus: number, body: unknown, json = async () => body) => {
   global.fetch = jest.fn().mockResolvedValue({
     ok: httpStatus >= 200 && httpStatus < 300,
     status: httpStatus,
     statusText: "",
-    json: async () => body,
+    json,
     text: async () => JSON.stringify(body),
   }) as unknown as typeof fetch
 }
@@ -35,7 +35,20 @@ describe("EegService.registerPonton", () => {
     const err = await service.registerPonton(ponton).catch(e => e)
     expect(err).toBeInstanceOf(APIError)
     expect(err.code).toBe(status)
-    expect(err.message).toBe("Ponton nicht erreichbar")
+    expect(err.message).toContain("Ponton nicht erreichbar")
+    expect(err.message).toContain("bereits erfolgt")
+  })
+
+  it("resolves when the body has no numeric status", async () => {
+    mockFetch(200, {message: "ok"})
+    await expect(service.registerPonton(ponton)).resolves.toEqual({message: "ok"})
+  })
+
+  it("rejects with a clear message when the body is not JSON", async () => {
+    mockFetch(200, "", async () => { throw new SyntaxError("Unexpected end of JSON input") })
+    const err = await service.registerPonton(ponton).catch(e => e)
+    expect(err).toBeInstanceOf(APIError)
+    expect(err.message).toBe("Ponton-Registrierung: ungültige Antwort vom Server")
   })
 
   it("rejects when the HTTP status is not ok", async () => {

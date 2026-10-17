@@ -54,6 +54,7 @@ export type EegRegister = Eeg & EegOwner & EegPonton & EegBusiness & EegGrid
 
 export interface EegTenant { tenant: string, rcNumber: string}
 export type PontonRegister = EegTenant & EegPonton
+export interface PontonRegisterResponse { status: number, message: string }
 
 export interface Address {
   street: string;
