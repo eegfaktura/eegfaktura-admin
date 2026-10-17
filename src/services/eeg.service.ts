@@ -1,4 +1,4 @@
-import {EegMember, EegParticipant, EegRegister, EegUsers, GridOperator, PontonRegister, PontonRegisterResponse} from "../model/eeg.model";
+import {EegMember, EegParticipant, EegRegister, GridOperator, PontonRegister, PontonRegisterResponse} from "../model/eeg.model";
 import {AuthService} from "./auth.service";
 import {PortalService} from "./portal.service";
 
@@ -120,22 +120,6 @@ export class EegService {
       }
     });
   }
-  async getEegUser(tenant: string): Promise<EegUsers[]> {
-    const token = await this.getUser()
-    // const token = "1234"
-    return await fetch(`${ADMIN_API_SERVER}/eeg/users`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
-    }).then(this.handleErrors).then(async res => {
-      if (res.status === 200) {
-        const data = await res.json();
-        return data.users;
-      }
-    });
-  }
-
   async getEeg(): Promise<EegMember[]> {
     const token = await this.getUser()
     // const token = "1234"

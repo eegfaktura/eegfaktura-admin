@@ -207,12 +207,6 @@ export interface EegNotification {
 }
 
 
-export interface EegUsers {
-  firstname: string;
-  lastname: string;
-  email: string;
-}
-
 export interface EegMember {
   name: string;
   tenant: string;

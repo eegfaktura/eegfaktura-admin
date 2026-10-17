@@ -18,6 +18,10 @@ this changelog highlights the changes relevant for overview and operations.
   runs. Requires eegfaktura-admin-backend#25: older admin-backend
   versions report status 500 even on success, so this must not be released before it.
 
+### Removed
+- The unused service function `getEegUser` (`GET /eeg/users`, no caller in the UI) and its
+  `EegUsers` model; eegfaktura-admin-backend#25 removes the endpoint.
+
 ## [1.1.3] – 2026-10-04
 
 ### Security
