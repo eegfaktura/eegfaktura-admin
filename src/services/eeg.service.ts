@@ -106,6 +106,10 @@ export class EegService {
     }).then(this.handleErrors).then(async res => {
       if (res.status === 200) {
         const data = await res.json();
+        // admin-backend answers HTTP 200 and reports the outcome as status/message in the body
+        if (typeof data?.status === "number" && (data.status < 200 || data.status > 299)) {
+          throw new APIError(res.status, data.status, data.message || "Ponton-Registrierung fehlgeschlagen");
+        }
         return data;
       }
     });

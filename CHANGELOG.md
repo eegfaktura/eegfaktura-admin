@@ -8,6 +8,14 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+### Fixed
+- The Ponton registration page no longer reports success when the registration failed.
+  admin-backend answers `POST /eeg/ponton` with HTTP 200 and puts the real outcome as
+  `status`/`message` in the body; the UI now treats a body status outside 200–299 as an error
+  and shows the backend's message. The page also displays its success/error message at all
+  (it was set but never rendered). Requires eegfaktura-admin-backend#25: older admin-backend
+  versions report status 500 even on success, so this must not be released before it.
+
 ## [1.1.3] – 2026-10-04
 
 ### Security
