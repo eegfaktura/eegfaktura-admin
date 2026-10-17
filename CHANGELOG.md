@@ -8,6 +8,8 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+## [1.1.4] – 2026-10-17
+
 ### Fixed
 - The Ponton registration page no longer reports success when the registration failed.
   admin-backend answers `POST /eeg/ponton` with HTTP 200 and puts the real outcome as
