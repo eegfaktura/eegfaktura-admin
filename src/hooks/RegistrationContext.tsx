@@ -49,6 +49,15 @@ const initialEeg: EegRegister = {
   },
 }
 
+// Column headers vary between list versions ("E-Mail" / "EMail", line breaks LF / CRLF): compare without
+// case, white space and hyphens
+const normalizeHeader = (h: string) => h.toLowerCase().replace(/[\s-]/g, "")
+export const cell = (row: Record<string, any>, header: string) => {
+  const key = Object.keys(row).find(k => normalizeHeader(k) === normalizeHeader(header))
+  return key === undefined ? undefined : row[key]
+}
+const text = (v: any) => (v === undefined || v === null ? "" : String(v).trim())
+
 const calculateUsername = (firstname: string, lastname: string) => (lastname.slice(0,6)+firstname.slice(0,3)).toLowerCase()
 
 const normalizeSettlement = (s: string): 'MONTHLY' | "ANNUAL" | "BIANNUAL" | "QUARTER" => {
@@ -70,7 +79,7 @@ const normalizeAllocation = (s: string): "DYNAMIC" | "STATIC" => {
 }
 
 const normalizeArea = (s?: string): "LOCAL" | "REGIONAL" | "GEA" | "BEG" => {
-  const res = String(s ?? 'LOCAL').toUpperCase()
+  const res = String(s ?? 'LOCAL').trim().toUpperCase()
   return (["LOCAL", "REGIONAL", "GEA", "BEG"].includes(res) ? res : 'LOCAL') as "LOCAL" | "REGIONAL" | "GEA" | "BEG"
 }
 
@@ -131,30 +140,30 @@ const RegistrationProvider: FC<{children: ReactNode}> = ({children}) => {
 
   const onLoad_setEegData = (data: Record<string, any>) => {
     const formValues: EegRegister = {
-      tenant: data[fieldTransformer.tenant],
-      rcNumber: data[fieldTransformer.tenant],
-      communityId: data[fieldTransformer.community_id],
+      tenant: text(cell(data, fieldTransformer.tenant)),
+      rcNumber: text(cell(data, fieldTransformer.tenant)),
+      communityId: text(cell(data, fieldTransformer.community_id)),
       online: false,
-      name: data[fieldTransformer.name],
-      settlement: data[fieldTransformer.settlementInterval],
-      description: data[fieldTransformer.name],
+      name: text(cell(data, fieldTransformer.name)),
+      settlement: text(cell(data, fieldTransformer.settlementInterval)),
+      description: text(cell(data, fieldTransformer.name)),
       user: {
-        firstname: data[fieldTransformer.firstname],
-        lastname: data[fieldTransformer.lastname],
-        email: data[fieldTransformer.email],
-        username: calculateUsername(data[fieldTransformer.firstname], data[fieldTransformer.lastname]),
+        firstname: text(cell(data, fieldTransformer.firstname)),
+        lastname: text(cell(data, fieldTransformer.lastname)),
+        email: text(cell(data, fieldTransformer.email)),
+        username: calculateUsername(text(cell(data, fieldTransformer.firstname)), text(cell(data, fieldTransformer.lastname))),
         password: "",
         confirmPassword: ""
       },
       businessInfo: {
         legal: "verein",
-        settlementInterval: normalizeSettlement(data[fieldTransformer.settlementInterval])
+        settlementInterval: normalizeSettlement(text(cell(data, fieldTransformer.settlementInterval)))
       },
       grid: {
-        id: data[fieldTransformer.operator_id],
-        name: getGridOperatorName(data[fieldTransformer.operator_id]),
-        area: normalizeArea(data[fieldTransformer.area]),
-        allocation: normalizeAllocation(data[fieldTransformer.allocation])
+        id: text(cell(data, fieldTransformer.operator_id)),
+        name: getGridOperatorName(text(cell(data, fieldTransformer.operator_id))),
+        area: normalizeArea(text(cell(data, fieldTransformer.area))),
+        allocation: normalizeAllocation(text(cell(data, fieldTransformer.allocation)))
       },
       pontonInfo: {
         host: "",
@@ -165,13 +174,13 @@ const RegistrationProvider: FC<{children: ReactNode}> = ({children}) => {
         domain: "edanet.at",
         pontonCommType: "NONE"
       },
-      accountInfo: {iban: data[fieldTransformer.iban], sepa: false, owner: data[fieldTransformer.owner]} as AccountInfo,
+      accountInfo: {iban: text(cell(data, fieldTransformer.iban)), sepa: false, owner: text(cell(data, fieldTransformer.owner))} as AccountInfo,
       contact: {
-        street: data[fieldTransformer.street],
-        city: data[fieldTransformer.city],
-        zip: "" + data[fieldTransformer.zip],
-        streetNumber: "" + data[fieldTransformer.street_nr],
-        phone: "" + data[fieldTransformer.phone],
+        street: text(cell(data, fieldTransformer.street)),
+        city: text(cell(data, fieldTransformer.city)),
+        zip: text(cell(data, fieldTransformer.zip)),
+        streetNumber: text(cell(data, fieldTransformer.street_nr)),
+        phone: text(cell(data, fieldTransformer.phone)),
       },
     }
     setEeg(formValues);
