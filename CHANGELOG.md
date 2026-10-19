@@ -13,7 +13,8 @@ this changelog highlights the changes relevant for overview and operations.
   looked for the column „E-Mail“, the list has „EMail“; the admin login of the new EEG (and with it the EEG's email)
   stayed empty. Column headers are now compared without case, spaces, line breaks and hyphens. The same mismatch hid
   the column „Lokal/Regional BEG/GEA“ (line break LF in the file, CRLF in the code): every EEG was created as
-  „Local“, now GEA and regional are taken over. Empty phone, zip or house number no longer become „undefined“.
+  „Local“, now GEA and regional are taken over. Every field is taken as trimmed text: empty cells no longer become „undefined“ or
+  break the import or the submit, a trailing space in the region no longer turns GEA into „Local“.
 
 ### Added
 - CI: `pr-checks.yml` on every pull request: Jest (unit), Jest with coverage and the

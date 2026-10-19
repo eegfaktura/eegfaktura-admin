@@ -79,7 +79,7 @@ const normalizeAllocation = (s: string): "DYNAMIC" | "STATIC" => {
 }
 
 const normalizeArea = (s?: string): "LOCAL" | "REGIONAL" | "GEA" | "BEG" => {
-  const res = String(s ?? 'LOCAL').toUpperCase()
+  const res = String(s ?? 'LOCAL').trim().toUpperCase()
   return (["LOCAL", "REGIONAL", "GEA", "BEG"].includes(res) ? res : 'LOCAL') as "LOCAL" | "REGIONAL" | "GEA" | "BEG"
 }
 
@@ -140,30 +140,30 @@ const RegistrationProvider: FC<{children: ReactNode}> = ({children}) => {
 
   const onLoad_setEegData = (data: Record<string, any>) => {
     const formValues: EegRegister = {
-      tenant: cell(data, fieldTransformer.tenant),
-      rcNumber: cell(data, fieldTransformer.tenant),
-      communityId: cell(data, fieldTransformer.community_id),
+      tenant: text(cell(data, fieldTransformer.tenant)),
+      rcNumber: text(cell(data, fieldTransformer.tenant)),
+      communityId: text(cell(data, fieldTransformer.community_id)),
       online: false,
-      name: cell(data, fieldTransformer.name),
-      settlement: cell(data, fieldTransformer.settlementInterval),
-      description: cell(data, fieldTransformer.name),
+      name: text(cell(data, fieldTransformer.name)),
+      settlement: text(cell(data, fieldTransformer.settlementInterval)),
+      description: text(cell(data, fieldTransformer.name)),
       user: {
-        firstname: cell(data, fieldTransformer.firstname),
-        lastname: cell(data, fieldTransformer.lastname),
+        firstname: text(cell(data, fieldTransformer.firstname)),
+        lastname: text(cell(data, fieldTransformer.lastname)),
         email: text(cell(data, fieldTransformer.email)),
-        username: calculateUsername(cell(data, fieldTransformer.firstname), cell(data, fieldTransformer.lastname)),
+        username: calculateUsername(text(cell(data, fieldTransformer.firstname)), text(cell(data, fieldTransformer.lastname))),
         password: "",
         confirmPassword: ""
       },
       businessInfo: {
         legal: "verein",
-        settlementInterval: normalizeSettlement(cell(data, fieldTransformer.settlementInterval))
+        settlementInterval: normalizeSettlement(text(cell(data, fieldTransformer.settlementInterval)))
       },
       grid: {
-        id: cell(data, fieldTransformer.operator_id),
-        name: getGridOperatorName(cell(data, fieldTransformer.operator_id)),
-        area: normalizeArea(cell(data, fieldTransformer.area)),
-        allocation: normalizeAllocation(cell(data, fieldTransformer.allocation))
+        id: text(cell(data, fieldTransformer.operator_id)),
+        name: getGridOperatorName(text(cell(data, fieldTransformer.operator_id))),
+        area: normalizeArea(text(cell(data, fieldTransformer.area))),
+        allocation: normalizeAllocation(text(cell(data, fieldTransformer.allocation)))
       },
       pontonInfo: {
         host: "",
@@ -174,10 +174,10 @@ const RegistrationProvider: FC<{children: ReactNode}> = ({children}) => {
         domain: "edanet.at",
         pontonCommType: "NONE"
       },
-      accountInfo: {iban: cell(data, fieldTransformer.iban), sepa: false, owner: cell(data, fieldTransformer.owner)} as AccountInfo,
+      accountInfo: {iban: text(cell(data, fieldTransformer.iban)), sepa: false, owner: text(cell(data, fieldTransformer.owner))} as AccountInfo,
       contact: {
-        street: cell(data, fieldTransformer.street),
-        city: cell(data, fieldTransformer.city),
+        street: text(cell(data, fieldTransformer.street)),
+        city: text(cell(data, fieldTransformer.city)),
         zip: text(cell(data, fieldTransformer.zip)),
         streetNumber: text(cell(data, fieldTransformer.street_nr)),
         phone: text(cell(data, fieldTransformer.phone)),
