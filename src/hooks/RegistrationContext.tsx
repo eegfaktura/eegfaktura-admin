@@ -49,6 +49,15 @@ const initialEeg: EegRegister = {
   },
 }
 
+// Column headers vary between list versions ("E-Mail" / "EMail", line breaks LF / CRLF): compare without
+// case, white space and hyphens
+const normalizeHeader = (h: string) => h.toLowerCase().replace(/[\s-]/g, "")
+export const cell = (row: Record<string, any>, header: string) => {
+  const key = Object.keys(row).find(k => normalizeHeader(k) === normalizeHeader(header))
+  return key === undefined ? undefined : row[key]
+}
+const text = (v: any) => (v === undefined || v === null ? "" : String(v).trim())
+
 const calculateUsername = (firstname: string, lastname: string) => (lastname.slice(0,6)+firstname.slice(0,3)).toLowerCase()
 
 const normalizeSettlement = (s: string): 'MONTHLY' | "ANNUAL" | "BIANNUAL" | "QUARTER" => {
@@ -131,30 +140,30 @@ const RegistrationProvider: FC<{children: ReactNode}> = ({children}) => {
 
   const onLoad_setEegData = (data: Record<string, any>) => {
     const formValues: EegRegister = {
-      tenant: data[fieldTransformer.tenant],
-      rcNumber: data[fieldTransformer.tenant],
-      communityId: data[fieldTransformer.community_id],
+      tenant: cell(data, fieldTransformer.tenant),
+      rcNumber: cell(data, fieldTransformer.tenant),
+      communityId: cell(data, fieldTransformer.community_id),
       online: false,
-      name: data[fieldTransformer.name],
-      settlement: data[fieldTransformer.settlementInterval],
-      description: data[fieldTransformer.name],
+      name: cell(data, fieldTransformer.name),
+      settlement: cell(data, fieldTransformer.settlementInterval),
+      description: cell(data, fieldTransformer.name),
       user: {
-        firstname: data[fieldTransformer.firstname],
-        lastname: data[fieldTransformer.lastname],
-        email: data[fieldTransformer.email],
-        username: calculateUsername(data[fieldTransformer.firstname], data[fieldTransformer.lastname]),
+        firstname: cell(data, fieldTransformer.firstname),
+        lastname: cell(data, fieldTransformer.lastname),
+        email: text(cell(data, fieldTransformer.email)),
+        username: calculateUsername(cell(data, fieldTransformer.firstname), cell(data, fieldTransformer.lastname)),
         password: "",
         confirmPassword: ""
       },
       businessInfo: {
         legal: "verein",
-        settlementInterval: normalizeSettlement(data[fieldTransformer.settlementInterval])
+        settlementInterval: normalizeSettlement(cell(data, fieldTransformer.settlementInterval))
       },
       grid: {
-        id: data[fieldTransformer.operator_id],
-        name: getGridOperatorName(data[fieldTransformer.operator_id]),
-        area: normalizeArea(data[fieldTransformer.area]),
-        allocation: normalizeAllocation(data[fieldTransformer.allocation])
+        id: cell(data, fieldTransformer.operator_id),
+        name: getGridOperatorName(cell(data, fieldTransformer.operator_id)),
+        area: normalizeArea(cell(data, fieldTransformer.area)),
+        allocation: normalizeAllocation(cell(data, fieldTransformer.allocation))
       },
       pontonInfo: {
         host: "",
@@ -165,13 +174,13 @@ const RegistrationProvider: FC<{children: ReactNode}> = ({children}) => {
         domain: "edanet.at",
         pontonCommType: "NONE"
       },
-      accountInfo: {iban: data[fieldTransformer.iban], sepa: false, owner: data[fieldTransformer.owner]} as AccountInfo,
+      accountInfo: {iban: cell(data, fieldTransformer.iban), sepa: false, owner: cell(data, fieldTransformer.owner)} as AccountInfo,
       contact: {
-        street: data[fieldTransformer.street],
-        city: data[fieldTransformer.city],
-        zip: "" + data[fieldTransformer.zip],
-        streetNumber: "" + data[fieldTransformer.street_nr],
-        phone: "" + data[fieldTransformer.phone],
+        street: cell(data, fieldTransformer.street),
+        city: cell(data, fieldTransformer.city),
+        zip: text(cell(data, fieldTransformer.zip)),
+        streetNumber: text(cell(data, fieldTransformer.street_nr)),
+        phone: text(cell(data, fieldTransformer.phone)),
       },
     }
     setEeg(formValues);

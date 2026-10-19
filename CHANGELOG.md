@@ -8,6 +8,13 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+### Fixed
+- **EEG registration from the Excel member list takes the email address** (support report 19.10.2026). The import
+  looked for the column „E-Mail“, the list has „EMail“; the admin login of the new EEG (and with it the EEG's email)
+  stayed empty. Column headers are now compared without case, spaces, line breaks and hyphens. The same mismatch hid
+  the column „Lokal/Regional BEG/GEA“ (line break LF in the file, CRLF in the code): every EEG was created as
+  „Local“, now GEA and regional are taken over. Empty phone, zip or house number no longer become „undefined“.
+
 ### Added
 - CI: `pr-checks.yml` on every pull request: Jest (unit), Jest with coverage and the
   production build (full); type check and known failing tests are reported, not blocking.
