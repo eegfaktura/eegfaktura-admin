@@ -3,10 +3,11 @@ import {useFormContext} from "react-hook-form";
 import FormInputComponent from "../form/FormInput.component";
 import {Box} from "@mui/material";
 import {IbanInputForm} from "../form/IbanInput.component";
+import AccountsEegPropertiesComponent from "./AccountsEegProperties.component";
 
 const UserEegPropertiesComponent: FC = () => {
 
-  const {control, watch} = useFormContext()
+  const {control} = useFormContext()
 
   return (
     <Box className={"flex-col-mgap"} style={{padding: "16px"}} bgcolor={"background.paper"}>
@@ -23,6 +24,8 @@ const UserEegPropertiesComponent: FC = () => {
       <h4>Konto</h4>
       <IbanInputForm name={"accountInfo.iban"} label="IBAN" control={control} type="text" rules={{required: "IBAN"}}/>
       <FormInputComponent name={"accountInfo.owner"} label="Konto Inhaber" control={control} type="text" rules={{required: "Konto Inhaber"}}/>
+
+      <AccountsEegPropertiesComponent/>
     </Box>
   )
 }

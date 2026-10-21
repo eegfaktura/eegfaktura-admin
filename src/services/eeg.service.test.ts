@@ -56,3 +56,23 @@ describe("EegService.registerPonton", () => {
     await expect(service.registerPonton(ponton)).rejects.toBeInstanceOf(APIError)
   })
 })
+
+describe("addAccount (platform#166)", () => {
+  const service = new EegService({getToken: async () => "t"} as any)
+  const answer = (status: number, body: unknown) =>
+    jest.spyOn(global, "fetch").mockResolvedValue(new Response(JSON.stringify(body), {status}) as any)
+  afterEach(() => jest.restoreAllMocks())
+
+  it("returns the result of the admin-backend, also for 400", async () => {
+    answer(400, {email: "x", status: "failed", message: "E-Mail-Adresse ungültig"})
+    await expect(service.addAccount("RC1", {firstname: "A", lastname: "B", email: "x"}))
+      .resolves.toEqual({email: "x", status: "failed", message: "E-Mail-Adresse ungültig"})
+  })
+
+  it("treats an answer without a result (403) as failed", async () => {
+    answer(403, {error: "superuser role required"})
+    const r = await service.addAccount("RC1", {firstname: "A", lastname: "B", email: "a@test.local"})
+    expect(r.status).toBe("failed")
+    expect(r.email).toBe("a@test.local")
+  })
+})

@@ -1,6 +1,5 @@
 import {AuthService} from "./auth.service";
-import {Eeg, EegMember, EegParticipant, Metering} from "../model/eeg.model";
-import moment from "moment";
+import {EegMember, EegParticipant, Metering} from "../model/eeg.model";
 import {AdminUpdateData} from "../model/admin.model";
 
 const ADMIN_API_SERVER = process.env.REACT_APP_ADMIN_SERVER_URL;

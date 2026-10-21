@@ -50,7 +50,41 @@ export interface EegPonton {
   }
 }
 
-export type EegRegister = Eeg & EegOwner & EegPonton & EegBusiness & EegGrid
+// A person with access to a community (platform#166); all accounts have the same rights.
+export interface AccountUser {
+  firstname: string
+  lastname: string
+  email: string
+}
+
+// created, linked (an existing account got the community) or failed (message says why)
+export interface AccountResult {
+  email: string
+  status: "created" | "linked" | "failed"
+  message: string
+}
+
+export interface AccountView {
+  username: string
+  firstname: string
+  lastname: string
+  email: string
+  enabled: boolean
+  passwordPending: boolean
+}
+
+// accounts: exactly these get a login; empty or missing: a login for the contact (user), as before
+export interface EegAccounts {
+  accounts?: AccountUser[]
+}
+
+export type EegRegister = Eeg & EegOwner & EegPonton & EegBusiness & EegGrid & EegAccounts
+
+export interface EegRegistered {
+  code: number
+  message: string
+  accounts: AccountResult[]
+}
 
 export interface EegTenant { tenant: string, rcNumber: string}
 export type PontonRegister = EegTenant & EegPonton

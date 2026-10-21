@@ -1,12 +1,7 @@
 import React, {FC} from "react";
-import {Control, FieldErrors, useFormContext} from "react-hook-form";
-import { EegRegister } from "../../model/eeg.model";
+import {useFormContext} from "react-hook-form";
 import FormInputComponent from "../form/FormInput.component";
 import {Box} from "@mui/material";
-
-interface AddressEegPropertiesComponentProps {
-  control: Control<EegRegister, any>
-}
 
 // const AddressEegPropertiesComponent: FC<AddressEegPropertiesComponentProps> = ({control}) => {
 const AddressEegPropertiesComponent: FC = () => {

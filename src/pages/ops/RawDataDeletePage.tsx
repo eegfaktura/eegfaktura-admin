@@ -1,7 +1,7 @@
 import React, {FC, useState} from "react";
 import {Alert, Box, Button, Divider, Stack, TextField, Typography} from "@mui/material";
 import {DateTimePicker} from "@mui/x-date-pickers";
-import moment, {Moment} from "moment";
+import {Moment} from "moment";
 import {Api} from "../../services/eeg.service";
 import {RawDataDeleteResult} from "../../services/portal.service";
 

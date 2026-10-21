@@ -48,6 +48,7 @@ export const ParticipantProvider:FC<{children: ReactNode}> = ({children}) => {
     } else {
       setParticipants(allParticipants)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs on a search change only; on new data the effect above shows the unfiltered list
   }, [searchItem]);
 
   const value: ParticipantContextProps = {

@@ -52,7 +52,6 @@ const EegMemberDetailsComponent: FC = () => {
 
   const eegSelected = useSelector(selectedEeg)
   const [loading, setLoading] = useState<boolean>(false)
-  const [settlementInterval, setSettlementInterval] = useState<string>("")
   const [eeg, setEeg] = useState<EegMember>()
   // const [participants, setParticipants] = useState<EegParticipant[]>([])
 
@@ -68,6 +67,7 @@ const EegMemberDetailsComponent: FC = () => {
         participantsLoaded(p)
       }).finally(() => setLoading(false))
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the context functions are new on every render; listing them would refetch in a loop
   }, [eegSelected])
 
   const {handleSubmit, control, setValue, reset} = useForm<Record<string, any>>()
