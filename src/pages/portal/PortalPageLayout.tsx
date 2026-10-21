@@ -22,7 +22,7 @@ const PortalPageLayout = () => {
 
   useEffect(() => {
     Api.eegService.getEeg().then(eegs => dispatch(setEegAll(eegs)))
-  }, []);
+  }, [dispatch]);
 
   const filteredMembers = useMemo(() => {
     if (filterString) {

@@ -64,7 +64,7 @@ const RegistrationPage: FC = () => {
   const [activeStep, setActiveStep] = React.useState(0);
   const [message, setMessage] = React.useState<{message: string, severity: "success" | "error" | "warning" | "info" | undefined, sticky?: boolean}>({message: "", severity: "success"});
   const [skipped, setSkipped] = React.useState(new Set<number>());
-  const {reset, eeg, rcNumber, isExcelLoaded, excelFile, next, hasNext, prev, hasPrev, removeExcel} = React.useContext(RegistrationContext);
+  const {reset, eeg, rcNumber, isExcelLoaded, excelFile, next, hasNext, prev, hasPrev} = React.useContext(RegistrationContext);
 
   const isStepOptional = (index: number) => {
     const step = steps[index]
@@ -77,7 +77,7 @@ const RegistrationPage: FC = () => {
 
   useEffect(() => {
     formMethods.reset(eeg);
-  }, [eeg])
+  }, [eeg, formMethods])
 
   const handleNext = () => {
     let newSkipped = skipped;

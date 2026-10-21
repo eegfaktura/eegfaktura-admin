@@ -7,7 +7,7 @@ import AccountsEegPropertiesComponent from "./AccountsEegProperties.component";
 
 const UserEegPropertiesComponent: FC = () => {
 
-  const {control, watch} = useFormContext()
+  const {control} = useFormContext()
 
   return (
     <Box className={"flex-col-mgap"} style={{padding: "16px"}} bgcolor={"background.paper"}>

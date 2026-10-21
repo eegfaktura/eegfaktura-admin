@@ -16,13 +16,13 @@ const RegistrationPontonPage: FC = () => {
     tenant: "", rcNumber: "", pontonInfo: {password: "", domain: "edanet.at", username: "", pontonCommType: "KEP"},
   } as PontonRegister
 
-  const {handleSubmit, control, setValue, formState: {errors}, reset} = useForm<PontonRegister>({defaultValues: pontonReg})
+  const {handleSubmit, control, setValue, reset} = useForm<PontonRegister>({defaultValues: pontonReg})
 
   const rcNumber = useWatch({control: control, name: 'rcNumber'})
 
   useEffect(() => {
     setValue("tenant", rcNumber)
-  }, [rcNumber]);
+  }, [rcNumber, setValue]);
 
 
   const onSubmit = (data: PontonRegister) => {

@@ -7,8 +7,6 @@ import {
 } from "@mui/material";
 
 import "../component.scss"
-import {useSelector} from "react-redux";
-import {selectGridOperators} from "../../redux/features/eegStateSlice";
 import ExcelUploader from "../common/ExcelUploader";
 import {RegistrationContext} from "../../hooks/RegistrationContext";
 
@@ -21,7 +19,7 @@ const CommonEegPropertiesComponent: FC = () => {
   const rcNr = useWatch({control: control, name: "rcNumber"})
   useEffect(() => {
     setValue("tenant", rcNr)
-  }, [rcNr]);
+  }, [rcNr, setValue]);
 
   return (
     <Box className={"flex-col-mgap"} style={{padding: "16px"}} bgcolor={"background.paper"}>

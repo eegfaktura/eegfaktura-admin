@@ -1,5 +1,5 @@
 import {FC, FormEvent, ReactNode} from "react";
-import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@mui/material";
+import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, PaperProps} from "@mui/material";
 import { create } from "zustand";
 
 
@@ -23,14 +23,15 @@ export const CellEditDialog: FC = () => {
   const {children, onSubmit, onClose, header} = useCellEditDialogStore();
   return (
     <Dialog open={Boolean(children)} onClose={onClose}
+      // MUI 5.14 types PaperProps without `component`; Paper renders the form at runtime.
       PaperProps={{
         component: 'form',
-        onSubmit: (event: FormEvent<HTMLFormElement>) => {
+        onSubmit: (event: FormEvent) => {
           event.preventDefault();
           onSubmit()
           onClose()
         },
-      }}
+      } as Partial<PaperProps>}
     >
         <DialogTitle>{header}</DialogTitle>
         <DialogContent>

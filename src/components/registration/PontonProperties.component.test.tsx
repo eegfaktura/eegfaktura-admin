@@ -1,5 +1,5 @@
 import React from "react";
-import {render, screen, waitForElementToBeRemoved} from "@testing-library/react";
+import {act, render, screen, waitFor} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {Provider} from "react-redux";
 import {combineReducers, configureStore} from "@reduxjs/toolkit";
@@ -47,18 +47,25 @@ test("Auswahl einer Netzbetreiber-ID räumt den required-Fehler des Netzbetreibe
 
   // 1. required-Fehler auf dem (leeren) Namensfeld provozieren (onChange-Validierung).
   const nameInput = screen.getByLabelText("Netzbetreiber-Name");
-  userEvent.type(nameInput, "x");
-  userEvent.clear(nameInput);
+  // act(async): lets the async validation of react-hook-form settle inside act.
+  await act(async () => {
+    userEvent.type(nameInput, "x");
+    userEvent.clear(nameInput);
+  });
   expect(await screen.findByText("Netzbetreiber-Name fehlt")).toBeInTheDocument();
 
   // 2. Netzbetreiber-ID auswählen -> grid.name wird automatisch befüllt.
   const idInput = screen.getByLabelText("Netzbetreiber-ID");
-  userEvent.click(idInput);
-  userEvent.type(idInput, "AT003000");
-  userEvent.click(await screen.findByRole("option", {name: /AT003000/}));
+  await act(async () => {
+    userEvent.click(idInput);
+    userEvent.type(idInput, "AT003000");
+  });
+  const option = await screen.findByRole("option", {name: /AT003000/});
+  await act(async () => {
+    userEvent.click(option);
+  });
 
   // 3. Name ist jetzt gesetzt -> der Validierungsfehler MUSS verschwinden
   // (Revalidierung nach setValue ist async).
-  await waitForElementToBeRemoved(() => screen.queryByText("Netzbetreiber-Name fehlt"));
-  expect(screen.queryByText("Netzbetreiber-Name fehlt")).not.toBeInTheDocument();
+  await waitFor(() => expect(screen.queryByText("Netzbetreiber-Name fehlt")).not.toBeInTheDocument());
 });

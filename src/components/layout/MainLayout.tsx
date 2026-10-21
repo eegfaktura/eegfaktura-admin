@@ -1,11 +1,10 @@
 import {Outlet} from "react-router-dom";
-import {Box, useTheme} from "@mui/material";
+import {Box} from "@mui/material";
 import colorConfigs from "../../configs/colorConfigs";
 import sizeConfigs from "../../configs/sizeConfigs";
 import Sidebar from "../common/Sidebar";
 
 const MainLayout = () => {
-  const theme = useTheme()
   return (
     <Box sx={{ display: "flex" }} maxHeight="100vh">
       {/*<Topbar />*/}
