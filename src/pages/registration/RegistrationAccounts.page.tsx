@@ -1,4 +1,4 @@
-import React, {FC, useEffect, useState} from "react";
+import React, {FC, useEffect, useRef, useState} from "react";
 import {useForm} from "react-hook-form";
 import {
   Alert, Autocomplete, Box, Button, CircularProgress, Table, TableBody, TableCell, TableHead, TableRow, TextField
@@ -13,7 +13,8 @@ const emptyUser: AccountUser = {firstname: "", lastname: "", email: ""}
 export const resultText = (r: AccountResult): string => {
   switch (r.status) {
     case "created":
-      return `Account für ${r.email} angelegt. Die Person bekommt eine Mail, um ihr Passwort zu setzen.`
+      return `Account für ${r.email} angelegt. Keycloak schickt eine Mail, um das Passwort zu setzen; ` +
+        `solange es nicht gesetzt ist, zeigt die Liste „Passwort noch nicht gesetzt“.`
     case "linked":
       return `${r.email} hatte schon einen Account: die EEG wurde dort ergänzt.`
     default:
@@ -35,6 +36,8 @@ const RegistrationAccountsPage: FC = () => {
   const [pending, setPending] = useState(false)
 
   const {control, handleSubmit, reset} = useForm<AccountUser>({defaultValues: emptyUser, mode: "all"})
+  // the list is slow (all Keycloak users): an answer for an EEG that is no longer selected is dropped
+  const selected = useRef<string | undefined>()
 
   useEffect(() => {
     Api.eegService.getEeg()
@@ -46,14 +49,16 @@ const RegistrationAccountsPage: FC = () => {
     setAccounts(undefined)
     setLoadError(undefined)
     Api.eegService.getAccounts(tenant)
-      .then(setAccounts)
+      .then(list => { if (selected.current === tenant) setAccounts(list) })
       .catch(() => {
+        if (selected.current !== tenant) return
         setAccounts([])
         setLoadError("Accounts konnten nicht geladen werden")
       })
   }
 
   useEffect(() => {
+    selected.current = eeg?.tenant
     setResult(undefined)
     if (eeg) loadAccounts(eeg.tenant)
   }, [eeg]);
@@ -62,12 +67,14 @@ const RegistrationAccountsPage: FC = () => {
     if (!eeg) return
     setPending(true)
     const trimmed = {firstname: user.firstname.trim(), lastname: user.lastname.trim(), email: user.email.trim()}
-    Api.eegService.addAccount(eeg.tenant, trimmed)
+    const tenant = eeg.tenant
+    Api.eegService.addAccount(tenant, trimmed)
       .then(r => {
+        if (selected.current !== tenant) return
         setResult(r)
         if (r.status !== "failed") {
           reset(emptyUser)
-          loadAccounts(eeg.tenant)
+          loadAccounts(tenant)
         }
       })
       .catch(e => setResult({email: trimmed.email, status: "failed", message: e?.message ?? ""}))

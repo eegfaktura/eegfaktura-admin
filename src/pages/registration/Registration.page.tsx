@@ -62,7 +62,7 @@ const RegistrationPage: FC = () => {
 
   const [open, setOpen] = React.useState(false);
   const [activeStep, setActiveStep] = React.useState(0);
-  const [message, setMessage] = React.useState<{message: string, severity: "success" | "error" | "warning" | "info" | undefined}>({message: "", severity: "success"});
+  const [message, setMessage] = React.useState<{message: string, severity: "success" | "error" | "warning" | "info" | undefined, sticky?: boolean}>({message: "", severity: "success"});
   const [skipped, setSkipped] = React.useState(new Set<number>());
   const {reset, eeg, rcNumber, isExcelLoaded, excelFile, next, hasNext, prev, hasPrev, removeExcel} = React.useContext(RegistrationContext);
 
@@ -120,9 +120,11 @@ const RegistrationPage: FC = () => {
       Api.eegService.registerEeg(trimEegRegisterData(data))
         .then(r => {
           const results = r?.accounts ?? []
+          const failed = results.some(a => a.status === "failed")
           setMessage({
             message: ["EEG wurde angelegt.", accountSummary(results)].filter(Boolean).join(" "),
-            severity: results.some(a => a.status === "failed") ? "warning" : "success"
+            severity: failed ? "warning" : "success",
+            sticky: failed,
           })
           setOpen(true)
           handleReset()
@@ -206,8 +208,8 @@ const RegistrationPage: FC = () => {
 
   return (
     <Box display="flex" flexDirection="column" height="100%" color={"primary.main"} bgcolor={"background.paper"} overflow={"auto"} padding={"24px"}>
-      {/* a warning (e.g. a login failed) stays until it is closed */}
-      <Snackbar autoHideDuration={message.severity === "success" ? 10000 : null} open={open} onClose={handleClose}>
+      {/* a failed login stays until it is closed */}
+      <Snackbar autoHideDuration={message.sticky ? null : 10000} open={open} onClose={handleClose}>
         <Alert
           onClose={handleClose}
           severity={message.severity}

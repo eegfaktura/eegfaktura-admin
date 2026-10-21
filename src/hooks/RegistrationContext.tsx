@@ -66,7 +66,8 @@ const accountFrom = (row: Record<string, any>, prefix: string): AccountUser => (
 })
 
 // Logins from the member list (platform#166): the main account, or the contact if it is empty, and the further
-// accounts 1–3 that have an e-mail. All get the same rights.
+// accounts 1–3 that have an e-mail. All get the same rights. A list without any account: none, the contact gets
+// the login as before (with the username computed here).
 export const excelAccounts = (row: Record<string, any>): AccountUser[] => {
   const main = accountFrom(row, "Hauptaccount")
   const contact: AccountUser = {
@@ -75,6 +76,7 @@ export const excelAccounts = (row: Record<string, any>): AccountUser[] => {
     email: text(cell(row, fieldTransformer.email)),
   }
   const further = [1, 2, 3].map(i => accountFrom(row, `Nebenaccount ${i}`)).filter(a => a.email)
+  if (!main.email && further.length === 0) return []
   return [main.email ? main : contact, ...further].filter(a => a.email)
 }
 

@@ -28,7 +28,8 @@ describe("Excel member list: logins (platform#166)", () => {
       ])
   })
 
-  it("is empty without any e-mail", () => {
+  it("is empty without any account, also when the contact has an e-mail", () => {
+    expect(excelAccounts(row({}))).toEqual([])
     expect(excelAccounts({"Vorname": "Kontakt"})).toEqual([])
   })
 })
