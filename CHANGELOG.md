@@ -8,6 +8,8 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+## [1.2.0] – 2026-10-21
+
 ### Added
 - **Several logins per community** (platform#166, needs admin-backend with `accounts`). The EEG registration has a
   list „Logins“ under the operator: from the Excel member list it is filled with the main account („Hauptaccount“, or
@@ -19,6 +21,15 @@ this changelog highlights the changes relevant for overview and operations.
 - New page **Registration → EEG Accounts**: choose a community, see its logins (name, e-mail, username, state
   „aktiv“ / „Passwort noch nicht gesetzt“ / „deaktiviert“) and add one (first name, last name, e-mail). Removing a
   login stays in Keycloak.
+- CI: `pr-checks.yml` on every pull request: Jest (unit), Jest with coverage and the
+  production build (full), and a type check.
+- CI: `security-scan.yml` on every pull request, on pushes to the default branch and weekly:
+  leaked secrets in the new commits (Gitleaks, Trivy), vulnerable dependencies (Trivy,
+  OSV-Scanner) and misconfigurations (Trivy). For now the dependency and misconfiguration
+  findings are only reported (`SCAN_FAIL_ON: none`) and do not block; leaked secrets fail.
+- CI: every run keeps its scan and test results as artifacts for 30 days (`scan-*`,
+  `test-results-<job>`, `known-errors-<job>`) for a CI report collector; the secret scan keeps
+  outcomes and counts only.
 
 ### Fixed
 - **EEG registration from the Excel member list takes the email address** (support report 19.10.2026). The import
@@ -34,17 +45,6 @@ this changelog highlights the changes relevant for overview and operations.
   The CRA sample test `src/App.test.tsx` is replaced by a smoke test (sign-in redirect, page without the role
   `superuser`, portal with sidebar); the job „Known errors“ is removed and „Type check“ blocks. The release build uses
   `npm ci` and Node 20.18.0 like `pr-checks.yml`. The act() warnings in the Ponton test are gone.
-
-### Added
-- CI: `pr-checks.yml` on every pull request: Jest (unit), Jest with coverage and the
-  production build (full), and a type check.
-- CI: `security-scan.yml` on every pull request, on pushes to the default branch and weekly:
-  leaked secrets in the new commits (Gitleaks, Trivy), vulnerable dependencies (Trivy,
-  OSV-Scanner) and misconfigurations (Trivy). For now the dependency and misconfiguration
-  findings are only reported (`SCAN_FAIL_ON: none`) and do not block; leaked secrets fail.
-- CI: every run keeps its scan and test results as artifacts for 30 days (`scan-*`,
-  `test-results-<job>`, `known-errors-<job>`) for a CI report collector; the secret scan keeps
-  outcomes and counts only.
 
 ## [1.1.4] – 2026-10-17
 
