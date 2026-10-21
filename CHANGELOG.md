@@ -8,6 +8,17 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+### Added
+- **Several logins per community** (platform#166, needs admin-backend with `accounts`). The EEG registration has a
+  list „Logins“ under the operator: from the Excel member list it is filled with the main account („Hauptaccount“, or
+  the contact if that is empty) and the further accounts 1–3 that have an e-mail; it can be edited, and rows can be
+  added or removed. Exactly these get a login with the same rights and a mail to set their password; an e-mail with
+  an existing account only gets the community added. Empty list: the operator gets the login, as before. After the
+  registration the message names the result per login; a failed login stays visible until it is closed.
+- New page **Registration → EEG Accounts**: choose a community, see its logins (name, e-mail, username, state
+  „aktiv“ / „Passwort noch nicht gesetzt“ / „deaktiviert“) and add one (first name, last name, e-mail). Removing a
+  login stays in Keycloak.
+
 ### Fixed
 - **EEG registration from the Excel member list takes the email address** (support report 19.10.2026). The import
   looked for the column „E-Mail“, the list has „EMail“; the admin login of the new EEG (and with it the EEG's email)

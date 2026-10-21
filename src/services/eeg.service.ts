@@ -1,4 +1,15 @@
-import {EegMember, EegParticipant, EegRegister, GridOperator, PontonRegister, PontonRegisterResponse} from "../model/eeg.model";
+import {
+  AccountResult,
+  AccountUser,
+  AccountView,
+  EegMember,
+  EegParticipant,
+  EegRegister,
+  EegRegistered,
+  GridOperator,
+  PontonRegister,
+  PontonRegisterResponse
+} from "../model/eeg.model";
 import {AuthService} from "./auth.service";
 import {PortalService} from "./portal.service";
 
@@ -79,7 +90,7 @@ export class EegService {
     return response;
   }
 
-  async registerEeg(eeg: EegRegister): Promise<EegRegister> {
+  async registerEeg(eeg: EegRegister): Promise<EegRegistered> {
     const token = await this.getUser()
     return await fetch(`${ADMIN_API_SERVER}/eeg/register`, {
       method: 'POST',
@@ -94,6 +105,27 @@ export class EegService {
         return data;
       }
     });
+  }
+
+  async getAccounts(tenant: string): Promise<AccountView[]> {
+    return await fetch(`${ADMIN_API_SERVER}/eeg/accounts?tenant=${encodeURIComponent(tenant)}`, {
+      method: 'GET',
+      headers: await this.withSecureHeaders({}),
+    }).then(this.handleErrors).then(res => res.json());
+  }
+
+  // The admin-backend answers with the result also for 400/500: it says why the account was not set up.
+  async addAccount(tenant: string, user: AccountUser): Promise<AccountResult> {
+    const res = await fetch(`${ADMIN_API_SERVER}/eeg/account?tenant=${encodeURIComponent(tenant)}`, {
+      method: 'POST',
+      headers: await this.withSecureHeaders({'Content-Type': 'application/json'}),
+      body: JSON.stringify(user),
+    })
+    try {
+      return await res.json() as AccountResult
+    } catch (e) {
+      return {email: user.email, status: "failed", message: res.statusText || `HTTP ${res.status}`}
+    }
   }
 
   async registerPonton(ponton: PontonRegister): Promise<PontonRegisterResponse | undefined> {

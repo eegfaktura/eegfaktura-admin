@@ -2,7 +2,7 @@ import React, {FC, useEffect} from "react";
 import {Alert, Box, Button, IconButton, Step, StepLabel, Stepper, Typography} from "@mui/material";
 
 import {FormProvider, useForm} from "react-hook-form";
-import {AccountInfo, EegRegister} from "../../model/eeg.model";
+import {AccountInfo, AccountResult, EegRegister} from "../../model/eeg.model";
 import CommonEegPropertiesComponent from "../../components/registration/CommonEegProperties.component";
 import UserEegPropertiesComponent from "../../components/registration/UserEegProperties.component";
 import PontonPropertiesComponent from "../../components/registration/PontonProperties.component";
@@ -10,6 +10,18 @@ import {Api, APIError} from "../../services/eeg.service";
 import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 import {RegistrationContext} from "../../hooks/RegistrationContext";
 import {ArrowLeft, ArrowRight} from "@mui/icons-material";
+
+const STATUS_TEXT: Record<AccountResult["status"], string> = {
+  created: "angelegt",
+  linked: "bestehender Account, EEG ergänzt",
+  failed: "fehlgeschlagen",
+}
+
+// One line per login of the registration, e.g. „a@b.at: angelegt; c@d.at: fehlgeschlagen (E-Mail-Adresse ungültig)“.
+export const accountSummary = (results: AccountResult[]): string =>
+  results.length === 0 ? "" : "Logins: " + results
+    .map(a => `${a.email}: ${STATUS_TEXT[a.status] ?? a.status}${a.status === "failed" && a.message ? ` (${a.message})` : ""}`)
+    .join("; ")
 
 const RegistrationPage: FC = () => {
 
@@ -35,6 +47,7 @@ const RegistrationPage: FC = () => {
       streetNumber: "",
       phone: "",
     },
+    accounts: [],
   }
   const steps: { label: string, optional?: boolean }[] = [
     {label: 'Allgemein'},
@@ -106,7 +119,11 @@ const RegistrationPage: FC = () => {
     try {
       Api.eegService.registerEeg(trimEegRegisterData(data))
         .then(r => {
-          setMessage({message: "Mitglied wurde angelegt!", severity: "success"})
+          const results = r?.accounts ?? []
+          setMessage({
+            message: ["EEG wurde angelegt.", accountSummary(results)].filter(Boolean).join(" "),
+            severity: results.some(a => a.status === "failed") ? "warning" : "success"
+          })
           setOpen(true)
           handleReset()
         })
@@ -152,6 +169,9 @@ const RegistrationPage: FC = () => {
     data.user.firstname = data.user.firstname.trim();
     data.user.lastname = data.user.lastname.trim();
     data.user.username = data.user.username.trim()
+    const accounts = (data.accounts ?? []).map(a => ({firstname: a.firstname.trim(), lastname: a.lastname.trim(), email: a.email.trim()}))
+    // empty: the backend sets up the login for the operator, as before
+    data.accounts = accounts.length > 0 ? accounts : undefined
 
     return data;
   }
@@ -186,7 +206,8 @@ const RegistrationPage: FC = () => {
 
   return (
     <Box display="flex" flexDirection="column" height="100%" color={"primary.main"} bgcolor={"background.paper"} overflow={"auto"} padding={"24px"}>
-      <Snackbar autoHideDuration={10000} open={open} onClose={handleClose}>
+      {/* a warning (e.g. a login failed) stays until it is closed */}
+      <Snackbar autoHideDuration={message.severity === "success" ? 10000 : null} open={open} onClose={handleClose}>
         <Alert
           onClose={handleClose}
           severity={message.severity}

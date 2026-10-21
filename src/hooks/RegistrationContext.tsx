@@ -1,5 +1,5 @@
 import React, {createContext, FC, ReactNode, useState} from "react";
-import {AccountInfo, EegRegister} from "../model/eeg.model";
+import {AccountInfo, AccountUser, EegRegister} from "../model/eeg.model";
 import {useSelector} from "react-redux";
 import {selectGridOperators} from "../redux/features/eegStateSlice";
 
@@ -47,6 +47,7 @@ const initialEeg: EegRegister = {
     streetNumber: "",
     phone: "",
   },
+  accounts: [],
 }
 
 // Column headers vary between list versions ("E-Mail" / "EMail", line breaks LF / CRLF): compare without
@@ -57,6 +58,25 @@ export const cell = (row: Record<string, any>, header: string) => {
   return key === undefined ? undefined : row[key]
 }
 const text = (v: any) => (v === undefined || v === null ? "" : String(v).trim())
+
+const accountFrom = (row: Record<string, any>, prefix: string): AccountUser => ({
+  firstname: text(cell(row, `${prefix}\nVorname`)),
+  lastname: text(cell(row, `${prefix}\nNachname`)),
+  email: text(cell(row, `${prefix}\nE-Mail`)),
+})
+
+// Logins from the member list (platform#166): the main account, or the contact if it is empty, and the further
+// accounts 1–3 that have an e-mail. All get the same rights.
+export const excelAccounts = (row: Record<string, any>): AccountUser[] => {
+  const main = accountFrom(row, "Hauptaccount")
+  const contact: AccountUser = {
+    firstname: text(cell(row, fieldTransformer.firstname)),
+    lastname: text(cell(row, fieldTransformer.lastname)),
+    email: text(cell(row, fieldTransformer.email)),
+  }
+  const further = [1, 2, 3].map(i => accountFrom(row, `Nebenaccount ${i}`)).filter(a => a.email)
+  return [main.email ? main : contact, ...further].filter(a => a.email)
+}
 
 const calculateUsername = (firstname: string, lastname: string) => (lastname.slice(0,6)+firstname.slice(0,3)).toLowerCase()
 
@@ -182,6 +202,7 @@ const RegistrationProvider: FC<{children: ReactNode}> = ({children}) => {
         streetNumber: text(cell(data, fieldTransformer.street_nr)),
         phone: text(cell(data, fieldTransformer.phone)),
       },
+      accounts: excelAccounts(data),
     }
     setEeg(formValues);
   }
