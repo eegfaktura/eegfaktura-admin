@@ -36,8 +36,9 @@ const RegistrationAccountsPage: FC = () => {
   const [pending, setPending] = useState(false)
 
   const {control, handleSubmit, reset} = useForm<AccountUser>({defaultValues: emptyUser, mode: "all"})
-  // the list is slow (all Keycloak users): an answer for an EEG that is no longer selected is dropped
+  // the list is slow (all Keycloak users): only the answer to the latest request counts
   const selected = useRef<string | undefined>()
+  const latestLoad = useRef(0)
 
   useEffect(() => {
     Api.eegService.getEeg()
@@ -46,12 +47,13 @@ const RegistrationAccountsPage: FC = () => {
   }, []);
 
   const loadAccounts = (tenant: string) => {
+    const load = ++latestLoad.current
     setAccounts(undefined)
     setLoadError(undefined)
     Api.eegService.getAccounts(tenant)
-      .then(list => { if (selected.current === tenant) setAccounts(list) })
+      .then(list => { if (latestLoad.current === load) setAccounts(list) })
       .catch(() => {
-        if (selected.current !== tenant) return
+        if (latestLoad.current !== load) return
         setAccounts([])
         setLoadError("Accounts konnten nicht geladen werden")
       })
@@ -61,6 +63,7 @@ const RegistrationAccountsPage: FC = () => {
     selected.current = eeg?.tenant
     setResult(undefined)
     if (eeg) loadAccounts(eeg.tenant)
+    else latestLoad.current++
   }, [eeg]);
 
   const onSubmit = (user: AccountUser) => {
@@ -77,7 +80,9 @@ const RegistrationAccountsPage: FC = () => {
           loadAccounts(tenant)
         }
       })
-      .catch(e => setResult({email: trimmed.email, status: "failed", message: e?.message ?? ""}))
+      .catch(e => {
+        if (selected.current === tenant) setResult({email: trimmed.email, status: "failed", message: e?.message ?? ""})
+      })
       .finally(() => setPending(false))
   }
 
