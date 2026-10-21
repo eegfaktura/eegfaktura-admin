@@ -27,10 +27,17 @@ this changelog highlights the changes relevant for overview and operations.
   the column „Lokal/Regional BEG/GEA“ (line break LF in the file, CRLF in the code): every EEG was created as
   „Local“, now GEA and regional are taken over. Every field is taken as trimmed text: empty cells no longer become „undefined“ or
   break the import or the submit, a trailing space in the region no longer turns GEA into „Local“.
+- **CI fails on real build errors** (platform#178). `TSC_COMPILE_ON_ERROR` is gone from `pr-checks.yml` and
+  `rolling-release.yml`: with it the build ended with exit 0 on every error, and an image without the app could have
+  been pushed. Both workflows now check that `build/index.html` exists. The three type errors (MUI dialog
+  `PaperProps` with `component: 'form'`) and the ESLint warnings of the build are fixed, without changing behaviour.
+  The CRA sample test `src/App.test.tsx` is replaced by a smoke test (sign-in redirect, page without the role
+  `superuser`, portal with sidebar); the job „Known errors“ is removed and „Type check“ blocks. The release build uses
+  `npm ci` and Node 20.18.0 like `pr-checks.yml`. The act() warnings in the Ponton test are gone.
 
 ### Added
 - CI: `pr-checks.yml` on every pull request: Jest (unit), Jest with coverage and the
-  production build (full); type check and known failing tests are reported, not blocking.
+  production build (full), and a type check.
 - CI: `security-scan.yml` on every pull request, on pushes to the default branch and weekly:
   leaked secrets in the new commits (Gitleaks, Trivy), vulnerable dependencies (Trivy,
   OSV-Scanner) and misconfigurations (Trivy). For now the dependency and misconfiguration

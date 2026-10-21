@@ -1,6 +1,6 @@
 import {FC, FormEvent, ReactNode} from "react";
 import {create} from "zustand";
-import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@mui/material";
+import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, PaperProps} from "@mui/material";
 
 type EditDialogState<T> = {
   children?: ReactNode
@@ -12,7 +12,7 @@ type EditDialogState<T> = {
 
 type EditDialogState1 = {
   children?: ReactNode
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onSubmit: (event: FormEvent) => void;
   onClose: () => void;
   header?: string;
 }
@@ -24,7 +24,7 @@ const useEditDialogStore = <T,>() =>
 }))
 
 const useEditDialogStore1 = create<EditDialogState1>((set) => ({
-    onSubmit: (event: FormEvent<HTMLFormElement>) => {},
+    onSubmit: (event: FormEvent) => {},
     onClose: () => set({children: undefined}),
   }))
 
@@ -35,7 +35,7 @@ export const useOpenDialog = <T,>(children: ReactNode,
 }
 
 export const openDialog = (children: ReactNode,
-                                  header: string, onSubmit: (event: FormEvent<HTMLFormElement>) => void) => {
+                                  header: string, onSubmit: (event: FormEvent) => void) => {
   useEditDialogStore1.setState({children, onSubmit, header});
 }
 
@@ -43,14 +43,15 @@ export const EditDialogProvider: FC = () => {
   const {children, onSubmit, onClose, header} = useEditDialogStore1();
   return (
     <Dialog open={Boolean(children)} onClose={onClose}
+            // MUI 5.14 types PaperProps without `component`; Paper renders the form at runtime.
             PaperProps={{
               component: 'form',
-              onSubmit: (event: FormEvent<HTMLFormElement>) => {
+              onSubmit: (event: FormEvent) => {
                 event.preventDefault();
                 onSubmit(event)
                 onClose()
               },
-            }}
+            } as Partial<PaperProps>}
     >
       <DialogTitle>{header}</DialogTitle>
       <DialogContent>

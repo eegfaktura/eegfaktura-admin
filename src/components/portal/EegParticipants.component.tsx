@@ -5,8 +5,6 @@ import {
   GridActionsCellItem,
   GridCallbackDetails,
   GridColDef,
-  GridRowParams,
-  MuiEvent,
 
 } from "@mui/x-data-grid";
 import {Box, createTheme, ThemeProvider} from "@mui/material";
@@ -92,10 +90,6 @@ const EegParticipantItem: FC = () => {
       },
     },
   ];
-
-  const onSelectRow = (params: GridRowParams, event: MuiEvent, details: GridCallbackDetails) => {
-    selectParticipant(params.row)
-  }
 
   if (participants === undefined || participants.length === 0) {
     return <></>

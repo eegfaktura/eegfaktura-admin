@@ -8,7 +8,7 @@ import {
   FormControl,
   FormControlLabel,
   Radio,
-  RadioGroup, TextField
+  PaperProps, RadioGroup, TextField
 } from "@mui/material";
 import {Controller, useForm} from "react-hook-form";
 import {EegParticipant} from "../../../model/eeg.model";
@@ -39,14 +39,15 @@ export const ParticipantCellEditDialog: FC = () => {
 
   return (
     <Dialog open={Boolean(row)} onClose={onClose} fullWidth
+            // MUI 5.14 types PaperProps without `component`; Paper renders the form at runtime.
             PaperProps={{
               component: 'form',
-              onSubmit: (event: FormEvent<HTMLFormElement>) => {
+              onSubmit: (event: FormEvent) => {
                 event.preventDefault();
                 handleSubmit(onUpdate)(event)
                 onClose()
               },
-            }}
+            } as Partial<PaperProps>}
     >
       <DialogTitle>Participant</DialogTitle>
       <DialogContent>

@@ -1,5 +1,3 @@
-import {colors, useTheme} from "@mui/material";
-import {themeOptions} from "../App";
 
 const colorConfigs = {
   sidebar: {
