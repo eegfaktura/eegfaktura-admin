@@ -121,10 +121,13 @@ export class EegService {
       headers: await this.withSecureHeaders({'Content-Type': 'application/json'}),
       body: JSON.stringify(user),
     })
+    const fallback: AccountResult = {email: user.email, status: "failed", message: res.statusText || `HTTP ${res.status}`}
     try {
-      return await res.json() as AccountResult
+      const body = await res.json()
+      // e.g. 403 {"error": …}: no result, so it failed
+      return body && typeof body.status === "string" ? body as AccountResult : fallback
     } catch (e) {
-      return {email: user.email, status: "failed", message: res.statusText || `HTTP ${res.status}`}
+      return fallback
     }
   }
 
