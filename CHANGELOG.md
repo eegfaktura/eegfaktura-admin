@@ -8,6 +8,21 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+### Security
+- Vulnerable dependencies updated within their semver ranges (platform#178): the Trivy scan goes from
+  46 findings (2 CRITICAL, 44 HIGH) to 12 HIGH, none CRITICAL. `lodash` 4.18.1 (direct dependency, but not
+  imported anywhere in `src`, so not in the bundle); the rest comes from the `react-scripts` build, test and
+  dev-server toolchain: `proxy-addr`
+  2.0.8, `shell-quote` 1.12.0 (`overrides` floor raised to ≥1.11.0), `source-map-js` 1.2.2, `rollup` 2.80.0,
+  `@babel/plugin-transform-modules-systemjs` 7.29.8 (with `@babel/traverse` 7.29.10), `minimatch` 3.1.5 / 5.1.9, `http-proxy-middleware`
+  2.0.10, `launch-editor` 2.14.2, `cross-spawn` 7.0.6, `picomatch` 2.3.2, `node-forge` 1.4.0,
+  `webpack-dev-middleware` 5.3.4, `flatted` 3.4.4, `braces` 3.0.3, `compression` 1.8.2, `semver` 6.3.1,
+  `svgo` 2.8.4 and `postcss` 8.5.31. Left open because only a major version fixes them: `svgo` 1.x /
+  `nth-check` 1.x, `postcss` 7.x, `serialize-javascript` 4.x/6.x, `webpack-dev-middleware` CVE-2026-76844;
+  without any fix: `braces` CVE-2026-93687, `node-forge` CVE-2026-85393. Also open: `xlsx` 0.18.5, the only
+  vulnerable package shipped in the bundle (it reads the uploaded Excel files in `ExcelUploader`); its fixed
+  versions are only on the SheetJS CDN, not on npm, the decision is pending.
+
 ## [1.2.0] – 2026-10-21
 
 ### Added
