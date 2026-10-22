@@ -70,7 +70,7 @@
   "overrides": {
     "@babel/traverse": "^7.23.2",
     "form-data": "^3.0.4",
-    "shell-quote": "^1.8.4",
+    "shell-quote": "^1.11.0",
     "crypto-js": "^4.2.0"
   }
 }
