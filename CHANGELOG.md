@@ -26,6 +26,9 @@ this changelog highlights the changes relevant for overview and operations.
   vulnerable package shipped in the bundle (it reads the uploaded Excel files in `ExcelUploader`); its fixed
   versions are only on the SheetJS CDN, not on npm, the decision is pending.
 
+### CI
+- `rolling-release.yml`: no image build on a draft pull request — it runs when the pull request is marked ready for review (`ready_for_review`) and on every later push to it; `pr-checks.yml` still checks drafts. Pushes, tags and the deploy dispatch are unchanged.
+
 ## [1.2.0] – 2026-10-21
 
 ### Added
