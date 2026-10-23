@@ -9,6 +9,9 @@ this changelog highlights the changes relevant for overview and operations.
 ## [Unreleased]
 
 ### Security
+- `react-router-dom` 6.30.4 → 6.30.6 (with `react-router` 6.30.6, `@remix-run/router` 1.23.4): fixes the open redirect
+  leading to XSS (GHSA-jjmj-jmhj-qwj2 / CVE-2026-53668, Dependabot #135). Patch release within the semver range,
+  published 2026-08-18.
 - Vulnerable dependencies updated within their semver ranges (platform#178): the Trivy scan goes from
   46 findings (2 CRITICAL, 44 HIGH) to 12 HIGH, none CRITICAL. `lodash` 4.18.1 (direct dependency, but not
   imported anywhere in `src`, so not in the bundle); the rest comes from the `react-scripts` build, test and
