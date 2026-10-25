@@ -8,6 +8,8 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+## [1.2.1] – 2026-10-25
+
 ### Security
 - `react-router-dom` 6.30.4 → 6.30.6 (with `react-router` 6.30.6, `@remix-run/router` 1.23.4): fixes the open redirect
   leading to XSS (GHSA-jjmj-jmhj-qwj2 / CVE-2026-53668, Dependabot #135). Patch release within the semver range,
