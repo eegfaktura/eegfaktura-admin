@@ -1,6 +1,6 @@
 # Basis gepinnt statt :latest - sonst zieht jeder Build eine beliebige neue
 # Caddy-Version, ohne dass es jemand merkt. Gleiche Version wie eegfaktura-web.
-FROM caddy:2.8.4
+FROM caddy:2.11.7
 
 ADD build /var/www/html/registration-web/
 
