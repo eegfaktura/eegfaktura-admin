@@ -8,6 +8,8 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+## [1.2.2] – 2026-10-28
+
 ### Security
 - Runtime image `caddy:2.8.4` → `caddy:2.11.7` (release 2026-10-03, Docker image tag 2026-10-05). 2.8.4 sat on
   Alpine 3.20 (end of support) and Go 1.22; the prod image scan of 2026-10-28 counted 7 CRITICAL / 89 HIGH,
