@@ -1,7 +1,7 @@
 import {FC, FormEvent, ReactNode} from "react";
 import {Alert, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, PaperProps} from "@mui/material";
 import { create } from "zustand";
-import {saveFailedMessage} from "../../services/portal.service";
+import {submitAndClose} from "../common/submitAndClose";
 
 
 type CellEditDialogState = {
@@ -10,6 +10,7 @@ type CellEditDialogState = {
   onClose: () => void;
   header?: string;
   error?: string;
+  pending?: boolean;
 }
 
 const useCellEditDialogStore = create<CellEditDialogState>((set) => ({
@@ -18,11 +19,11 @@ const useCellEditDialogStore = create<CellEditDialogState>((set) => ({
 }))
 
 export const editDialog = (children: ReactNode, header: string, onSubmit: () => Promise<unknown> | void) => {
-  useCellEditDialogStore.setState({children, onSubmit, header, error: undefined});
+  useCellEditDialogStore.setState({children, onSubmit, header, error: undefined, pending: false});
 }
 
 export const CellEditDialog: FC = () => {
-  const {children, onSubmit, onClose, header, error} = useCellEditDialogStore();
+  const {children, onSubmit, onClose, header, error, pending} = useCellEditDialogStore();
   return (
     <Dialog open={Boolean(children)} onClose={onClose}
       // MUI 5.14 types PaperProps without `component`; Paper renders the form at runtime.
@@ -30,13 +31,7 @@ export const CellEditDialog: FC = () => {
         component: 'form',
         onSubmit: async (event: FormEvent) => {
           event.preventDefault();
-          // close only when the save went through; a failed save stays open with the error
-          try {
-            await onSubmit()
-            onClose()
-          } catch (e) {
-            useCellEditDialogStore.setState({error: saveFailedMessage(e)})
-          }
+          await submitAndClose(useCellEditDialogStore, "onSubmit", onSubmit, onClose)
         },
       } as Partial<PaperProps>}
     >
@@ -50,7 +45,7 @@ export const CellEditDialog: FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
-          <Button type="submit">Subscribe</Button>
+          <Button type="submit" disabled={pending}>Subscribe</Button>
         </DialogActions>
     </Dialog>
   )

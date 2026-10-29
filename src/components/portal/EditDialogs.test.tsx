@@ -30,6 +30,22 @@ describe("CellEditDialog", () => {
     await waitFor(() => expect(screen.queryByText("Update ACTIVESINCE")).not.toBeInTheDocument())
   })
 
+  it("sends one save at a time and ignores the result of a save for a row closed meanwhile", async () => {
+    const first = deferred()
+    const calls: string[] = []
+    render(<CellEditDialog/>)
+    act(() => editDialog(<div>Inhalt</div>, "Zeile 1", () => { calls.push("1"); return first.promise }))
+
+    userEvent.click(screen.getByRole("button", {name: "Subscribe"}))
+    userEvent.click(screen.getByRole("button", {name: "Subscribe"}))
+    expect(calls).toEqual(["1"])
+
+    // cancelled while pending, another row opened: the first save's result must not close it
+    act(() => editDialog(<div>Inhalt</div>, "Zeile 2", () => Promise.resolve()))
+    await act(async () => first.resolve())
+    expect(screen.getByText("Zeile 2")).toBeInTheDocument()
+  })
+
   it("stays open and shows the error when the save fails", async () => {
     render(<CellEditDialog/>)
     act(() => editDialog(<div>Inhalt</div>, "Update ACTIVESINCE", () => Promise.reject(new Error("400"))))

@@ -1,6 +1,6 @@
 import {FC, FormEvent, ReactNode} from "react";
 import {create} from "zustand";
-import {saveFailedMessage} from "../../services/portal.service";
+import {submitAndClose} from "./submitAndClose";
 import {Alert, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, PaperProps} from "@mui/material";
 
 type EditDialogState<T> = {
@@ -17,6 +17,7 @@ type EditDialogState1 = {
   onClose: () => void;
   header?: string;
   error?: string;
+  pending?: boolean;
 }
 
 const useEditDialogStore = <T,>() =>
@@ -38,11 +39,11 @@ export const useOpenDialog = <T,>(children: ReactNode,
 
 export const openDialog = (children: ReactNode,
                                   header: string, onSubmit: (event: FormEvent) => Promise<unknown> | void) => {
-  useEditDialogStore1.setState({children, onSubmit, header, error: undefined});
+  useEditDialogStore1.setState({children, onSubmit, header, error: undefined, pending: false});
 }
 
 export const EditDialogProvider: FC = () => {
-  const {children, onSubmit, onClose, header, error} = useEditDialogStore1();
+  const {children, onSubmit, onClose, header, error, pending} = useEditDialogStore1();
   return (
     <Dialog open={Boolean(children)} onClose={onClose}
             // MUI 5.14 types PaperProps without `component`; Paper renders the form at runtime.
@@ -50,13 +51,7 @@ export const EditDialogProvider: FC = () => {
               component: 'form',
               onSubmit: async (event: FormEvent) => {
                 event.preventDefault();
-                // close only when the save went through; a failed save stays open with the error
-                try {
-                  await onSubmit(event)
-                  onClose()
-                } catch (e) {
-                  useEditDialogStore1.setState({error: saveFailedMessage(e)})
-                }
+                await submitAndClose(useEditDialogStore1, "onSubmit", () => onSubmit(event), onClose)
               },
             } as Partial<PaperProps>}
     >
@@ -70,7 +65,7 @@ export const EditDialogProvider: FC = () => {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button type="submit">Subscribe</Button>
+        <Button type="submit" disabled={pending}>Subscribe</Button>
       </DialogActions>
     </Dialog>
   )

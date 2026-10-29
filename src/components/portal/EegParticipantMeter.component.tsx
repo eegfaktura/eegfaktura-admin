@@ -55,18 +55,14 @@ const ProcessStateEditor: FC<{params: GridRenderCellParams<Metering, string>, up
       processData.value["inactiveSince"] = (moment(meter.inactiveSince).unix()*1000).toString()
     }
 
-    // returned so the dialog waits for it; a failure resets the form and shows the error there
+    // returned so the dialog waits for it; a failure keeps the entered value and shows the error there
     return Api.portalService.changeProcessState("PROCESSSTATUS", processData)
       .then(row => {
         updateMeter(row)
-      })
-      .catch(e => {
-        reset();
-        throw e;
       });
     // params.api.getSelectedRows().set(params.row.meteringPoint, params.row);
   }
-  const { handleSubmit, control, reset } = useForm<Metering>({
+  const { handleSubmit, control } = useForm<Metering>({
     defaultValues: {
       ...params.row
     },

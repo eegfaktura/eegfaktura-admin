@@ -27,16 +27,12 @@ export const DateCellEditor: FC<{params: GridRenderCellParams<Metering, any>, la
       meteringPoint: params.row.meteringPoint,
       value: {[propertyName]: convertValue((meter as any)[propertyName])}} as AdminUpdateData;
 
-    // returned so the dialog waits for it; a failure resets the form and shows the error there
+    // returned so the dialog waits for it; a failure keeps the entered value and shows the error there
     return Api.portalService.changeProcessState(proto, processData)
-      .then(row => updateMeter(row))
-      .catch(e => {
-        reset();
-        throw e;
-      });
+      .then(row => updateMeter(row));
   }
 
-  const { handleSubmit, control, reset } = useForm<Metering>({
+  const { handleSubmit, control } = useForm<Metering>({
     defaultValues: {
       ...params.row
     },

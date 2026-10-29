@@ -14,13 +14,14 @@ import {
 import {Controller, useForm} from "react-hook-form";
 import {EegParticipant} from "../../../model/eeg.model";
 import {create} from "zustand";
-import {saveFailedMessage} from "../../../services/portal.service";
+import {submitAndClose} from "../../common/submitAndClose";
 
 type ParticipantEditDialogState = {
   row?: EegParticipant
   onClose: () => void;
   onUpdate: (data: EegParticipant) => Promise<unknown> | void;
   error?: string;
+  pending?: boolean;
 }
 
 const useParticipantEditDialogStore = create<ParticipantEditDialogState>((set) => ({
@@ -29,11 +30,11 @@ const useParticipantEditDialogStore = create<ParticipantEditDialogState>((set) =
 }))
 
 export const openParticipantDialog = (row: EegParticipant, onUpdate: (data: EegParticipant) => Promise<unknown> | void) => {
-  useParticipantEditDialogStore.setState({row, onUpdate, error: undefined});
+  useParticipantEditDialogStore.setState({row, onUpdate, error: undefined, pending: false});
 }
 
 export const ParticipantCellEditDialog: FC = () => {
-  const {row, onUpdate, onClose, error} = useParticipantEditDialogStore();
+  const {row, onUpdate, onClose, error, pending} = useParticipantEditDialogStore();
 
   const { handleSubmit, control, formState } = useForm<EegParticipant>({
     values: row ?
@@ -47,13 +48,7 @@ export const ParticipantCellEditDialog: FC = () => {
               component: 'form',
               onSubmit: async (event: FormEvent) => {
                 event.preventDefault();
-                // close only when the save went through; a failed save stays open with the error
-                try {
-                  await handleSubmit(onUpdate)(event)
-                  onClose()
-                } catch (e) {
-                  useParticipantEditDialogStore.setState({error: saveFailedMessage(e)})
-                }
+                await submitAndClose(useParticipantEditDialogStore, "onUpdate", () => handleSubmit(onUpdate)(event), onClose)
               },
             } as Partial<PaperProps>}
     >
@@ -100,7 +95,7 @@ export const ParticipantCellEditDialog: FC = () => {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button type="submit" disabled={!formState.isDirty}>Subscribe</Button>
+        <Button type="submit" disabled={!formState.isDirty || pending}>Subscribe</Button>
       </DialogActions>
     </Dialog>
   )
