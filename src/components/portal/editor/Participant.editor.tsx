@@ -1,5 +1,6 @@
 import {FC, FormEvent} from "react";
 import {
+  Alert,
   Button, Dialog,
   DialogActions,
   DialogContent,
@@ -13,24 +14,26 @@ import {
 import {Controller, useForm} from "react-hook-form";
 import {EegParticipant} from "../../../model/eeg.model";
 import {create} from "zustand";
+import {saveFailedMessage} from "../../../services/portal.service";
 
 type ParticipantEditDialogState = {
   row?: EegParticipant
   onClose: () => void;
-  onUpdate: (data: EegParticipant) => void;
+  onUpdate: (data: EegParticipant) => Promise<unknown> | void;
+  error?: string;
 }
 
 const useParticipantEditDialogStore = create<ParticipantEditDialogState>((set) => ({
   onUpdate: (data: EegParticipant) => {},
-  onClose: () => set({row: undefined})
+  onClose: () => set({row: undefined, error: undefined})
 }))
 
-export const openParticipantDialog = (row: EegParticipant, onUpdate: (data: EegParticipant) => void) => {
-  useParticipantEditDialogStore.setState({row, onUpdate});
+export const openParticipantDialog = (row: EegParticipant, onUpdate: (data: EegParticipant) => Promise<unknown> | void) => {
+  useParticipantEditDialogStore.setState({row, onUpdate, error: undefined});
 }
 
 export const ParticipantCellEditDialog: FC = () => {
-  const {row, onUpdate, onClose} = useParticipantEditDialogStore();
+  const {row, onUpdate, onClose, error} = useParticipantEditDialogStore();
 
   const { handleSubmit, control, formState } = useForm<EegParticipant>({
     values: row ?
@@ -42,10 +45,15 @@ export const ParticipantCellEditDialog: FC = () => {
             // MUI 5.14 types PaperProps without `component`; Paper renders the form at runtime.
             PaperProps={{
               component: 'form',
-              onSubmit: (event: FormEvent) => {
+              onSubmit: async (event: FormEvent) => {
                 event.preventDefault();
-                handleSubmit(onUpdate)(event)
-                onClose()
+                // close only when the save went through; a failed save stays open with the error
+                try {
+                  await handleSubmit(onUpdate)(event)
+                  onClose()
+                } catch (e) {
+                  useParticipantEditDialogStore.setState({error: saveFailedMessage(e)})
+                }
               },
             } as Partial<PaperProps>}
     >
@@ -54,6 +62,7 @@ export const ParticipantCellEditDialog: FC = () => {
         <DialogContentText>
           Update Mitglied
         </DialogContentText>
+        {error && <Alert severity="error">{error}</Alert>}
         <FormControl fullWidth>
           <Controller
             rules={{ required: true }}

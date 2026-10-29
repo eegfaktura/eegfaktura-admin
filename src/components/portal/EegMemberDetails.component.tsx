@@ -78,7 +78,8 @@ const EegMemberDetailsComponent: FC = () => {
       value: data,
     } as AdminUpdateData;
 
-    Api.portalService.changeEegState("EEG", eegData)
+    // returned so the dialog waits for it and shows a failure
+    return Api.portalService.changeEegState("EEG", eegData)
       // .then(d => {
       // setSettlementInterval(d.settlementInterval)
       // return d})

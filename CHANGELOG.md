@@ -8,6 +8,16 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+### Fixed
+- **Portal: a failed master-data save is shown instead of hidden** (eegfaktura-dev tracking admin 261005-ca1). The edit
+  dialogs for metering points (process state, active/inactive since), participants and the EEG settlement closed before
+  the request finished; a failed save gave no message, the metering-point editors silently reset the form. Now the
+  dialog waits for the save, closes only when it went through, and otherwise stays open with the error
+  („Speichern fehlgeschlagen: <HTTP status>“); the metering-point editors still reset the form, now with that error.
+  Every 2xx answer counts as success (before, any 2xx other than 200 passed `undefined` on to the table). A refused
+  update reaches the admin web as an error only with admin-backend 261005-ca13 (the backend's refusal answers 400
+  there; before, admin-backend answered 200).
+
 ### Security
 - **CI: the release workflow pins its actions by commit SHA** (eegfaktura-dev tracking W-261028-mm6). `rolling-release.yml`
   builds and pushes the shipped image, but used floating tags (`@v4`, `@v3`, …); a moved tag ran in the job that holds
