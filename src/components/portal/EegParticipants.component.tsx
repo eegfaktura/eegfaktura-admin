@@ -42,7 +42,8 @@ const EegParticipantItem: FC = () => {
       value: extractProperties(participant, {"businessRole": "businessRole", "firstName": "firstname", "lastName": "lastname"})
     } as AdminUpdateData;
 
-    Api.portalService.changeParticipantState("PARTICIPANT", processData)
+    // returned so the dialog waits for it and shows a failure
+    return Api.portalService.changeParticipantState("PARTICIPANT", processData)
       .then(row => updateParticipant(row))
   }
 
