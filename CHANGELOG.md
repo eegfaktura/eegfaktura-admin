@@ -8,6 +8,15 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+### Changed
+- **Build: Vite + Vitest instead of create-react-app (`react-scripts` 5.0.1, unmaintained).** `npm start` / `npm run build`
+  / `npm test` keep their names; the build still writes `build/` (with source maps), so the Dockerfile and the image are
+  unchanged, and the runtime configuration (`/config/keycloak-config.json`, rendered by Caddy from `KEYCLOAK_*`) is
+  untouched — no deployment change. The `.env*` variables keep their `REACT_APP_` prefix (now read through
+  `import.meta.env`); the dev proxies moved from `src/setupProxy.js` to `vite.config.ts`. Tests run on Vitest (jsdom),
+  unchanged in content. Dropped with react-scripts: the ESLint run inside the build (`eslintConfig` react-app), the
+  `browserslist` (Vite's default targets: browsers with ES2020 support) and the CI coverage report.
+
 ### Fixed
 - **Portal: a failed master-data save is shown instead of hidden** (eegfaktura-dev tracking admin 261005-ca1). The edit
   dialogs for metering points (process state, active/inactive since), participants and the EEG settlement closed before
@@ -19,6 +28,10 @@ this changelog highlights the changes relevant for overview and operations.
   there; before, admin-backend answered 200).
 
 ### Security
+- **Build tooling: react-scripts and its webpack/Jest/Babel tree removed** from `package-lock.json`, and with it the
+  Dependabot alerts for body-parser, node-forge, nth-check, postcss, serialize-javascript, svgo,
+  webpack-dev-middleware, webpack-dev-server and others from that tree (build and dev-server tooling; none of it was
+  part of the shipped bundle). `xlsx` is unchanged (separate follow-up).
 - **CI: the release workflow pins its actions by commit SHA** (eegfaktura-dev tracking W-261028-mm6). `rolling-release.yml`
   builds and pushes the shipped image, but used floating tags (`@v4`, `@v3`, …); a moved tag ran in the job that holds
   the push credentials. Now every action is pinned to a commit, the same SHAs `pr-checks.yml` and `security-scan.yml` already
