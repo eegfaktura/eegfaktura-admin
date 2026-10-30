@@ -13,9 +13,12 @@ this changelog highlights the changes relevant for overview and operations.
   / `npm test` keep their names; the build still writes `build/` (with source maps), so the Dockerfile and the image are
   unchanged, and the runtime configuration (`/config/keycloak-config.json`, rendered by Caddy from `KEYCLOAK_*`) is
   untouched — no deployment change. The `.env*` variables keep their `REACT_APP_` prefix (now read through
-  `import.meta.env`); the dev proxies moved from `src/setupProxy.js` to `vite.config.ts`. Tests run on Vitest (jsdom),
-  unchanged in content. Dropped with react-scripts: the ESLint run inside the build (`eslintConfig` react-app), the
-  `browserslist` (Vite's default targets: browsers with ES2020 support) and the CI coverage report.
+  `import.meta.env`); the dev proxies moved from `src/setupProxy.js` to `vite.config.ts` (plus `/energystore`; port 3000
+  is now strict). Tests run on Vitest (jsdom), unchanged in content, with coverage in CI (`@vitest/coverage-v8`). The
+  ESLint gate of the CRA build is now `npm run lint` (`.eslintrc.cjs`: the rules of react-scripts' `react-app` config,
+  without Flow; any warning fails) and a CI step. Type checks: the app without test types (`tsconfig.json`), the tests
+  (`tsconfig.test.json`) and `vite.config.ts` (`tsconfig.node.json`), all in `npm run build`. Dropped: the
+  `browserslist` (Vite's default targets: browsers with ES2020 support).
 
 ### Fixed
 - **Portal: a failed master-data save is shown instead of hidden** (eegfaktura-dev tracking admin 261005-ca1). The edit

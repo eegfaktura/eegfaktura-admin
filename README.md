@@ -33,6 +33,7 @@ for Austrian renewable energy communities (*Erneuerbare-Energiegemeinschaften*, 
 npm install
 npm run build      # type check, then the production bundle in build/
 npm test           # Vitest (watch mode; `npx vitest run` runs once)
+npm run lint       # ESLint, fails on any warning (as the CRA build did)
 ```
 
 ## Run
