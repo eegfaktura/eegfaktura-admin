@@ -13,7 +13,7 @@ import {
 import {AuthService} from "./auth.service";
 import {PortalService} from "./portal.service";
 
-const ADMIN_API_SERVER = process.env.REACT_APP_ADMIN_SERVER_URL;
+const ADMIN_API_SERVER = import.meta.env.REACT_APP_ADMIN_SERVER_URL;
 
 export class APIError extends Error {
   status: number;

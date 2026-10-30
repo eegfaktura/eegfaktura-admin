@@ -8,7 +8,7 @@ import {AdminUpdateData} from "../model/admin.model";
 const authService = {getToken: async () => "token"} as unknown as AuthService
 
 const mockFetch = (httpStatus: number, body: unknown, statusText = "") => {
-  global.fetch = jest.fn().mockResolvedValue({
+  global.fetch = vi.fn().mockResolvedValue({
     ok: httpStatus >= 200 && httpStatus < 300,
     status: httpStatus,
     statusText,

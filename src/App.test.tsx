@@ -7,7 +7,7 @@ import App from './App';
 // Smoke test of the app shell: sign-in redirect, the page for accounts without the role
 // `superuser`, and the portal layout with the sidebar. Keycloak (react-oidc-context) is mocked.
 const mockAuth: Record<string, any> = {};
-jest.mock("react-oidc-context", () => ({
+vi.mock("react-oidc-context", () => ({
   useAuth: () => mockAuth,
   hasAuthParams: () => false,
 }));
@@ -22,8 +22,8 @@ const setAuth = (isAuthenticated: boolean, roles: string[] = []) => {
     isLoading: false,
     activeNavigator: undefined,
     user: isAuthenticated ? {access_token: token(roles)} : undefined,
-    signinRedirect: jest.fn(),
-    removeUser: jest.fn(),
+    signinRedirect: vi.fn(),
+    removeUser: vi.fn(),
   });
 };
 

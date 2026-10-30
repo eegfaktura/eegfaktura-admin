@@ -2,8 +2,8 @@ import {AuthService} from "./auth.service";
 import {EegMember, EegParticipant, Metering} from "../model/eeg.model";
 import {AdminUpdateData} from "../model/admin.model";
 
-const ADMIN_API_SERVER = process.env.REACT_APP_ADMIN_SERVER_URL;
-const ENERGY_SERVER = process.env.REACT_APP_ENERGY_SERVER_URL;
+const ADMIN_API_SERVER = import.meta.env.REACT_APP_ADMIN_SERVER_URL;
+const ENERGY_SERVER = import.meta.env.REACT_APP_ENERGY_SERVER_URL;
 
 export class PortalService {
 
