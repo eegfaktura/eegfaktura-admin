@@ -1,7 +1,7 @@
-# Tests on every pull request: the unit tests (Vitest) and the full suite (the tests, then the
-# production build as rolling-release.yml makes it). "Type check" runs tsc on its own, so a type
-# error shows up under its own name. All jobs block: the build (tsc && vite build) fails on type errors.
-# No coverage since the move from react-scripts to Vite (Vitest needs an extra package for it).
+# Tests on every pull request: the unit tests (Vitest) and the full suite (the tests with coverage, then
+# the production build as rolling-release.yml makes it). "Type check" runs tsc and ESLint on their own,
+# so a type error or lint finding shows up under its own name. All jobs block: the build fails on type
+# errors, ESLint (npm run lint, the rules of react-scripts' react-app config) on any warning.
 # Versions fixed, each release older than 7 days (checked 2026-10-09): Node 20.18.0, npm as shipped
 # with it, dependencies exactly from package-lock.json (npm ci). Actions pinned by commit SHA.
 # Every job keeps its output as an artifact for 30 days (test-results-<job>, known-errors-typecheck),
@@ -80,11 +80,11 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Tests
+      - name: Tests with coverage
         run: |
           set -o pipefail
           mkdir -p "$RUNNER_TEMP/results"
-          npx vitest run 2>&1 \
+          npx vitest run --coverage 2>&1 \
             | tee "$RUNNER_TEMP/results/full.log"
 
       - name: Production build
@@ -126,6 +126,11 @@ jobs:
           set -o pipefail
           mkdir -p "$RUNNER_TEMP/results"
           npx tsc --noEmit 2>&1 | tee "$RUNNER_TEMP/results/tsc.log"
+
+      - name: ESLint
+        run: |
+          set -o pipefail
+          npm run lint 2>&1 | tee "$RUNNER_TEMP/results/eslint.log"
 
       - name: Keep the check output
         if: always()
