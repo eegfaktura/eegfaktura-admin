@@ -29,7 +29,8 @@ const ExcelUploader: React.FC<{fileName: string | null, onLoad:(fileName: string
       const buffer = await file.arrayBuffer();
 
       // 2. Parse with SheetJS
-      const workbook = XLSX.read(buffer, { type: 'array' });
+      // raw: keep CSV cells as written. Without it SheetJS reads "12 a" as a time and "12 / 3" as a date. No effect on .xlsx and .xls.
+      const workbook = XLSX.read(buffer, { type: 'array', raw: true });
 
       // 3. Grab the first sheet
       const firstSheetName = workbook.SheetNames[0];
