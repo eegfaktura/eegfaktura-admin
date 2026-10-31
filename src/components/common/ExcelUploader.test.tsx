@@ -85,6 +85,16 @@ describe("member list upload (.xlsx)", () => {
   })
 })
 
+describe("member list upload (HTML saved as .xls)", () => {
+  it("keeps the cells as written", async () => {
+    const row = (...cells: string[]) => `<tr>${cells.map(c => `<td>${c}</td>`).join("")}</tr>`
+    const html = `<table>${row("RC-Nummer", "Nr.", "Telefon")}${row("x")}${row("y")}${row("TRUE", "12/3", "0664123")}</table>`
+    await upload("list.xls", new TextEncoder().encode(html))
+    expect(current.eeg.tenant).toBe("TRUE")
+    expect(current.eeg.contact).toMatchObject({streetNumber: "12/3", phone: "0664123"})
+  })
+})
+
 describe("member list upload (.csv)", () => {
   it.each(["12 a", "12 A", "1 a", "12 / 3", "12 3", "12:30", "12/3", "3-5", "1.2", "12a", "12 Top 3"])(
     "keeps the house number %s as text", async (nr) => {
