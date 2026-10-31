@@ -9,6 +9,9 @@ this changelog highlights the changes relevant for overview and operations.
 ## [Unreleased]
 
 ### Fixed
+- **A refused registration shows why** (261015-ca1). When the admin-backend refuses an EEG that exists (code 409), the
+  page shows its message („EEG … ist bereits registriert. Es wurde nichts geändert.“) instead of „Error beim Anlegen des
+  Mitglieds“. Needs the admin-backend version that answers 409; before that nothing changes. Deploy order: free.
 - **Dates of a metering point no longer depend on the browser's time zone** (261005-ca3). „Aktiv seit“/„Inaktiv seit“
   went out as local midnight in epoch ms and the backend keeps the day of that moment in Europe/Berlin: in a browser
   further east the date came out one day early. They now go out as noon UTC of the picked day, which is that day in the
