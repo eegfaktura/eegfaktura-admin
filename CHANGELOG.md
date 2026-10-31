@@ -8,10 +8,12 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+## [1.2.3] – 2026-10-31
+
 ### Changed
 - **Build: Vite + Vitest instead of create-react-app (`react-scripts` 5.0.1, unmaintained).** `npm start` / `npm run build`
-  / `npm test` keep their names; the build still writes `build/` (with source maps), so the Dockerfile and the image are
-  unchanged, and the runtime configuration (`/config/keycloak-config.json`, rendered by Caddy from `KEYCLOAK_*`) is
+  / `npm test` keep their names; the build still writes `build/` (with source maps), so the Dockerfile and the layout of the image
+  are unchanged, and the runtime configuration (`/config/keycloak-config.json`, rendered by Caddy from `KEYCLOAK_*`) is
   untouched — no deployment change. The `.env*` variables keep their `REACT_APP_` prefix (now read through
   `import.meta.env`); the dev proxies moved from `src/setupProxy.js` to `vite.config.ts` (plus `/energystore`; port 3000
   is now strict). Tests run on Vitest (jsdom), unchanged in content, with coverage in CI (`@vitest/coverage-v8`). The
