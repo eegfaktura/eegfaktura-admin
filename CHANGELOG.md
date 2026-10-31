@@ -36,7 +36,7 @@ this changelog highlights the changes relevant for overview and operations.
     file format: a text cell of an `.xlsx` that literally holds `="…"` is unwrapped too.
   - **A formula in a CSV, such as `=A1` or `=1+1`, now shows literally.** 0.18.5 dropped such a cell, the field stayed
     empty. This comes with the version upgrade, not with `raw: true`.
-  - Left open, unchanged: a `.csv` in UTF-8 **without** BOM shows umlauts wrongly (`Hauptstraße` → `HauptstraÃe`), as
+  - Left open, unchanged (eegfaktura-dev tracking admin 261031-mm1): a `.csv` in UTF-8 **without** BOM shows umlauts wrongly (`Hauptstraße` → `HauptstraÃe`), as
     in 0.18.5; with a BOM they are correct.
 
 ### Fixed
@@ -58,15 +58,16 @@ this changelog highlights the changes relevant for overview and operations.
 - **Build tooling: react-scripts and its webpack/Jest/Babel tree removed** from `package-lock.json`, and with it the
   Dependabot alerts for body-parser, node-forge, nth-check, postcss, serialize-javascript, svgo,
   webpack-dev-middleware, webpack-dev-server and others from that tree (build and dev-server tooling; none of it was
-  part of the shipped bundle). `xlsx` is unchanged (separate follow-up). The test-only `form-data` override follows
+  part of the shipped bundle). `xlsx` has its own entry below. The test-only `form-data` override follows
   eegfaktura-web: `^3.0.4` → `^4.0.4` (4.0.6).
 - **`public/auth-config.js` and `public/config/keycloak.json` removed** (eegfaktura-dev tracking admin 1) — security relevant, details not published.
 - **SheetJS (`xlsx`) 0.18.5 → 0.20.3 from the SheetJS CDN** (Dependabot alerts GHSA-4r6h-8v6p-xvw6, fixed in 0.19.3,
   and GHSA-5pgg-2g8v-p4x9, fixed in 0.20.2). SheetJS no longer publishes to npm (latest there is 0.18.5), so the
   package now comes from `https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz`, pinned in `package-lock.json` by URL and
   sha512 integrity. Dependabot does not track this source: updates are made by hand (see README → Dependencies).
-  The new workflow `sheetjs-check.yml` fails a pull request whose `package.json` or lockfile no longer pin URL and
-  integrity, and fails its weekly run when SheetJS has a newer release. OSV-Scanner keeps reporting xlsx 0.20.3 with
+  The new workflow `sheetjs-check.yml` reports a failed check on a pull request whose `package.json` or lockfile no
+  longer pin URL and integrity (a signal, master has no required checks), and fails its weekly run when SheetJS has a
+  newer release. OSV-Scanner keeps reporting xlsx 0.20.3 with
   both GHSA IDs (the advisories have no fixed version because the fix is not on npm); Trivy does not. Open:
   CVE-2026-38358 and CVE-2026-38359 (eegfaktura-dev tracking WEB-261030-mm1).
 - **CI: the release workflow pins its actions by commit SHA** (eegfaktura-dev tracking W-261028-mm6). `rolling-release.yml`

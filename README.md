@@ -66,10 +66,12 @@ Ports: dev **3000**; container **8080**.
   EEG registration).
   - **Integrity:** npm writes the `integrity` for the tarball itself. The workflow `sheetjs-check.yml` (job „SheetJS
     pinned with integrity“, every pull request and push) fails when `package.json` or `package-lock.json` no longer pin
-    the expected URL and sha512.
+    the expected URL and sha512. It is a signal: master has no required checks.
   - **Updates:** Dependabot neither updates this dependency nor reports advisories for it. The same workflow compares
     with `https://cdn.sheetjs.com/xlsx-latest/package/package.json` every Monday (and on demand) and fails with a job
-    summary when SheetJS has released something newer.
+    summary when SheetJS has released something newer. **Known limit:** this cron is the only alarm, and GitHub switches
+    off scheduled workflows after 60 days without activity in the repository; then it stays silent until the workflow
+    is enabled again.
   - **Scanners:** GitHub's advisories GHSA-4r6h-8v6p-xvw6 (`< 0.19.3`) and GHSA-5pgg-2g8v-p4x9 (`< 0.20.2`) carry no
     fixed version on purpose, because the fixed releases are not on npm (github/advisory-database
     [#6144](https://github.com/github/advisory-database/pull/6144), [#8689](https://github.com/github/advisory-database/pull/8689),
