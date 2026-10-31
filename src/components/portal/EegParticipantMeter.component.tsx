@@ -92,7 +92,7 @@ const ProcessStateEditor: FC<{params: GridRenderCellParams<Metering, string>, up
                 label="Active seit ..."
                 format="DD.MM.YYYY"
                 value={field.value ? moment(field.value) : null}
-                onChange={(newValue) => { if (newValue) field.onChange(newValue.toDate()) }}
+                onChange={(newValue) => field.onChange((newValue?.isValid() ? newValue.toDate() : null) as unknown as Date)}
                 slotProps={{textField: {id: "date", size: "small", required: true, sx: {width: 220}}}}
                 />)}
             />}
@@ -105,7 +105,7 @@ const ProcessStateEditor: FC<{params: GridRenderCellParams<Metering, string>, up
                   label="Inactive seit ..."
                   format="DD.MM.YYYY"
                   value={field.value ? moment(field.value) : null}
-                  onChange={(newValue) => { if (newValue) field.onChange(newValue.toDate()) }}
+                  onChange={(newValue) => field.onChange((newValue?.isValid() ? newValue.toDate() : null) as unknown as Date)}
                   slotProps={{textField: {id: "date", size: "small", required: true, sx: {width: 220}}}}
                 />)}
             />}

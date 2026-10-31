@@ -11,13 +11,13 @@ import moment from "moment/moment";
 import {CellEditElement} from "./CellEdit.element";
 
 // The backend takes epoch ms and keeps the calendar day of that moment in its own zone (Europe/Berlin). Noon UTC is the
-// picked day there whatever the browser's zone, local midnight is not (261005-ca3). Unset stays unset: moment(undefined) is now.
-export const dayToEpochMs = (value: moment.MomentInput): string | undefined => {
-  if (!value) {
-    return undefined
+// picked day there whatever the browser's zone, local midnight is not (261005-ca3). A date of the row that was not
+// touched is epoch ms from the admin-backend and goes back as it came. Unset stays unset: moment(undefined) is now.
+export const dayToEpochMs = (value: Date | number | undefined | null): string | undefined => {
+  if (value instanceof Date) {
+    return Date.UTC(value.getFullYear(), value.getMonth(), value.getDate(), 12).toString()
   }
-  const day = moment(value)
-  return Date.UTC(day.year(), day.month(), day.date(), 12).toString()
+  return value === undefined || value === null ? undefined : value.toString()
 }
 
 export const DateCellEditor: FC<{params: GridRenderCellParams<Metering, any>, label: string, header: string, proto: string, propertyName: keyof Metering, updateMeter: (meter: Metering) => void}> = ({params, label, header, proto, propertyName, updateMeter}) => {
@@ -54,7 +54,7 @@ export const DateCellEditor: FC<{params: GridRenderCellParams<Metering, any>, la
                 label={label}
                 format="DD.MM.YYYY"
                 value={field.value ? moment(field.value as moment.MomentInput) : null}
-                onChange={(newValue) => { if (newValue) field.onChange(newValue.toDate()) }}
+                onChange={(newValue) => field.onChange((newValue?.isValid() ? newValue.toDate() : null) as unknown as Date)}
                 slotProps={{textField: {id: "date", size: "small", required: true, sx: {width: 220}}}}
               />)}
             />
