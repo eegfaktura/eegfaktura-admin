@@ -59,7 +59,7 @@ describe("EegService.registerPonton", () => {
 
 describe("EegService.registerEeg", () => {
   it("rejects with the admin-backend's code and message for an EEG that exists (261015-ca1)", async () => {
-    const message = "EEG RC100100 ist bereits registriert. Es wurde nichts geändert."
+    const message = "EEG ist bereits registriert (Tenant RC100100, RC-Nummer RC100100). Es wurde nichts geändert."
     mockFetch(409, {code: 409, message})
     const err = await new EegService(authService).registerEeg({} as EegRegister).catch(e => e)
     expect(err).toBeInstanceOf(APIError)

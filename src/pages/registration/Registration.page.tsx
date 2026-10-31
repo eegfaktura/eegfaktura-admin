@@ -23,10 +23,13 @@ export const accountSummary = (results: AccountResult[]): string =>
     .map(a => `${a.email}: ${STATUS_TEXT[a.status] ?? a.status}${a.status === "failed" && a.message ? ` (${a.message})` : ""}`)
     .join("; ")
 
-// 409: the EEG exists, nothing was changed (261015-ca1)
-export const registerErrorMessage = (e: APIError): {message: string, severity: "error" | "warning"} => {
+// the EEG exists, nothing was changed: the form stays for a correction (261015-ca1)
+const EegExists = 409
+
+export const registerErrorMessage = (e: APIError): {message: string, severity: "error" | "warning", sticky?: boolean} => {
   switch (e.code) {
-    case 409:
+    case EegExists:
+      return {message: e.message, severity: "error", sticky: true}
     case 501:
       return {message: e.message, severity: "error"}
     case 502:
@@ -147,7 +150,9 @@ const RegistrationPage: FC = () => {
           console.error("ERROR-Request: ", e, "Code: ", e.code)
           setMessage(registerErrorMessage(e))
           setOpen(true)
-          handleReset()
+          if (e.code !== EegExists) {
+            handleReset()
+          }
         })
     } catch (e) {
       console.error("ERROR: ", e)
