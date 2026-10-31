@@ -20,7 +20,8 @@ this changelog highlights the changes relevant for overview and operations.
   (`tsconfig.test.json`) and `vite.config.ts` (`tsconfig.node.json`), all in `npm run build`. Dropped: the
   `browserslist` (Vite's default targets: browsers with ES2020 support).
 - **Excel upload of the EEG registration with SheetJS 0.20.3 (see Security):**
-  - **Real `.xlsx` and `.xls` files: same values as before.** Column headers with a line break are still found (they are compared
+  - **Real `.xlsx` and `.xls` files: same values as before**, apart from line breaks and `="…"` (below). Column headers
+    with a line break are still found (they are compared
     without white space).
   - **HTML saved as `.xls`** is read like a CSV, so the same rule applies to it: `0664123`, `12/3` and `TRUE` now stay as
     written (0.18.5: `664123`, `37228`, `true`).
