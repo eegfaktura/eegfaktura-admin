@@ -45,6 +45,10 @@ case "${1:-}" in
     ;;
   latest)
     ours="$(echo "$URL" | sed -E 's#.*/xlsx-([0-9][^/]*)\.tgz$#\1#')"
+    case "$ours" in
+      [0-9]*) ;;
+      *) echo "::error::no version in URL '$URL', nothing compared"; exit 1 ;;
+    esac
     if ! answer="$(curl -fsSL "$LATEST")"; then
       echo "::error::could not fetch $LATEST (see the curl message above), nothing compared"
       exit 1
