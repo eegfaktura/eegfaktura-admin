@@ -19,7 +19,7 @@ this changelog highlights the changes relevant for overview and operations.
   further east the date came out one day early. They now go out as noon UTC of the picked day, which is that day in the
   backend for every browser zone; in Austria the saved date is the same as before. The format stays epoch ms (the
   entry's `YYYY-MM-DD` would be refused: `adminService.go` parses a number), so there is no contract change and no deploy
-  order. A date that was not touched goes back as it came. A partly typed date now blocks saving instead of going out as
+  order. A date that was not touched goes back as it came. A partly typed date now stays in the dialog with „Datum fehlt oder ist ungültig“ instead of going out as
   „NaN“, which the backend ignored (for INACTIVE it took today). Unchanged: a stored date is shown in the browser's zone.
 
 ## [1.2.3] – 2026-10-31

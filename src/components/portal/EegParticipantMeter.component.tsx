@@ -18,7 +18,7 @@ import {AdminUpdateData} from "../../model/admin.model";
 import {CellEditDialog, editDialog} from "./CellEdit.dialog";
 import {GridRowModel} from "@mui/x-data-grid/models/gridRows";
 import {useParticipantContext} from "./context/participant.context";
-import {DateCellEditor, dayToEpochMs} from "./editor/DateCell.editor";
+import {DateCellEditor, dayToEpochMs, rejectInvalidDate} from "./editor/DateCell.editor";
 
 const CellEditInputElement1:FC<{params: GridRenderCellParams<Metering, string>, onStartEdit: (row: GridRowModel<Metering>) => void}> = ({params, onStartEdit}) => {
   return (
@@ -115,7 +115,7 @@ const ProcessStateEditor: FC<{params: GridRenderCellParams<Metering, string>, up
           </RadioGroup>)} />
 
         </FormControl>
-      </div>, "Update Prozess Status", handleSubmit(onUpdate))
+      </div>, "Update Prozess Status", handleSubmit(onUpdate, rejectInvalidDate))
     }} />
   )
 }

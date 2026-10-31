@@ -20,6 +20,11 @@ export const dayToEpochMs = (value: Date | number | undefined | null): string | 
   return value === undefined || value === null ? undefined : value.toString()
 }
 
+// handleSubmit's second argument: the dialog shows the message and stays open, it would otherwise close as if saved
+export const rejectInvalidDate = () => {
+  throw new Error("Datum fehlt oder ist ungültig")
+}
+
 export const DateCellEditor: FC<{params: GridRenderCellParams<Metering, any>, label: string, header: string, proto: string, propertyName: keyof Metering, updateMeter: (meter: Metering) => void}> = ({params, label, header, proto, propertyName, updateMeter}) => {
 
   const onUpdate = (meter: Metering) => {
@@ -59,7 +64,7 @@ export const DateCellEditor: FC<{params: GridRenderCellParams<Metering, any>, la
               />)}
             />
           </FormControl>
-        </div>, header, handleSubmit(onUpdate))
+        </div>, header, handleSubmit(onUpdate, rejectInvalidDate))
     }} />
   )
 }
