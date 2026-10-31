@@ -18,7 +18,7 @@ import {AdminUpdateData} from "../../model/admin.model";
 import {CellEditDialog, editDialog} from "./CellEdit.dialog";
 import {GridRowModel} from "@mui/x-data-grid/models/gridRows";
 import {useParticipantContext} from "./context/participant.context";
-import {DateCellEditor} from "./editor/DateCell.editor";
+import {DateCellEditor, dayToEpochMs} from "./editor/DateCell.editor";
 
 const CellEditInputElement1:FC<{params: GridRenderCellParams<Metering, string>, onStartEdit: (row: GridRowModel<Metering>) => void}> = ({params, onStartEdit}) => {
   return (
@@ -48,11 +48,11 @@ const ProcessStateEditor: FC<{params: GridRenderCellParams<Metering, string>, up
       value: {processState: meter.processState}} as AdminUpdateData;
 
     if (meter.processState === 'ACTIVE') {
-      processData.value["activeSince"] = (moment(meter.activeSince).unix()*1000).toString()
+      processData.value["activeSince"] = dayToEpochMs(meter.activeSince)
     }
 
     if (meter.processState === 'INACTIVE') {
-      processData.value["inactiveSince"] = (moment(meter.inactiveSince).unix()*1000).toString()
+      processData.value["inactiveSince"] = dayToEpochMs(meter.inactiveSince)
     }
 
     // returned so the dialog waits for it; a failure keeps the entered value and shows the error there

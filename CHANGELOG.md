@@ -8,6 +8,14 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+### Fixed
+- **Dates of a metering point no longer depend on the browser's time zone** (261005-ca3). „Aktiv seit“/„Inaktiv seit“
+  went out as local midnight in epoch ms and the backend keeps the day of that moment in Europe/Berlin: in a browser
+  further east the date came out one day early. They now go out as noon UTC of the picked day, which is that day in the
+  backend for every browser zone; in Austria the saved date is the same as before. The format stays epoch ms (the
+  entry's `YYYY-MM-DD` would be refused: `adminService.go` parses a number), so there is no contract change and no deploy
+  order. An unset date is no longer sent as „now“.
+
 ## [1.2.3] – 2026-10-31
 
 ### Changed

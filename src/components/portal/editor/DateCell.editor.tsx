@@ -10,14 +10,17 @@ import {DatePicker} from "@mui/x-date-pickers";
 import moment from "moment/moment";
 import {CellEditElement} from "./CellEdit.element";
 
-export const DateCellEditor: FC<{params: GridRenderCellParams<Metering, any>, label: string, header: string, proto: string, propertyName: keyof Metering, updateMeter: (meter: Metering) => void}> = ({params, label, header, proto, propertyName, updateMeter}) => {
-
-  const convertValue = (value: any) => {
-    if (value instanceof Date) {
-      return value.getTime().toString()
-    }
-    return (moment(value).unix()*1000).toString()
+// The backend takes epoch ms and keeps the calendar day of that moment in its own zone (Europe/Berlin). Noon UTC is the
+// picked day there whatever the browser's zone, local midnight is not (261005-ca3). Unset stays unset: moment(undefined) is now.
+export const dayToEpochMs = (value: moment.MomentInput): string | undefined => {
+  if (!value) {
+    return undefined
   }
+  const day = moment(value)
+  return Date.UTC(day.year(), day.month(), day.date(), 12).toString()
+}
+
+export const DateCellEditor: FC<{params: GridRenderCellParams<Metering, any>, label: string, header: string, proto: string, propertyName: keyof Metering, updateMeter: (meter: Metering) => void}> = ({params, label, header, proto, propertyName, updateMeter}) => {
 
   const onUpdate = (meter: Metering) => {
 
@@ -25,7 +28,7 @@ export const DateCellEditor: FC<{params: GridRenderCellParams<Metering, any>, la
       tenant: params.row.tenant!,
       participantId: params.row.participantId,
       meteringPoint: params.row.meteringPoint,
-      value: {[propertyName]: convertValue((meter as any)[propertyName])}} as AdminUpdateData;
+      value: {[propertyName]: dayToEpochMs((meter as any)[propertyName])}} as AdminUpdateData;
 
     // returned so the dialog waits for it; a failure keeps the entered value and shows the error there
     return Api.portalService.changeProcessState(proto, processData)
