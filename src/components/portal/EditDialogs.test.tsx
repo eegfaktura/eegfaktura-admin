@@ -86,7 +86,7 @@ describe("ParticipantCellEditDialog", () => {
   const row = {id: "p1", tenant: "TE100002", firstName: "Anna", lastName: "Ott", businessRole: "EEG_PRIVATE"} as EegParticipant
 
   it("stays open and shows the error when the save fails", async () => {
-    const onUpdate = jest.fn().mockRejectedValue(new Error("400"))
+    const onUpdate = vi.fn().mockRejectedValue(new Error("400"))
     render(<ParticipantCellEditDialog/>)
     act(() => openParticipantDialog(row, onUpdate))
 

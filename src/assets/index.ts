@@ -1,6 +1,8 @@
+import logo from "./images/typescript-logo-240.png";
+
 const assets = {
   images: {
-    logo: require("./images/typescript-logo-240.png")
+    logo
   }
 };
 

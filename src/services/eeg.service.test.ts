@@ -13,7 +13,7 @@ const ponton = {
 const authService = {getToken: async () => "token"} as unknown as AuthService
 
 const mockFetch = (httpStatus: number, body: unknown, json = async () => body) => {
-  global.fetch = jest.fn().mockResolvedValue({
+  global.fetch = vi.fn().mockResolvedValue({
     ok: httpStatus >= 200 && httpStatus < 300,
     status: httpStatus,
     statusText: "",
@@ -60,8 +60,8 @@ describe("EegService.registerPonton", () => {
 describe("addAccount (platform#166)", () => {
   const service = new EegService({getToken: async () => "t"} as any)
   const answer = (status: number, body: unknown) =>
-    jest.spyOn(global, "fetch").mockResolvedValue(new Response(JSON.stringify(body), {status}) as any)
-  afterEach(() => jest.restoreAllMocks())
+    vi.spyOn(global, "fetch").mockResolvedValue(new Response(JSON.stringify(body), {status}) as any)
+  afterEach(() => vi.restoreAllMocks())
 
   it("returns the result of the admin-backend, also for 400", async () => {
     answer(400, {email: "x", status: "failed", message: "E-Mail-Adresse ungültig"})

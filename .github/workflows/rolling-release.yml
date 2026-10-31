@@ -70,8 +70,7 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Build SPA (npm run build -> ./build)
-        # Bricht bei Typfehlern ab und, da GitHub Actions CI=true setzt, auch bei
-        # ESLint-Warnungen.
+        # Bricht bei Typfehlern ab (tsc && vite build).
         run: npm run build
 
       - name: Check the build output

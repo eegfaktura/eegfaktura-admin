@@ -13,7 +13,7 @@ for Austrian renewable energy communities (*Erneuerbare-Energiegemeinschaften*, 
 
 ## Tech stack
 
-- **TypeScript**, **React 18** (Create React App / `react-scripts`)
+- **TypeScript**, **React 18**, built with **Vite**, tests with **Vitest**
 - **Material-UI (MUI 5)** + MUI X Data Grid
 - **Redux Toolkit** + react-redux
 - **Keycloak / OIDC** (`keycloak-js`, `oidc-client-ts`, `react-oidc-context`)
@@ -31,7 +31,9 @@ for Austrian renewable energy communities (*Erneuerbare-Energiegemeinschaften*, 
 
 ```bash
 npm install
-npm run build      # production bundle in build/
+npm run build      # type check, then the production bundle in build/
+npm test           # Vitest (watch mode; `npx vitest run` runs once)
+npm run lint       # ESLint, fails on any warning (as the CRA build did)
 ```
 
 ## Run
@@ -42,7 +44,7 @@ Dev server:
 npm start          # http://localhost:3000
 ```
 
-`setupProxy.js` proxies `/admin`, `/api` and `/cash` to local backend services.
+`vite.config.ts` (`server.proxy`) proxies `/admin`, `/api` and `/cash` to local backend services.
 
 Docker: the built image serves `build/` via Caddy on port **8080**.
 
