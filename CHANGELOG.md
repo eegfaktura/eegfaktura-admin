@@ -8,6 +8,8 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+## [1.2.3] – 2026-10-31
+
 ### Changed
 - **Build: Vite + Vitest instead of create-react-app (`react-scripts` 5.0.1, unmaintained).** `npm start` / `npm run build`
   / `npm test` keep their names; the build still writes `build/` (with source maps), so the Dockerfile and the layout of the image
