@@ -20,14 +20,15 @@ this changelog highlights the changes relevant for overview and operations.
   (`tsconfig.test.json`) and `vite.config.ts` (`tsconfig.node.json`), all in `npm run build`. Dropped: the
   `browserslist` (Vite's default targets: browsers with ES2020 support).
 - **Excel upload of the EEG registration with SheetJS 0.20.3 (see Security):**
-  - **`.xlsx` and `.xls`: same values as before**, with one exception: a line break inside a cell now arrives as LF;
-    0.18.5 made it CRLF. Column headers with a line break are still found (they are compared without white space).
+  - **`.xlsx` and `.xls`: same values as before.** Column headers with a line break are still found (they are compared
+    without white space).
   - **`.csv`: every cell is now read as the text in the file** (`XLSX.read` with `raw: true`). 0.20.3 alone would have
     turned house numbers into numbers (`12 a` → `0`, `12 / 3` → `37228`, `12:30` → `0.5208…`); these stay text as
     before. Three old errors of the CSV upload go away: `12/3` no longer becomes `37228`, `3-5` no longer `36955`
     (both read as dates), and `0664123` keeps its leading zero. Other values change the same way: `1,5`, `5%`, `1e5`,
-    `TRUE` and long digit strings stay as written, where they used to be read as numbers or booleans. A line break
-    inside a quoted CSV cell now arrives as written (CRLF stays CRLF; 0.18.5 made it LF).
+    `TRUE` and long digit strings stay as written, where they used to be read as numbers or booleans.
+  - **A line break inside a cell now arrives as LF in every format** (`text()` normalises it once). Before, `.xlsx` gave
+    CRLF and a quoted CSV cell LF.
   - **Excel's text notation `="0664123"` is unwrapped as before** (`0664123`, also in the RC number column, `""` inside
     gives `"`). `raw: true` alone would keep it literally, so `text()` in `RegistrationContext` removes it, in every
     file format: a text cell of an `.xlsx` that literally holds `="…"` is unwrapped too.

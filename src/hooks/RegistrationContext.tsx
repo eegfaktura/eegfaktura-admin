@@ -59,7 +59,7 @@ export const cell = (row: Record<string, any>, header: string) => {
 }
 const text = (v: any) => {
   if (v === undefined || v === null) return ""
-  const s = String(v).trim()
+  const s = String(v).replace(/\r\n?/g, "\n").trim()
   // Excel's notation for text in a CSV, ="0664123": read as written (raw), so unwrapped here
   const wrapped = /^="([\s\S]*)"$/.exec(s)
   return wrapped ? wrapped[1].replace(/""/g, '"').trim() : s

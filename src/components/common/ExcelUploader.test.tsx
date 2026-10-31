@@ -49,7 +49,7 @@ const fixture = () => toArrayBuffer(readFileSync(resolve(__dirname, "__fixtures_
 
 // the same layout as the member list: header, two skipped rows, then the EEGs
 const csv = (rows: string[]) => new TextEncoder().encode(
-  ["RC-Nummer;Nr.;Telefon", "Pflichtfeld;;", "Beispiel;;", ...rows].join("\r\n") + "\r\n")
+  ["RC-Nummer;Nr.;Telefon;Ort", "Pflichtfeld;;", "Beispiel;;", ...rows].join("\r\n") + "\r\n")
 
 describe("member list upload (.xlsx)", () => {
   it("fills the form from the first EEG row", async () => {
@@ -106,6 +106,11 @@ describe("member list upload (.csv)", () => {
     nextEeg()
     expect(current.eeg.tenant).toBe("RC2")
     expect(current.eeg.contact).toMatchObject({streetNumber: 'a"b', phone: ""})
+  })
+
+  it("gives a line break in a quoted cell as LF, like .xlsx", async () => {
+    await upload("list.csv", csv(['RC1;;;"Linz\r\nUrfahr"']))
+    expect(current.eeg.contact.city).toBe("Linz\nUrfahr")
   })
 
   it("skips empty rows, so the second EEG follows the first", async () => {
