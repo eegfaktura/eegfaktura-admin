@@ -19,6 +19,17 @@ this changelog highlights the changes relevant for overview and operations.
   without Flow; any warning fails) and a CI step. Type checks: the app without test types (`tsconfig.json`), the tests
   (`tsconfig.test.json`) and `vite.config.ts` (`tsconfig.node.json`), all in `npm run build`. Dropped: the
   `browserslist` (Vite's default targets: browsers with ES2020 support).
+- **Excel upload of the EEG registration with SheetJS 0.20.3 (see Security):**
+  - **`.xlsx` and `.xls`: same values as before**, with one exception: a line break inside a cell now arrives as LF;
+    0.18.5 made it CRLF. Column headers with a line break are still found (they are compared without white space).
+  - **`.csv`: every cell is now read as the text in the file** (`XLSX.read` with `raw: true`). 0.20.3 alone would have
+    turned house numbers into numbers (`12 a` → `0`, `12 / 3` → `37228`, `12:30` → `0.5208…`); these stay text as
+    before. Three old errors of the CSV upload go away: `12/3` no longer becomes `37228`, `3-5` no longer `36955`
+    (both read as dates), and `0664123` keeps its leading zero. Other values change the same way: `1,5`, `5%`, `1e5`,
+    `TRUE` and long digit strings stay as written, where they used to be read as numbers or booleans. A line break
+    inside a quoted CSV cell now arrives as written (CRLF stays CRLF; 0.18.5 made it LF).
+  - Left open, unchanged: a `.csv` in UTF-8 **without** BOM shows umlauts wrongly (`Hauptstraße` → `HauptstraÃe`), as
+    in 0.18.5; with a BOM they are correct.
 
 ### Fixed
 - **Portal: a failed master-data save is shown instead of hidden** (eegfaktura-dev tracking admin 261005-ca1). The edit
@@ -37,6 +48,14 @@ this changelog highlights the changes relevant for overview and operations.
   part of the shipped bundle). `xlsx` is unchanged (separate follow-up). The test-only `form-data` override follows
   eegfaktura-web: `^3.0.4` → `^4.0.4` (4.0.6).
 - **`public/auth-config.js` and `public/config/keycloak.json` removed** (eegfaktura-dev tracking admin 1) — security relevant, details not published.
+- **SheetJS (`xlsx`) 0.18.5 → 0.20.3 from the SheetJS CDN** (Dependabot alerts GHSA-4r6h-8v6p-xvw6, fixed in 0.19.3,
+  and GHSA-5pgg-2g8v-p4x9, fixed in 0.20.2). SheetJS no longer publishes to npm (latest there is 0.18.5), so the
+  package now comes from `https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz`, pinned in `package-lock.json` by URL and
+  sha512 integrity. Dependabot does not track this source: updates are made by hand (see README → Dependencies).
+  The new workflow `sheetjs-check.yml` fails a pull request whose `package.json` or lockfile no longer pin URL and
+  integrity, and fails its weekly run when SheetJS has a newer release. OSV-Scanner keeps reporting xlsx 0.20.3 with
+  both GHSA IDs (the advisories have no fixed version because the fix is not on npm); Trivy does not. Open:
+  CVE-2026-38358 and CVE-2026-38359 (eegfaktura-dev tracking WEB-261030-mm1).
 - **CI: the release workflow pins its actions by commit SHA** (eegfaktura-dev tracking W-261028-mm6). `rolling-release.yml`
   builds and pushes the shipped image, but used floating tags (`@v4`, `@v3`, …); a moved tag ran in the job that holds
   the push credentials. Now every action is pinned to a commit, the same SHAs `pr-checks.yml` and `security-scan.yml` already
