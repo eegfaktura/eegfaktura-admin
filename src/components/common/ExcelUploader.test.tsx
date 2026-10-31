@@ -25,7 +25,7 @@ const Probe = () => {
   </>
 }
 
-const upload = async (name: string, content: ArrayBuffer) => {
+const mount = () => {
   const store = configureStore({reducer: combineReducers({eegStateSlice})})
   const {container} = render(
     <Provider store={store}>
@@ -34,10 +34,17 @@ const upload = async (name: string, content: ArrayBuffer) => {
       </RegistrationProvider>
     </Provider>
   )
+  return container.querySelector('input[type="file"]') as HTMLInputElement
+}
+
+const choose = (input: HTMLInputElement, name: string, content: ArrayBuffer) => {
   const file = new File([content], name)
   file.arrayBuffer = async () => content // jsdom's File has no arrayBuffer()
-  const input = container.querySelector('input[type="file"]') as HTMLInputElement
   fireEvent.change(input, {target: {files: [file]}})
+}
+
+const upload = async (name: string, content: ArrayBuffer) => {
+  choose(mount(), name, content)
   await waitFor(() => expect(screen.getByText("loaded")).toBeInTheDocument())
 }
 
@@ -82,6 +89,17 @@ describe("member list upload (.xlsx)", () => {
     await upload("member-list.xlsx", fixture())
     nextEeg()
     expect(current.eeg.contact.street).toBe("Weg\nHof 2")
+  })
+})
+
+describe("member list without an EEG row", () => {
+  it("says so instead of reporting a parse error", async () => {
+    const alert = vi.spyOn(window, "alert").mockImplementation(() => undefined)
+    choose(mount(), "list.csv", new TextEncoder().encode("RC-Nummer;Nr.\r\nPflichtfeld;\r\nBeispiel;\r\n"))
+    await waitFor(() => expect(alert).toHaveBeenCalledTimes(1))
+    expect(alert).toHaveBeenCalledWith(expect.stringContaining("No EEG found"))
+    expect(screen.queryByText("loaded")).not.toBeInTheDocument()
+    alert.mockRestore()
   })
 })
 

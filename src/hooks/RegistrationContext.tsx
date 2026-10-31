@@ -159,6 +159,10 @@ const RegistrationProvider: FC<{children: ReactNode}> = ({children}) => {
   }
 
   const onLoad = (fileName: string, data: Record<string, any>[]) => {
+    if (data.length < 3) {
+      alert("No EEG found: the list needs a header, two further rows and then one row per EEG.")
+      return
+    }
     setExcelFile(fileName)
     setExcelData(data)
     setExcelIndex(2)

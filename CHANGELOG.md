@@ -40,6 +40,9 @@ this changelog highlights the changes relevant for overview and operations.
     in 0.18.5; with a BOM they are correct.
 
 ### Fixed
+- **EEG registration: a list without an EEG row gets a clear message** (eegfaktura-dev tracking admin 261031-mm2). A list
+  with fewer than three rows below the header ended as „Failed to parse Excel file.“, although the file was fine. Now
+  the message says that no EEG was found, and a list loaded before stays as it was.
 - **Portal: a failed master-data save is shown instead of hidden** (eegfaktura-dev tracking admin 261005-ca1). The edit
   dialogs for metering points (process state, active/inactive since), participants and the EEG settlement closed before
   the request finished; a failed save gave no message, the metering-point editors silently reset the form. Now the
