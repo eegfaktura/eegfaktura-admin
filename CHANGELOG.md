@@ -28,6 +28,11 @@ this changelog highlights the changes relevant for overview and operations.
     (both read as dates), and `0664123` keeps its leading zero. Other values change the same way: `1,5`, `5%`, `1e5`,
     `TRUE` and long digit strings stay as written, where they used to be read as numbers or booleans. A line break
     inside a quoted CSV cell now arrives as written (CRLF stays CRLF; 0.18.5 made it LF).
+  - **Excel's text notation `="0664123"` is unwrapped as before** (`0664123`, also in the RC number column, `""` inside
+    gives `"`). `raw: true` alone would keep it literally, so `text()` in `RegistrationContext` removes it, in every
+    file format: a text cell of an `.xlsx` that literally holds `="…"` is unwrapped too.
+  - **A formula in a CSV, such as `=A1` or `=1+1`, now shows literally.** 0.18.5 dropped such a cell, the field stayed
+    empty. This comes with the version upgrade, not with `raw: true`.
   - Left open, unchanged: a `.csv` in UTF-8 **without** BOM shows umlauts wrongly (`Hauptstraße` → `HauptstraÃe`), as
     in 0.18.5; with a BOM they are correct.
 

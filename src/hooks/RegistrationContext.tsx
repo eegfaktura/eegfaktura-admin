@@ -57,7 +57,13 @@ export const cell = (row: Record<string, any>, header: string) => {
   const key = Object.keys(row).find(k => normalizeHeader(k) === normalizeHeader(header))
   return key === undefined ? undefined : row[key]
 }
-const text = (v: any) => (v === undefined || v === null ? "" : String(v).trim())
+const text = (v: any) => {
+  if (v === undefined || v === null) return ""
+  const s = String(v).trim()
+  // Excel's notation for text in a CSV, ="0664123": read as written (raw), so unwrapped here
+  const wrapped = /^="([\s\S]*)"$/.exec(s)
+  return wrapped ? wrapped[1].replace(/""/g, '"').trim() : s
+}
 
 const accountFrom = (row: Record<string, any>, prefix: string): AccountUser => ({
   firstname: text(cell(row, `${prefix}\nVorname`)),

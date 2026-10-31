@@ -98,6 +98,16 @@ describe("member list upload (.csv)", () => {
       expect(current.eeg.contact.phone).toBe(phone)
     })
 
+  it("unwraps Excel's text notation =\"…\"", async () => {
+    await upload("list.csv", csv(['="RC100001";="12/3";="0664123"', '"=""RC2""";="a""b";=""']))
+    expect(current.eeg.tenant).toBe("RC100001")
+    expect(current.eeg.rcNumber).toBe("RC100001")
+    expect(current.eeg.contact).toMatchObject({streetNumber: "12/3", phone: "0664123"})
+    nextEeg()
+    expect(current.eeg.tenant).toBe("RC2")
+    expect(current.eeg.contact).toMatchObject({streetNumber: 'a"b', phone: ""})
+  })
+
   it("skips empty rows, so the second EEG follows the first", async () => {
     await upload("list.csv", csv(["RC1;1;", ";;", "", "RC2;2;"]))
     expect(current.eeg.tenant).toBe("RC1")
