@@ -50,19 +50,22 @@ const initialEeg: EegRegister = {
   accounts: [],
 }
 
+// Excel's notation for text in a CSV, ="0664123": read as written (raw), so unwrapped here
+const unwrapExcelText = (s: string) => {
+  const wrapped = /^="([\s\S]*)"$/.exec(s)
+  return wrapped ? wrapped[1].replace(/""/g, '"').trim() : s
+}
+
 // Column headers vary between list versions ("E-Mail" / "EMail", line breaks LF / CRLF): compare without
 // case, white space and hyphens
-const normalizeHeader = (h: string) => h.toLowerCase().replace(/[\s-]/g, "")
+const normalizeHeader = (h: string) => unwrapExcelText(h.trim()).toLowerCase().replace(/[\s-]/g, "")
 export const cell = (row: Record<string, any>, header: string) => {
   const key = Object.keys(row).find(k => normalizeHeader(k) === normalizeHeader(header))
   return key === undefined ? undefined : row[key]
 }
 const text = (v: any) => {
   if (v === undefined || v === null) return ""
-  const s = String(v).replace(/\r\n?/g, "\n").trim()
-  // Excel's notation for text in a CSV, ="0664123": read as written (raw), so unwrapped here
-  const wrapped = /^="([\s\S]*)"$/.exec(s)
-  return wrapped ? wrapped[1].replace(/""/g, '"').trim() : s
+  return unwrapExcelText(String(v).replace(/\r\n?/g, "\n").trim())
 }
 
 const accountFrom = (row: Record<string, any>, prefix: string): AccountUser => ({

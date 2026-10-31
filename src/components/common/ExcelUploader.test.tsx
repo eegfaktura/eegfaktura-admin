@@ -137,6 +137,14 @@ describe("member list upload (.csv)", () => {
       expect(current.eeg.contact.phone).toBe(phone)
     })
 
+  it("finds columns whose header uses Excel's text notation", async () => {
+    const list = '="RC-Nummer";="Nr.";"=""EMail"""\r\nPflichtfeld;;\r\nBeispiel;;\r\n="RC1";12 a;a@b.at\r\n'
+    await upload("list.csv", new TextEncoder().encode(list))
+    expect(current.eeg.tenant).toBe("RC1")
+    expect(current.eeg.contact.streetNumber).toBe("12 a")
+    expect(current.eeg.user.email).toBe("a@b.at")
+  })
+
   it("unwraps Excel's text notation =\"…\"", async () => {
     await upload("list.csv", csv(['="RC100001";="12/3";="0664123"', '"=""RC2""";="a""b";=""']))
     expect(current.eeg.tenant).toBe("RC100001")

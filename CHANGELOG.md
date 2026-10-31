@@ -32,8 +32,8 @@ this changelog highlights the changes relevant for overview and operations.
     `TRUE` and long digit strings stay as written, where they used to be read as numbers or booleans.
   - **A line break inside a cell now arrives as LF in every format** (`text()` normalises it once). Before, `.xlsx` gave
     CRLF and a quoted CSV cell LF.
-  - **Excel's text notation `="0664123"` is unwrapped as before** (`0664123`, also in the RC number column, `""` inside
-    gives `"`). `raw: true` alone would keep it literally, so `text()` in `RegistrationContext` removes it, in every
+  - **Excel's text notation `="0664123"` is unwrapped as before** (`0664123`, also in the RC number column and in the
+    column headers, `""` inside gives `"`). `raw: true` alone would keep it literally, so `text()` in `RegistrationContext` removes it, in every
     file format: a text cell of an `.xlsx` that literally holds `="…"` is unwrapped too.
   - **A formula in a CSV, such as `=A1` or `=1+1`, now shows literally.** 0.18.5 dropped such a cell, the field stayed
     empty. This comes with the version upgrade, not with `raw: true`.
@@ -43,9 +43,9 @@ this changelog highlights the changes relevant for overview and operations.
 ### Fixed
 - **EEG registration: the same file can be chosen again** (eegfaktura-dev tracking admin 261031-mm3). After an upload the
   file input kept its value, so choosing the same file a second time, for example after editing it, did nothing.
-- **EEG registration: a list without an EEG row gets a clear message** (eegfaktura-dev tracking admin 261031-mm2). A list
-  with fewer than three rows below the header ended as „Failed to parse Excel file.“, although the file was fine. Now
-  the message says that no EEG was found, and a list loaded before stays as it was.
+- **EEG registration: a list with fewer than three rows below the header gets a clear message** (eegfaktura-dev tracking
+  admin 261031-mm2). It ended as „Failed to parse Excel file.“, although the file was fine. Now the message says that no
+  EEG was found, and a list loaded before stays as it was. The check counts the rows, it does not look at their content.
 - **Portal: a failed master-data save is shown instead of hidden** (eegfaktura-dev tracking admin 261005-ca1). The edit
   dialogs for metering points (process state, active/inactive since), participants and the EEG settlement closed before
   the request finished; a failed save gave no message, the metering-point editors silently reset the form. Now the
