@@ -23,6 +23,23 @@ export const accountSummary = (results: AccountResult[]): string =>
     .map(a => `${a.email}: ${STATUS_TEXT[a.status] ?? a.status}${a.status === "failed" && a.message ? ` (${a.message})` : ""}`)
     .join("; ")
 
+// the EEG exists, nothing was changed: the form stays for a correction (261015-ca1)
+const EegExists = 409
+
+export const registerErrorMessage = (e: APIError): {message: string, severity: "error" | "warning", sticky?: boolean} => {
+  switch (e.code) {
+    case EegExists:
+      return {message: e.message, severity: "error", sticky: true}
+    case 501:
+      return {message: e.message, severity: "error"}
+    case 502:
+    case 510:
+      return {message: e.message, severity: "warning"}
+    default:
+      return {message: "Error beim Anlegen des Mitglieds", severity: "error"}
+  }
+}
+
 const RegistrationPage: FC = () => {
 
   const newEeg: EegRegister = {
@@ -131,19 +148,11 @@ const RegistrationPage: FC = () => {
         })
         .catch((e: APIError) => {
           console.error("ERROR-Request: ", e, "Code: ", e.code)
-          switch (e.code) {
-            case 501:
-              setMessage({message: e.message, severity: "error"})
-              break;
-            case 502:
-            case 510:
-              setMessage({message: e.message, severity: "warning"})
-              break;
-            default:
-              setMessage({message: "Error beim Anlegen des Mitglieds", severity: "error"})
-          }
+          setMessage(registerErrorMessage(e))
           setOpen(true)
-          handleReset()
+          if (e.code !== EegExists) {
+            handleReset()
+          }
         })
     } catch (e) {
       console.error("ERROR: ", e)

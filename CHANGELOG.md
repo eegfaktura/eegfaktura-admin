@@ -8,6 +8,20 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+### Fixed
+- **A refused registration shows why** (261015-ca1). When the admin-backend refuses an EEG that exists (code 409), the
+  page shows its message („EEG ist bereits registriert (Tenant …, RC-Nummer …). Es wurde nichts geändert; fehlende Logins oder Ponton über „EEG Accounts“ bzw. „Ponton Verbindung“ ergänzen.“) until it is
+  closed, instead of „Error beim Anlegen des Mitglieds“, and keeps the form for a correction (it used to empty it, in Excel
+  mode go on to the next sheet). Needs the admin-backend version that answers 409; before that nothing changes.
+  Rollout order: admin-backend, then backend, then admin.
+- **A picked date of a metering point no longer depends on the browser's time zone** (261005-ca3). „Aktiv seit“/„Inaktiv seit“
+  went out as local midnight in epoch ms and the backend keeps the day of that moment in Europe/Berlin: in a browser
+  further east the date came out one day early. They now go out as noon UTC of the picked day, which is that day in the
+  backend for every browser zone; in Austria the saved date is the same as before. The format stays epoch ms (the
+  entry's `YYYY-MM-DD` would be refused: `adminService.go` parses a number), so there is no contract change and no deploy
+  order. A date that was not touched goes back as it came. A partly typed date now stays in the dialog with „Datum fehlt oder ist ungültig“ instead of going out as
+  „NaN“, which the backend ignored (for INACTIVE it took today). Unchanged: a stored date is shown in the browser's zone.
+
 ## [1.2.3] – 2026-10-31
 
 ### Changed

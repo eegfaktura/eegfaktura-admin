@@ -18,7 +18,7 @@ import {AdminUpdateData} from "../../model/admin.model";
 import {CellEditDialog, editDialog} from "./CellEdit.dialog";
 import {GridRowModel} from "@mui/x-data-grid/models/gridRows";
 import {useParticipantContext} from "./context/participant.context";
-import {DateCellEditor} from "./editor/DateCell.editor";
+import {DateCellEditor, dayToEpochMs, rejectInvalidDate} from "./editor/DateCell.editor";
 
 const CellEditInputElement1:FC<{params: GridRenderCellParams<Metering, string>, onStartEdit: (row: GridRowModel<Metering>) => void}> = ({params, onStartEdit}) => {
   return (
@@ -48,11 +48,11 @@ const ProcessStateEditor: FC<{params: GridRenderCellParams<Metering, string>, up
       value: {processState: meter.processState}} as AdminUpdateData;
 
     if (meter.processState === 'ACTIVE') {
-      processData.value["activeSince"] = (moment(meter.activeSince).unix()*1000).toString()
+      processData.value["activeSince"] = dayToEpochMs(meter.activeSince)
     }
 
     if (meter.processState === 'INACTIVE') {
-      processData.value["inactiveSince"] = (moment(meter.inactiveSince).unix()*1000).toString()
+      processData.value["inactiveSince"] = dayToEpochMs(meter.inactiveSince)
     }
 
     // returned so the dialog waits for it; a failure keeps the entered value and shows the error there
@@ -92,7 +92,7 @@ const ProcessStateEditor: FC<{params: GridRenderCellParams<Metering, string>, up
                 label="Active seit ..."
                 format="DD.MM.YYYY"
                 value={field.value ? moment(field.value) : null}
-                onChange={(newValue) => { if (newValue) field.onChange(newValue.toDate()) }}
+                onChange={(newValue) => field.onChange((newValue?.isValid() ? newValue.toDate() : null) as unknown as Date)}
                 slotProps={{textField: {id: "date", size: "small", required: true, sx: {width: 220}}}}
                 />)}
             />}
@@ -105,7 +105,7 @@ const ProcessStateEditor: FC<{params: GridRenderCellParams<Metering, string>, up
                   label="Inactive seit ..."
                   format="DD.MM.YYYY"
                   value={field.value ? moment(field.value) : null}
-                  onChange={(newValue) => { if (newValue) field.onChange(newValue.toDate()) }}
+                  onChange={(newValue) => field.onChange((newValue?.isValid() ? newValue.toDate() : null) as unknown as Date)}
                   slotProps={{textField: {id: "date", size: "small", required: true, sx: {width: 220}}}}
                 />)}
             />}
@@ -115,7 +115,7 @@ const ProcessStateEditor: FC<{params: GridRenderCellParams<Metering, string>, up
           </RadioGroup>)} />
 
         </FormControl>
-      </div>, "Update Prozess Status", handleSubmit(onUpdate))
+      </div>, "Update Prozess Status", handleSubmit(onUpdate, rejectInvalidDate))
     }} />
   )
 }

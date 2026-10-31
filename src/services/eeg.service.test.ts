@@ -1,6 +1,6 @@
 import {APIError, EegService} from "./eeg.service";
 import {AuthService} from "./auth.service";
-import {PontonRegister} from "../model/eeg.model";
+import {EegRegister, PontonRegister} from "../model/eeg.model";
 
 // admin-backend answers POST /eeg/ponton with HTTP 200 and reports the outcome
 // as {status, message} in the body.
@@ -54,6 +54,17 @@ describe("EegService.registerPonton", () => {
   it("rejects when the HTTP status is not ok", async () => {
     mockFetch(500, {code: 500, message: "boom"})
     await expect(service.registerPonton(ponton)).rejects.toBeInstanceOf(APIError)
+  })
+})
+
+describe("EegService.registerEeg", () => {
+  it("rejects with the admin-backend's code and message for an EEG that exists (261015-ca1)", async () => {
+    const message = "EEG ist bereits registriert (Tenant RC100100, RC-Nummer RC100100). Es wurde nichts geändert; fehlende Logins oder Ponton über „EEG Accounts“ bzw. „Ponton Verbindung“ ergänzen."
+    mockFetch(409, {code: 409, message})
+    const err = await new EegService(authService).registerEeg({} as EegRegister).catch(e => e)
+    expect(err).toBeInstanceOf(APIError)
+    expect(err.code).toBe(409)
+    expect(err.message).toBe(message)
   })
 })
 
