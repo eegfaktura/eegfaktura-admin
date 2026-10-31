@@ -40,6 +40,8 @@ this changelog highlights the changes relevant for overview and operations.
     in 0.18.5; with a BOM they are correct.
 
 ### Fixed
+- **EEG registration: the same file can be chosen again** (eegfaktura-dev tracking admin 261031-mm3). After an upload the
+  file input kept its value, so choosing the same file a second time, for example after editing it, did nothing.
 - **EEG registration: a list without an EEG row gets a clear message** (eegfaktura-dev tracking admin 261031-mm2). A list
   with fewer than three rows below the header ended as „Failed to parse Excel file.“, although the file was fine. Now
   the message says that no EEG was found, and a list loaded before stays as it was.

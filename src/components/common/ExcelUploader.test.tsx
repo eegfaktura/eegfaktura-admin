@@ -103,6 +103,17 @@ describe("member list without an EEG row", () => {
   })
 })
 
+describe("choosing a file", () => {
+  it("clears the input, so the same file can be chosen again", async () => {
+    const input = mount()
+    const value = vi.fn()
+    Object.defineProperty(input, "value", {set: value, configurable: true})
+    choose(input, "member-list.xlsx", fixture())
+    await waitFor(() => expect(screen.getByText("loaded")).toBeInTheDocument())
+    expect(value).toHaveBeenCalledWith("")
+  })
+})
+
 describe("member list upload (HTML saved as .xls)", () => {
   it("keeps the cells as written", async () => {
     const row = (...cells: string[]) => `<tr>${cells.map(c => `<td>${c}</td>`).join("")}</tr>`

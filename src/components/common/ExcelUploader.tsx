@@ -22,6 +22,9 @@ const ExcelUploader: React.FC<{fileName: string | null, onLoad:(fileName: string
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // otherwise the browser sends no change event when the same file is chosen again
+    event.target.value = "";
+
     // setFileName(file.name);
 
     try {
