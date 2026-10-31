@@ -36,7 +36,7 @@ this changelog highlights the changes relevant for overview and operations.
   webpack-dev-middleware, webpack-dev-server and others from that tree (build and dev-server tooling; none of it was
   part of the shipped bundle). `xlsx` is unchanged (separate follow-up). The test-only `form-data` override follows
   eegfaktura-web: `^3.0.4` → `^4.0.4` (4.0.6).
-- **`public/auth-config.js` removed** (eegfaktura-dev tracking admin 1) — security relevant, details not published.
+- **`public/auth-config.js` and `public/config/keycloak.json` removed** (eegfaktura-dev tracking admin 1) — security relevant, details not published.
 - **CI: the release workflow pins its actions by commit SHA** (eegfaktura-dev tracking W-261028-mm6). `rolling-release.yml`
   builds and pushes the shipped image, but used floating tags (`@v4`, `@v3`, …); a moved tag ran in the job that holds
   the push credentials. Now every action is pinned to a commit, the same SHAs `pr-checks.yml` and `security-scan.yml` already
