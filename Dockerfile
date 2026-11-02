@@ -9,6 +9,10 @@ ADD keycloak-config.json /srv
 
 #VOLUME /var/www/html/registration-web/config
 
+# CVE-2026-111497: caddy:2.11.7 bringt brotli-libs 1.2.0 mit, ein neueres Caddy-Image gibt es
+# noch nicht. Entfernen, sobald die Basis mindestens 1.2.1-r0 enthaelt.
+RUN apk add --no-cache 'brotli-libs>=1.2.1-r0'
+
 # Nicht als root laufen (Befund A06 der Altsystem-Analyse).
 # Caddy lauscht laut caddy.conf oberhalb von 1024 - es braucht dafuer keine
 # Privilegien. /data und /config sind Caddys XDG-Pfade und muessen dem Benutzer
