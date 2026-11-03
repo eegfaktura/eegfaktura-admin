@@ -155,10 +155,6 @@ const RegistrationPage: FC = () => {
         return <CommonEegPropertiesComponent/>
       case 1:
         return <UserEegPropertiesComponent />
-      // case 2:
-      //   return <BusinessEegPropertiesComponent control={formMethods.control}/>
-      // case 3:
-      //   return <AddressEegPropertiesComponent />
       case 2:
         return <PontonPropertiesComponent />
       default:
