@@ -12,7 +12,7 @@ import {RegistrationContext} from "../../hooks/RegistrationContext";
 
 const CommonEegPropertiesComponent: FC = () => {
 
-  const {excelFile, onLoad} = useContext(RegistrationContext)
+  const {onLoad} = useContext(RegistrationContext)
 
   const {control, setValue} = useFormContext()
 
@@ -26,7 +26,7 @@ const CommonEegPropertiesComponent: FC = () => {
       {/*<CorePageTemplate>*/}
       <Box sx={{display: "flex", justifyContent: "space-between", flexDirection: "row", alignItems: "center"}}>
         <h2>Allgemeine Einstellungen Erneuerbarer Energie Gemeinschaften</h2>
-        <ExcelUploader fileName={excelFile} onLoad={(f: string,  d: Record<string, any>[]) => {
+        <ExcelUploader onLoad={(f: string,  d: Record<string, any>[]) => {
           onLoad(f, d)
         }}/>
       </Box>
