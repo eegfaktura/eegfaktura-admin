@@ -8,6 +8,21 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+### Fixed
+- **Portal: edits and the search in the participant list.** A metering-point change made while a search was active
+  was lost once the search was cleared, and saving a participant showed the whole list again although the search
+  text stayed. The list is now always the search applied to the loaded participants, and the selected participant
+  shows the saved values (AD-CQ-12).
+
+### Removed
+- **Code-quality cleanup (review 2026-11-03), no visible change:** unused files (`keycloak.js`, the logout, home and
+  portal-overview pages, the address and business registration steps, `EegContext`/`TenantProvider`, `assets/`,
+  `logo.svg`, `reportWebVitals`, `colorConfigs`), model types copied from eegfaktura-web, unused participant state in
+  Redux, the stepper's skip-step code, commented-out code, and the unused packages `keycloak-js`, `react-form-hook`,
+  `react-lodash`, `lodash`, `yup`, `web-vitals` (+ their `@types`). Test and type packages and `typescript` moved to
+  `devDependencies`. The dev proxies `/api` and `/cash` (no caller) are gone; `make all` has its `test` target. Tests
+  no longer sleep 1 s, restore `fetch` and reset the shared stores after each test.
+
 ### Security
 - **brotli-libs 1.2.1-r0 in the image** (CVE-2026-111497, from the weekly base image scan): `caddy:2.11.7` ships 1.2.0
   and there is no newer Caddy image yet, so the Dockerfile updates the package.
