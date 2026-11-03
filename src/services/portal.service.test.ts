@@ -8,13 +8,15 @@ import {AdminUpdateData} from "../model/admin.model";
 const authService = {getToken: async () => "token"} as unknown as AuthService
 
 const mockFetch = (httpStatus: number, body: unknown, statusText = "") => {
-  global.fetch = vi.fn().mockResolvedValue({
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
     ok: httpStatus >= 200 && httpStatus < 300,
     status: httpStatus,
     statusText,
     json: async () => body,
-  }) as unknown as typeof fetch
+  }))
 }
+
+afterEach(() => vi.unstubAllGlobals())
 
 const update = {tenant: "TE100002", participantId: "p1", meteringPoint: "AT001", value: {}} as AdminUpdateData
 

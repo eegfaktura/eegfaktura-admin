@@ -13,14 +13,16 @@ const ponton = {
 const authService = {getToken: async () => "token"} as unknown as AuthService
 
 const mockFetch = (httpStatus: number, body: unknown, json = async () => body) => {
-  global.fetch = vi.fn().mockResolvedValue({
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
     ok: httpStatus >= 200 && httpStatus < 300,
     status: httpStatus,
     statusText: "",
     json,
     text: async () => JSON.stringify(body),
-  }) as unknown as typeof fetch
+  }))
 }
+
+afterEach(() => vi.unstubAllGlobals())
 
 describe("EegService.registerPonton", () => {
   const service = new EegService(authService)
