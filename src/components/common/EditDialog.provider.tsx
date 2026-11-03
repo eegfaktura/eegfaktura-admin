@@ -26,7 +26,7 @@ const useEditDialogStore = <T,>() =>
     onClose: () => set({children: undefined}),
 }))
 
-const useEditDialogStore1 = create<EditDialogState1>((set) => ({
+export const useEditDialogStore1 = create<EditDialogState1>((set) => ({
     onSubmit: (event: FormEvent) => {},
     onClose: () => set({children: undefined, error: undefined}),
   }))

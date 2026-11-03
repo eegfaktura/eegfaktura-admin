@@ -13,7 +13,7 @@ type CellEditDialogState = {
   pending?: boolean;
 }
 
-const useCellEditDialogStore = create<CellEditDialogState>((set) => ({
+export const useCellEditDialogStore = create<CellEditDialogState>((set) => ({
   onSubmit: () => {},
   onClose: () => set({children: undefined, error: undefined})
 }))

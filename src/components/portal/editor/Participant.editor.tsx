@@ -24,7 +24,7 @@ type ParticipantEditDialogState = {
   pending?: boolean;
 }
 
-const useParticipantEditDialogStore = create<ParticipantEditDialogState>((set) => ({
+export const useParticipantEditDialogStore = create<ParticipantEditDialogState>((set) => ({
   onUpdate: (data: EegParticipant) => {},
   onClose: () => set({row: undefined, error: undefined})
 }))
