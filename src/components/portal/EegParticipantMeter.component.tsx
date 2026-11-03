@@ -35,10 +35,6 @@ const CellEditInputElement1:FC<{params: GridRenderCellParams<Metering, string>, 
 
 const ProcessStateEditor: FC<{params: GridRenderCellParams<Metering, string>, updateMeter: (meter: Metering) => void}> = ({params, updateMeter}) => {
 
-  // const [value, setValue] = useState(params.value);
-  // const [activeDate, setActiveDate] = useState(params.row.activeSince)
-  // const [inactiveDate, setInactiveDate] = useState(params.row.inactiveSince)
-
   const onUpdate = (meter: Metering) => {
 
     let processData = {
@@ -60,7 +56,6 @@ const ProcessStateEditor: FC<{params: GridRenderCellParams<Metering, string>, up
       .then(row => {
         updateMeter(row)
       });
-    // params.api.getSelectedRows().set(params.row.meteringPoint, params.row);
   }
   const { handleSubmit, control } = useForm<Metering>({
     defaultValues: {
@@ -122,19 +117,12 @@ const ProcessStateEditor: FC<{params: GridRenderCellParams<Metering, string>, up
 
 const EegParticipantMeterComponent: FC = () => {
 
-  // const [meters, setMeters] = useState<Metering[]>()
   const apiRef = useGridApiRef()
 
   const {selectedMeters, updateMeter, selectedParticipant} = useParticipantContext()
 
-  // useEffect(() => {
-  //   participant && setMeters(participant.meters)
-  // }, [participant]);
-
   const onUpdateMeter = (meter: Metering) => {
-    // setMeters(meters?.map(x => x.meteringPoint === meter.meteringPoint ? meter : x))
     updateMeter(meter)
-    // apiRef.current?.updateRows([{id: meter.meteringPoint, processState: meter.processState}])
   }
 
   const columns: GridColDef<Metering>[] = [

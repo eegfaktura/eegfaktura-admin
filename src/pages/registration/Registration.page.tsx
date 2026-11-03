@@ -95,30 +95,26 @@ const RegistrationPage: FC = () => {
   };
 
   const onSubmit = (data: EegRegister) => {
-    try {
-      Api.eegService.registerEeg(trimEegRegisterData(data))
-        .then(r => {
-          const results = r?.accounts ?? []
-          const failed = results.some(a => a.status === "failed")
-          setMessage({
-            message: ["EEG wurde angelegt.", accountSummary(results)].filter(Boolean).join(" "),
-            severity: failed ? "warning" : "success",
-            sticky: failed,
-          })
-          setOpen(true)
+    Api.eegService.registerEeg(trimEegRegisterData(data))
+      .then(r => {
+        const results = r?.accounts ?? []
+        const failed = results.some(a => a.status === "failed")
+        setMessage({
+          message: ["EEG wurde angelegt.", accountSummary(results)].filter(Boolean).join(" "),
+          severity: failed ? "warning" : "success",
+          sticky: failed,
+        })
+        setOpen(true)
+        handleReset()
+      })
+      .catch((e: APIError) => {
+        console.error("ERROR-Request: ", e, "Code: ", e.code)
+        setMessage(registerErrorMessage(e))
+        setOpen(true)
+        if (e.code !== EegExists) {
           handleReset()
-        })
-        .catch((e: APIError) => {
-          console.error("ERROR-Request: ", e, "Code: ", e.code)
-          setMessage(registerErrorMessage(e))
-          setOpen(true)
-          if (e.code !== EegExists) {
-            handleReset()
-          }
-        })
-    } catch (e) {
-      console.error("ERROR: ", e)
-    }
+        }
+      })
   };
 
   const trimEegRegisterData = (data: EegRegister): EegRegister => {

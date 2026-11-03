@@ -42,15 +42,6 @@ export class EegService {
   }
 
 
-  // private getUser() {
-  //   const oidcStorage = sessionStorage.getItem(`oidc.user:https://login.ourproject.at/auth/realms/VFEEG/:at.ourproject.vfeeg.admin`)
-  //   if (!oidcStorage) {
-  //     return null;
-  //   }
-  //
-  //   return User.fromStorageString(oidcStorage);
-  // }
-
   private async getUser() {
     return this.authService.getToken()
   }
@@ -202,12 +193,3 @@ export class EegService {
     });
   }
 }
-// export const eegService = new EegService(authService);
-//
-// export const useToken = () => {
-//   const auth = useAuth()
-//
-//   const token = auth.user?.access_token
-//
-//   return token
-// }

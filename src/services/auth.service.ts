@@ -2,10 +2,6 @@ import {UserManager} from "oidc-client-ts";
 
 export class AuthService extends UserManager {
 
-  // constructor(settings: UserManagerSettings) {
-  //   super(settings);
-  // }
-
   public async getToken() {
     const user = await this.getUser()
     if (user && user.expires_in) {
@@ -33,5 +29,3 @@ export class AuthService extends UserManager {
     return this.signoutRedirect()
   }
 }
-
-// export const authService = new AuthService(oidcConfig)

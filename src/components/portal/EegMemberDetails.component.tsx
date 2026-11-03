@@ -53,7 +53,6 @@ const EegMemberDetailsComponent: FC = () => {
   const eegSelected = useSelector(selectedEeg)
   const [loading, setLoading] = useState<boolean>(false)
   const [eeg, setEeg] = useState<EegMember>()
-  // const [participants, setParticipants] = useState<EegParticipant[]>([])
 
   const {participantsLoaded, selectParticipant} = useParticipantContext()
   const dispatch = useDispatch()
@@ -80,9 +79,6 @@ const EegMemberDetailsComponent: FC = () => {
 
     // returned so the dialog waits for it and shows a failure
     return Api.portalService.changeEegState("EEG", eegData)
-      // .then(d => {
-      // setSettlementInterval(d.settlementInterval)
-      // return d})
       .then(d => {
         dispatch(updateEegByTenant(d))
         setEeg(s => s ? {...s, ...eegData.value} : undefined)
