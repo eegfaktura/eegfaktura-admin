@@ -1,6 +1,7 @@
 import React from "react";
 import {act, render, screen, waitFor} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import {StoreApi} from "zustand";
 import {CellEditDialog, editDialog, useCellEditDialogStore} from "./CellEdit.dialog";
 import {EditDialogProvider, openDialog, useEditDialogStore1} from "../common/EditDialog.provider";
 import {openParticipantDialog, ParticipantCellEditDialog, useParticipantEditDialogStore} from "./editor/Participant.editor";
@@ -11,11 +12,14 @@ import {EegParticipant} from "../../model/eeg.model";
 
 // The dialog stores are module singletons: back to their initial state after each test, so a dialog left open
 // does not show up in the next render.
-const stores = [useCellEditDialogStore, useEditDialogStore1, useParticipantEditDialogStore]
-const initialStates = stores.map(s => s.getState())
+const resetter = <T,>(store: StoreApi<T>) => {
+  const initial = store.getState()
+  return () => store.setState(initial, true)
+}
+const resets = [resetter(useCellEditDialogStore), resetter(useEditDialogStore1), resetter(useParticipantEditDialogStore)]
 afterEach(() => {
   vi.useRealTimers()
-  stores.forEach((s, i) => s.setState(initialStates[i], true))
+  resets.forEach(reset => reset())
 })
 
 const deferred = () => {
