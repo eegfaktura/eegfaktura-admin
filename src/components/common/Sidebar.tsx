@@ -16,8 +16,6 @@ const Sidebar = () => {
           width: sizeConfigs.sidebar.width,
           boxSizing: "border-box",
           borderRight: "0px",
-          // backgroundColor: colorConfigs.sidebar.bg,
-          // color: colorConfigs.sidebar.color
         }
       }}
     >
@@ -28,16 +26,6 @@ const Sidebar = () => {
             <div style={{fontSize: "22px"}}><span>EEG </span><span style={{color: "#79dfb4"}}>Faktura ADMIN</span></div>
           </Toolbar>
         </AppBar>
-        {/*<Toolbar sx={{ marginBottom: "20px" }}>*/}
-        {/*  /!*<Stack*!/*/}
-        {/*  /!*  sx={{ width: "100%" }}*!/*/}
-        {/*  /!*  direction="row"*!/*/}
-        {/*  /!*  justifyContent="center"*!/*/}
-        {/*  /!*>*!/*/}
-        {/*  /!*  <Avatar src={assets.images.logo} />*!/*/}
-        {/*  /!*</Stack>*!/*/}
-        {/*  <div>EEG Faktura ADMIN</div>*/}
-        {/*</Toolbar>*/}
         {appRoutes.map((route, index) => (
           route.sidebarProps ? (
             route.child ? (

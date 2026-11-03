@@ -9,9 +9,8 @@ module.exports = {
   env: {browser: true, commonjs: true, es6: true, node: true},
   parserOptions: {ecmaVersion: 'latest', sourceType: 'module', ecmaFeatures: {jsx: true}},
   settings: {react: {version: 'detect'}},
-  // The CRA build linted only what the bundle imports: no tests, and not src/pages/Logout.page.tsx
-  // (imported nowhere, not exported).
-  ignorePatterns: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'src/setupTests.ts', 'src/pages/Logout.page.tsx'],
+  // The CRA build linted only what the bundle imports: no tests.
+  ignorePatterns: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'src/setupTests.ts'],
 
   overrides: [
     {
