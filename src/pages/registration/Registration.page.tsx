@@ -95,7 +95,8 @@ const RegistrationPage: FC = () => {
   };
 
   const onSubmit = (data: EegRegister) => {
-    Api.eegService.registerEeg(trimEegRegisterData(data))
+    // inside the chain, so that a failing trim ends in the .catch below
+    Promise.resolve().then(() => Api.eegService.registerEeg(trimEegRegisterData(data)))
       .then(r => {
         const results = r?.accounts ?? []
         const failed = results.some(a => a.status === "failed")
