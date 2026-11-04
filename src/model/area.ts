@@ -4,7 +4,7 @@ type Area = EegMember["area"]
 
 // Short forms of an EEG's area ("Region"), used in the registration form and in the EEG details.
 // Typed with the area union, so a new area without a label does not compile.
-export const AREA_LABELS: Record<Area, string> = {
+const AREA_LABELS: Record<Area, string> = {
   LOCAL: "EEG lokal",
   REGIONAL: "EEG regional",
   GEA: "GEA",
