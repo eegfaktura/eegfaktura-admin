@@ -2,6 +2,7 @@ import React, {FC, useContext, useEffect} from "react";
 import {useFormContext, useWatch} from "react-hook-form";
 import FormInputComponent from "../form/FormInput.component";
 import FormSelectComponent from "../form/FormSelect.component";
+import {AREA_OPTIONS} from "../../model/area";
 import {
   Box,
 } from "@mui/material";
@@ -60,11 +61,8 @@ const CommonEegPropertiesComponent: FC = () => {
       <FormSelectComponent name={"grid.allocation"} label="Verteilung" control={control} options={[
         {key: "STATIC", value: "Statisch"},
         {key: "DYNAMIC", value: "Dynamisch"}]} placeholder="Verteilung"/>
-      <FormSelectComponent name={"grid.area"} label="Region" control={control} options={[
-        {key: "LOCAL", value: "Local"},
-        {key: "REGIONAL", value: "Regional"},
-        {key: "GEA", value: "Gemeinschaftliche Erzeugungsanlagen"},
-        {key: "BEG", value: "Bürgergemeinschaften"}]} placeholder="Region"/>
+      <FormSelectComponent name={"grid.area"} label="Region" control={control} options={AREA_OPTIONS}
+                           placeholder="Region"/>
     </Box>
 
   )
