@@ -56,4 +56,15 @@ describe("ParticipantProvider", () => {
     expect(result.current.participants.map(p => p.lastName)).toEqual(["Maier"])
     expect(result.current.selectedParticipant?.lastName).toBe("Maier")
   })
+
+  it("drops a participant from the filtered list once an edit no longer matches the search", () => {
+    const result = renderContext()
+    act(() => result.current.setSearchItem("ott"))
+
+    act(() => result.current.updateParticipant({...anna, lastName: "Maier"}))
+
+    expect(result.current.participants).toEqual([])
+    act(() => result.current.setSearchItem(undefined))
+    expect(result.current.participants.map(p => p.lastName)).toEqual(["Maier", "Huber"])
+  })
 })
