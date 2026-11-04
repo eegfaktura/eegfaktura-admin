@@ -40,6 +40,8 @@ export default defineConfig({
     // react-scripts ran Jest with resetMocks: true. Close, not identical: Vitest resets a vi.fn(impl)
     // to impl, Jest's resetMocks to an empty function.
     mockReset: true,
+    // globals replaced with vi.stubGlobal (e.g. fetch) are restored after each test
+    unstubGlobals: true,
     // as react-scripts' collectCoverageFrom: every source file, also the ones no test loads
     coverage: {
       provider: 'v8',

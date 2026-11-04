@@ -22,8 +22,6 @@ const mockFetch = (httpStatus: number, body: unknown, json = async () => body) =
   }))
 }
 
-afterEach(() => vi.unstubAllGlobals())
-
 describe("EegService.registerPonton", () => {
   const service = new EegService(authService)
 

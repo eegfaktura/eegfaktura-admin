@@ -16,8 +16,6 @@ const mockFetch = (httpStatus: number, body: unknown, statusText = "") => {
   }))
 }
 
-afterEach(() => vi.unstubAllGlobals())
-
 const update = {tenant: "TE100002", participantId: "p1", meteringPoint: "AT001", value: {}} as AdminUpdateData
 
 describe("PortalService master-data updates", () => {
