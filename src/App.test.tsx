@@ -1,9 +1,7 @@
 import React from 'react';
 import {render, screen} from '@testing-library/react';
 import {Provider} from "react-redux";
-import {combineReducers, configureStore} from "@reduxjs/toolkit";
-import appStateSlice from "./redux/features/appStateSlice";
-import eegStateSlice from "./redux/features/eegStateSlice";
+import {makeStore} from "./redux/store";
 import App from './App';
 
 // Smoke test of the app shell: sign-in redirect, the page for accounts without the role
@@ -30,10 +28,7 @@ const setAuth = (isAuthenticated: boolean, roles: string[] = []) => {
 };
 
 // a fresh store per test: the app state set by one test must not carry over to the next
-const renderApp = () => {
-  const store = configureStore({reducer: combineReducers({appStateSlice, eegStateSlice})});
-  return render(<Provider store={store}><App/></Provider>);
-};
+const renderApp = () => render(<Provider store={makeStore()}><App/></Provider>);
 
 test('redirects to the sign-in when not authenticated', () => {
   setAuth(false);

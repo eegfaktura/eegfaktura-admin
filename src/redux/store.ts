@@ -9,8 +9,10 @@ const globalState = combineReducers(
     eegStateSlice
   })
 
-export const store = configureStore({
+export const makeStore = () => configureStore({
   reducer: globalState
 });
+
+export const store = makeStore();
 
 export type RootState = ReturnType<typeof store.getState>;
