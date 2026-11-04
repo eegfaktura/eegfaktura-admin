@@ -16,8 +16,8 @@ for Austrian renewable energy communities (*Erneuerbare-Energiegemeinschaften*, 
 - **TypeScript**, **React 18**, built with **Vite**, tests with **Vitest**
 - **Material-UI (MUI 5)** + MUI X Data Grid
 - **Redux Toolkit** + react-redux
-- **Keycloak / OIDC** (`keycloak-js`, `oidc-client-ts`, `react-oidc-context`)
-- react-hook-form + yup, react-router 6, `xlsx`
+- **Keycloak / OIDC** (`oidc-client-ts`, `react-oidc-context`)
+- react-hook-form, react-router 6, `xlsx`
 - Served in production by **Caddy**
 
 ## Structure
@@ -44,7 +44,7 @@ Dev server:
 npm start          # http://localhost:3000
 ```
 
-`vite.config.ts` (`server.proxy`) proxies `/admin`, `/api` and `/cash` to local backend services.
+`vite.config.ts` (`server.proxy`) proxies `/admin` and `/energystore` to local backend services.
 
 Docker: the built image serves `build/` via Caddy on port **8080**.
 

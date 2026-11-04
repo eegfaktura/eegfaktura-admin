@@ -3,14 +3,6 @@ import {create} from "zustand";
 import {submitAndClose} from "./submitAndClose";
 import {Alert, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, PaperProps} from "@mui/material";
 
-type EditDialogState<T> = {
-  children?: ReactNode
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-  onClose: () => void;
-  header?: string;
-  values?: T
-}
-
 type EditDialogState1 = {
   children?: ReactNode
   onSubmit: (event: FormEvent) => Promise<unknown> | void;
@@ -20,22 +12,14 @@ type EditDialogState1 = {
   pending?: boolean;
 }
 
-const useEditDialogStore = <T,>() =>
-  create<EditDialogState<T>>((set) => ({
-    onSubmit: (event: FormEvent<HTMLFormElement>) => {},
-    onClose: () => set({children: undefined}),
-}))
-
 const useEditDialogStore1 = create<EditDialogState1>((set) => ({
     onSubmit: (event: FormEvent) => {},
     onClose: () => set({children: undefined, error: undefined}),
   }))
 
-export const useOpenDialog = <T,>(children: ReactNode,
-                               header: string, onSubmit: (event: FormEvent<HTMLFormElement>) => void,
-                               values: T) => {
-  useEditDialogStore<T>().setState({children, onSubmit, header, values});
-}
+// tests: back to the closed dialog (the store is a module singleton)
+const initialState = useEditDialogStore1.getState()
+export const resetEditDialog = () => useEditDialogStore1.setState(initialState, true)
 
 export const openDialog = (children: ReactNode,
                                   header: string, onSubmit: (event: FormEvent) => Promise<unknown> | void) => {

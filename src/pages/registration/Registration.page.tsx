@@ -66,13 +66,7 @@ const RegistrationPage: FC = () => {
     },
     accounts: [],
   }
-  const steps: { label: string, optional?: boolean }[] = [
-    {label: 'Allgemein'},
-    {label: 'Betreiber'},
-    // {label: 'Business'},
-    // {label: 'Contact'},
-    {label: 'Kommunikation'},
-  ];
+  const steps = ['Allgemein', 'Betreiber', 'Kommunikation'];
 
   // const {handleSubmit, control, watch, formState: {errors}, reset} = useForm<EegRegister>({defaultValues: newEeg})
   const formMethods = useForm<EegRegister>({defaultValues: newEeg, mode: "all"});
@@ -80,50 +74,18 @@ const RegistrationPage: FC = () => {
   const [open, setOpen] = React.useState(false);
   const [activeStep, setActiveStep] = React.useState(0);
   const [message, setMessage] = React.useState<{message: string, severity: "success" | "error" | "warning" | "info" | undefined, sticky?: boolean}>({message: "", severity: "success"});
-  const [skipped, setSkipped] = React.useState(new Set<number>());
   const {reset, eeg, rcNumber, isExcelLoaded, excelFile, next, hasNext, prev, hasPrev} = React.useContext(RegistrationContext);
-
-  const isStepOptional = (index: number) => {
-    const step = steps[index]
-    return step.optional && step.optional;
-  };
-
-  const isStepSkipped = (step: number) => {
-    return skipped.has(step);
-  };
 
   useEffect(() => {
     formMethods.reset(eeg);
   }, [eeg, formMethods])
 
   const handleNext = () => {
-    let newSkipped = skipped;
-    if (isStepSkipped(activeStep)) {
-      newSkipped = new Set(newSkipped.values());
-      newSkipped.delete(activeStep);
-    }
-
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped(newSkipped);
   };
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const handleSkip = () => {
-    if (!isStepOptional(activeStep)) {
-      // You probably want to guard against something like this,
-      // it should never occur unless someone's actively trying to break something.
-      throw new Error("You can't skip a step that isn't optional.");
-    }
-
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped((prevSkipped) => {
-      const newSkipped = new Set(prevSkipped.values());
-      newSkipped.add(activeStep);
-      return newSkipped;
-    });
   };
 
   const handleReset = () => {
@@ -133,30 +95,27 @@ const RegistrationPage: FC = () => {
   };
 
   const onSubmit = (data: EegRegister) => {
-    try {
-      Api.eegService.registerEeg(trimEegRegisterData(data))
-        .then(r => {
-          const results = r?.accounts ?? []
-          const failed = results.some(a => a.status === "failed")
-          setMessage({
-            message: ["EEG wurde angelegt.", accountSummary(results)].filter(Boolean).join(" "),
-            severity: failed ? "warning" : "success",
-            sticky: failed,
-          })
-          setOpen(true)
+    // inside the chain, so that a failing trim ends in the .catch below
+    Promise.resolve().then(() => Api.eegService.registerEeg(trimEegRegisterData(data)))
+      .then(r => {
+        const results = r?.accounts ?? []
+        const failed = results.some(a => a.status === "failed")
+        setMessage({
+          message: ["EEG wurde angelegt.", accountSummary(results)].filter(Boolean).join(" "),
+          severity: failed ? "warning" : "success",
+          sticky: failed,
+        })
+        setOpen(true)
+        handleReset()
+      })
+      .catch((e: APIError) => {
+        console.error("ERROR-Request: ", e, "Code: ", e.code)
+        setMessage(registerErrorMessage(e))
+        setOpen(true)
+        if (e.code !== EegExists) {
           handleReset()
-        })
-        .catch((e: APIError) => {
-          console.error("ERROR-Request: ", e, "Code: ", e.code)
-          setMessage(registerErrorMessage(e))
-          setOpen(true)
-          if (e.code !== EegExists) {
-            handleReset()
-          }
-        })
-    } catch (e) {
-      console.error("ERROR: ", e)
-    }
+        }
+      })
   };
 
   const trimEegRegisterData = (data: EegRegister): EegRegister => {
@@ -193,10 +152,6 @@ const RegistrationPage: FC = () => {
         return <CommonEegPropertiesComponent/>
       case 1:
         return <UserEegPropertiesComponent />
-      // case 2:
-      //   return <BusinessEegPropertiesComponent control={formMethods.control}/>
-      // case 3:
-      //   return <AddressEegPropertiesComponent />
       case 2:
         return <PontonPropertiesComponent />
       default:
@@ -231,25 +186,11 @@ const RegistrationPage: FC = () => {
       <FormProvider {...formMethods} >
         <div style={{flex: "1 1 auto"}}>
           <Stepper activeStep={activeStep}>
-            {steps.map((step: { label: string, optional?: boolean }, index) => {
-              const stepProps: { completed?: boolean } = {};
-              const labelProps: {
-                optional?: React.ReactNode;
-              } = {};
-              if (isStepOptional(index)) {
-                labelProps.optional = (
-                  <Typography variant="caption">Optional</Typography>
-                );
-              }
-              if (isStepSkipped(index)) {
-                stepProps.completed = false;
-              }
-              return (
-                <Step key={step.label} {...stepProps}>
-                  <StepLabel {...labelProps}>{step.label}</StepLabel>
-                </Step>
-              );
-            })}
+            {steps.map(label => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
           </Stepper>
           {/*{Object.values(formMethods.formState.errors).map((e, i) => (*/}
           {/*  <div>{e.message}</div>*/}
@@ -290,11 +231,6 @@ const RegistrationPage: FC = () => {
               </Box>
             )}
             <Box sx={{flex: '0 0 auto'}}>
-            {isStepOptional(activeStep) && (
-              <Button color="inherit" onClick={handleSkip} sx={{mr: 1}}>
-                Skip
-              </Button>
-            )}
             {(activeStep === steps.length - 1) ?
               (<Button variant="contained" onClick={formMethods.handleSubmit(onSubmit)}>
                 Finish

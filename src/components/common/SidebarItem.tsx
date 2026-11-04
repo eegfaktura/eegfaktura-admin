@@ -22,15 +22,12 @@ const SidebarItem = ({ item }: Props) => {
           "&: hover": {
             backgroundColor: `${theme.palette.primary.main}24`
           },
-          // backgroundColor: appState === item.state ? colorConfigs.sidebar.activeBg : "unset",
           backgroundColor: appState === item.state ? `${theme.palette.primary.main}34` : "unset",
           paddingY: "12px",
           paddingX: "24px"
         }}
       >
-        <ListItemIcon sx={{
-          // color: colorConfigs.sidebar.color
-        }}>
+        <ListItemIcon>
           {item.sidebarProps.icon && item.sidebarProps.icon}
         </ListItemIcon>
         {item.sidebarProps.displayText}

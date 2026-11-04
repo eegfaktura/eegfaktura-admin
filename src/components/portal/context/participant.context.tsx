@@ -1,9 +1,8 @@
-import React, {FC, ReactNode, useContext, useEffect} from "react";
+import React, {FC, ReactNode, useContext, useMemo} from "react";
 import {EegParticipant, Metering} from "../../../model/eeg.model";
 
 interface ParticipantContextProps {
   participantsLoaded: (participants: EegParticipant[]) => void;
-  resetParticipants: () => void;
   updateMeter: (meter: Metering) => void;
   updateParticipant: (participant: EegParticipant) => void;
   selectParticipant: (participant: EegParticipant | undefined) => void;
@@ -15,64 +14,45 @@ interface ParticipantContextProps {
 
 const ParticipantContext = React.createContext({} as ParticipantContextProps );
 
+const filterParticipants = (participants: EegParticipant[], searchItem: string | undefined) => {
+  if (searchItem && searchItem.length > 0) {
+    const search = searchItem.toLowerCase()
+    return participants.filter(p =>
+      p.firstName.toLowerCase().includes(search) ||
+      p.lastName.toLowerCase().includes(search) ||
+      p.meters.find(m => m.meteringPoint.toLowerCase().includes(search))
+    )
+  }
+  return participants
+}
+
 export const ParticipantProvider:FC<{children: ReactNode}> = ({children}) => {
 
-  const [participants, setParticipants] = React.useState<EegParticipant[]>([]);
   const [allParticipants, setAllParticipants] = React.useState<EegParticipant[]>([]);
-  const [participant, setParticipant] = React.useState<EegParticipant | undefined>(undefined);
+  const [selectedId, setSelectedId] = React.useState<string | undefined>(undefined);
   const [searchItem, setSearchItem] = React.useState<string | undefined>(undefined);
-  // const [selectedMeters, setSelectedMeters] = React.useState<Metering[] | undefined>([]);
 
-  // useEffect(() => {
-  //   setSelectedMeters(participant?.meters);
-  // }, [participant]);
-
-  const filterParticipants = () => {
-    if (searchItem && searchItem.length > 0) {
-      return allParticipants.filter(p =>
-        p.firstName.toLowerCase().includes(searchItem.toLowerCase()) ||
-        p.lastName.toLowerCase().includes(searchItem.toLowerCase()) ||
-        p.meters.find(m => m.meteringPoint.toLowerCase().includes(searchItem.toLowerCase()))
-      )
-    }
-    return allParticipants
-  }
-
-  useEffect(() => {
-    setParticipants(allParticipants);
-  }, [allParticipants]);
-
-  useEffect(() => {
-    if (searchItem && searchItem.length > 0) {
-      setParticipants(filterParticipants());
-    } else {
-      setParticipants(allParticipants)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs on a search change only; on new data the effect above shows the unfiltered list
-  }, [searchItem]);
+  const participants = useMemo(() => filterParticipants(allParticipants, searchItem), [allParticipants, searchItem]);
+  const selectedParticipant = selectedId === undefined ? undefined : allParticipants.find(p => p.id === selectedId);
 
   const value: ParticipantContextProps = {
     participantsLoaded: (participants: EegParticipant[]) => {
       setAllParticipants(participants)
       setSearchItem(undefined)
     },
-    resetParticipants: () => setAllParticipants([]),
-    selectedParticipant: participant,
+    selectedParticipant: selectedParticipant,
     participants: participants,
     updateMeter: (meter: Metering) => {
-      const updatedParticipants: EegParticipant[] = participants.map(
+      setAllParticipants(all => all.map(
         s => s.id === meter.participantId
           ? {...s, meters: s.meters.map(m => m.meteringPoint === meter.meteringPoint ? meter : m)}
-          : s)
-      setParticipants(updatedParticipants)
-      // setSelectedMeters(participants.find(p => p.id = meter.participantId)?.meters)
-      setParticipant(updatedParticipants.find(s => s.id === meter.participantId))
+          : s))
     },
     updateParticipant: (participant: EegParticipant) => {
       setAllParticipants(p => p.map(e => e.id === participant.id ? participant : e));
     },
-    selectParticipant: (participant?: EegParticipant) => setParticipant(participant),
-    selectedMeters: participant?.meters,
+    selectParticipant: (participant?: EegParticipant) => setSelectedId(participant?.id),
+    selectedMeters: selectedParticipant?.meters,
     setSearchItem: setSearchItem,
   }
 

@@ -16,6 +16,23 @@ this changelog highlights the changes relevant for overview and operations.
   registration also accepts the short forms in the area column (any case, e.g. "EEG regional" → `REGIONAL`); before,
   they became `LOCAL`. Other unknown values still become `LOCAL`.
 
+### Fixed
+- **Portal: edits and the search in the participant list.** A metering-point change made while a search was active
+  was lost once the search was cleared, and saving a participant showed the whole list again although the search
+  text stayed. Edits now go to the loaded participants and the search is applied on top: a change keeps the search,
+  and a participant edited so that it no longer matches the search drops out of the filtered list. The selected
+  participant shows the saved values. Unchanged: switching the EEG clears the search, the text in the search field
+  stays (AD-CQ-12).
+
+### Removed
+- **Code-quality cleanup (review 2026-11-03), no visible change:** unused files (`keycloak.js`, the logout, home and
+  portal-overview pages, the address and business registration steps, `EegContext`/`TenantProvider`, `assets/`,
+  `logo.svg`, `reportWebVitals`, `colorConfigs`, `App.css`), an unused generic dialog store, model types copied from eegfaktura-web, unused participant state in
+  Redux, the stepper's skip-step code, commented-out code, and the unused packages `keycloak-js`, `react-form-hook`,
+  `react-lodash`, `lodash`, `yup`, `web-vitals` (+ their `@types`). Test and type packages and `typescript` moved to
+  `devDependencies`. The dev proxies `/api` and `/cash` (no caller) are gone; `make all` has its `test` target. Tests
+  no longer sleep 1 s, restore stubbed globals after each test and start with fresh shared stores.
+
 ### Security
 - **brotli-libs 1.2.1-r0 in the image** (CVE-2026-111497, from the weekly base image scan): `caddy:2.11.7` ships 1.2.0
   and there is no newer Caddy image yet, so the Dockerfile updates the package.

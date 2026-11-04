@@ -1,13 +1,22 @@
 import React from "react";
 import {act, render, screen, waitFor} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {CellEditDialog, editDialog} from "./CellEdit.dialog";
-import {EditDialogProvider, openDialog} from "../common/EditDialog.provider";
-import {openParticipantDialog, ParticipantCellEditDialog} from "./editor/Participant.editor";
+import {CellEditDialog, editDialog, resetCellEditDialog} from "./CellEdit.dialog";
+import {EditDialogProvider, openDialog, resetEditDialog} from "../common/EditDialog.provider";
+import {openParticipantDialog, ParticipantCellEditDialog, resetParticipantDialog} from "./editor/Participant.editor";
 import {EegParticipant} from "../../model/eeg.model";
 
 // A failed master-data save must stay visible (admin 261005-ca1): the edit dialogs close
 // only after the save went through and show the error otherwise.
+
+// The dialog stores are module singletons: every test starts with closed dialogs, so a dialog left open
+// does not show up in the next render.
+beforeEach(() => {
+  resetCellEditDialog()
+  resetEditDialog()
+  resetParticipantDialog()
+})
+afterEach(() => vi.useRealTimers())
 
 const deferred = () => {
   let resolve: () => void = () => {}
@@ -17,15 +26,18 @@ const deferred = () => {
 
 describe("CellEditDialog", () => {
   it("closes only after the save went through", async () => {
+    vi.useFakeTimers()
     const save = deferred()
     render(<CellEditDialog/>)
     act(() => editDialog(<div>Inhalt</div>, "Update ACTIVESINCE", () => save.promise))
 
     userEvent.click(screen.getByRole("button", {name: "Subscribe"}))
-    // longer than the dialog's exit transition: a closed dialog would be gone by now
-    await act(() => new Promise(r => setTimeout(r, 1000)))
+    // past the dialog's exit transition: a closed dialog would be gone by now
+    await act(async () => { vi.advanceTimersByTime(1000) })
     expect(screen.getByText("Update ACTIVESINCE")).toBeInTheDocument()
 
+    // waitFor polls with real timers
+    vi.useRealTimers()
     await act(async () => save.resolve())
     await waitFor(() => expect(screen.queryByText("Update ACTIVESINCE")).not.toBeInTheDocument())
   })

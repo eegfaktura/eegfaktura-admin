@@ -1,8 +1,6 @@
 import {User, WebStorageStateStore} from "oidc-client-ts";
 
 import { AuthProviderProps } from "react-oidc-context";
-// import {keycloakConfig} from "../../../keycloak";
-// import {authService} from "../../../services/auth.service";
 
 const isBrowser = typeof window !== "undefined";
 
@@ -10,16 +8,7 @@ export const rootUrl = isBrowser
   ? `${window.location.protocol}//${window.location.host}${window.location.host === 'localhost' ? ':' + window.location.port : ''}`
   : "";
 
-// const realm = keycloakConfig.realm;
-// const client_id = keycloakConfig.client_id;
-//
-// const appFolder = "/";
-// const authority = keycloakConfig.url;
-
 export const oidcConfig: AuthProviderProps = {
-  // authority,
-  // client_id,
-  // redirect_uri: `${rootUrl}${appFolder}`,
   post_logout_redirect_uri: rootUrl,
   /**
    * removes code and state from url after signin
@@ -53,16 +42,4 @@ export const oidcConfig: AuthProviderProps = {
   userStore: new WebStorageStateStore({
     store: sessionStorage
   }),
-  // userManager: authService as UserManager,
 };
-
-// export const getOidcUser = () => {
-//   const oidcStorage = localStorage.getItem(
-//     `oidc.user:${authority}:${client_id}`
-//   );
-//   if (!oidcStorage) {
-//     return null;
-//   }
-//
-//   return User.fromStorageString(oidcStorage);
-// };

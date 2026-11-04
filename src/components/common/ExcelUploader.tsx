@@ -6,10 +6,7 @@ interface ExcelData {
   [key: string]: any;
 }
 
-const ExcelUploader: React.FC<{fileName: string | null, onLoad:(fileName: string, data: ExcelData[]) => void }> = ({fileName, onLoad}) => {
-  // const [data, setData] = useState<ExcelData[]>([]);
-  // const [fileName, setFileName] = useState<string>("");
-
+const ExcelUploader: React.FC<{onLoad:(fileName: string, data: ExcelData[]) => void }> = ({onLoad}) => {
   // Create a ref to link our custom button to the hidden input
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -24,8 +21,6 @@ const ExcelUploader: React.FC<{fileName: string | null, onLoad:(fileName: string
 
     // otherwise the browser sends no change event when the same file is chosen again
     event.target.value = "";
-
-    // setFileName(file.name);
 
     try {
       // 1. Convert file to ArrayBuffer
@@ -52,7 +47,6 @@ const ExcelUploader: React.FC<{fileName: string | null, onLoad:(fileName: string
 
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-      {/* 1. Hidden Native Input */}
       <input
         type="file"
         ref={fileInputRef}
@@ -61,7 +55,6 @@ const ExcelUploader: React.FC<{fileName: string | null, onLoad:(fileName: string
         style={{ display: 'none' }}
       />
 
-      {/* 2. Your Custom Styled Button */}
       <Button color={'primary'}
         onClick={handleButtonClick}
         style={{

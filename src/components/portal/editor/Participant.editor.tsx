@@ -29,6 +29,10 @@ const useParticipantEditDialogStore = create<ParticipantEditDialogState>((set) =
   onClose: () => set({row: undefined, error: undefined})
 }))
 
+// tests: back to the closed dialog (the store is a module singleton)
+const initialState = useParticipantEditDialogStore.getState()
+export const resetParticipantDialog = () => useParticipantEditDialogStore.setState(initialState, true)
+
 export const openParticipantDialog = (row: EegParticipant, onUpdate: (data: EegParticipant) => Promise<unknown> | void) => {
   useParticipantEditDialogStore.setState({row, onUpdate, error: undefined, pending: false});
 }

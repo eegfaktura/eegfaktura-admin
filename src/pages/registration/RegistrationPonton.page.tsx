@@ -26,23 +26,19 @@ const RegistrationPontonPage: FC = () => {
 
 
   const onSubmit = (data: PontonRegister) => {
-    try {
-      setPending(true)
-      Api.eegService.registerPonton(data)
-        .then(r => {
-          setMessage({message: "Ponton-Registrierung abgeschlossen.", severity: "success"})
-          setOpen(true)
-          reset()
-        })
-        .catch((e: APIError) => {
-          console.error(e)
-          setMessage({message: e.message || "Ponton-Registrierung fehlgeschlagen", severity: "error"})
-          setOpen(true)
-        })
-        .finally(() => setPending(false))
-    } catch (e) {
-      console.error(e)
-    }
+    setPending(true)
+    Api.eegService.registerPonton(data)
+      .then(r => {
+        setMessage({message: "Ponton-Registrierung abgeschlossen.", severity: "success"})
+        setOpen(true)
+        reset()
+      })
+      .catch((e: APIError) => {
+        console.error(e)
+        setMessage({message: e.message || "Ponton-Registrierung fehlgeschlagen", severity: "error"})
+        setOpen(true)
+      })
+      .finally(() => setPending(false))
   };
 
   const handleClose = (

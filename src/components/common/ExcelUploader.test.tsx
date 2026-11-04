@@ -16,11 +16,11 @@ type Snapshot = {next: () => void, eeg: any}
 const current: Snapshot = {next: () => undefined, eeg: undefined}
 
 const Probe = () => {
-  const {eeg, next, isExcelLoaded, excelFile, onLoad} = useContext(RegistrationContext)
+  const {eeg, next, isExcelLoaded, onLoad} = useContext(RegistrationContext)
   current.eeg = eeg
   current.next = next
   return <>
-    <ExcelUploader fileName={excelFile} onLoad={onLoad}/>
+    <ExcelUploader onLoad={onLoad}/>
     {isExcelLoaded && <div>loaded</div>}
   </>
 }

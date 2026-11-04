@@ -13,6 +13,9 @@ all: test build
 build:
 	$(NPMBUILD)
 
+test:
+	$(NPMCMD) run test -- --run
+
 run:
 	$(NPMCMD) run build
 
