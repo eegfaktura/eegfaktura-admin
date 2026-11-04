@@ -21,4 +21,4 @@ export const areaFromText = (text: string): Area | undefined => {
 
 // Unknown or missing values are shown as they are.
 export const areaLabel = (area?: string) =>
-  area && Object.hasOwn(AREA_LABELS, area) ? AREA_LABELS[area as Area] : area
+  area && Object.prototype.hasOwnProperty.call(AREA_LABELS, area) ? AREA_LABELS[area as Area] : area
