@@ -22,6 +22,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import {Control, Controller, useForm} from "react-hook-form";
 import {EditDialogProvider, openDialog} from "../common/EditDialog.provider";
 import {AdminUpdateData} from "../../model/admin.model";
+import {areaLabel} from "../../model/area";
 
 const SettlementElement: FC<{control: Control<Record<string, any>>}> = ({control}) => {
 
@@ -157,7 +158,7 @@ const EegMemberDetailsComponent: FC = () => {
         <Grid item xs={2}>
           <div className="item-box">
             <div style={{fontSize:"12px"}}>Area</div>
-            <div>{eeg.area}</div>
+            <div>{areaLabel(eeg.area)}</div>
           </div>
         </Grid>
       </Grid>

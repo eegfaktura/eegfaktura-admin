@@ -8,6 +8,14 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+### Changed
+- **"Region" shows the short forms** "EEG lokal", "EEG regional", "GEA" and "BEG" (vfeeg-development/eegfaktura-platform#229,
+  part 1): in the select of the EEG registration (before: Local, Regional, Gemeinschaftliche Erzeugungsanlagen,
+  Bürgergemeinschaften) and in the EEG details of the portal (before: the stored value, e.g. `LOCAL`; an unknown value is
+  still shown as it is). The stored values `LOCAL` / `REGIONAL` / `GEA` / `BEG` are unchanged. The Excel upload of the
+  registration also accepts the short forms in the area column (any case, e.g. "EEG regional" → `REGIONAL`); before,
+  they became `LOCAL`. Other unknown values still become `LOCAL`.
+
 ### Security
 - **brotli-libs 1.2.1-r0 in the image** (CVE-2026-111497, from the weekly base image scan): `caddy:2.11.7` ships 1.2.0
   and there is no newer Caddy image yet, so the Dockerfile updates the package.
