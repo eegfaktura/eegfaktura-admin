@@ -10,6 +10,7 @@ describe("area labels", () => {
 
   it("shows unknown or missing values as they are", () => {
     expect(areaLabel("PP")).toBe("PP")
+    expect(areaLabel("toString")).toBe("toString")
     expect(areaLabel("")).toBe("")
     expect(areaLabel(undefined)).toBeUndefined()
   })
