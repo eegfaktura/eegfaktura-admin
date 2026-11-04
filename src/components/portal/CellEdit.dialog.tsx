@@ -13,10 +13,14 @@ type CellEditDialogState = {
   pending?: boolean;
 }
 
-export const useCellEditDialogStore = create<CellEditDialogState>((set) => ({
+const useCellEditDialogStore = create<CellEditDialogState>((set) => ({
   onSubmit: () => {},
   onClose: () => set({children: undefined, error: undefined})
 }))
+
+// tests: back to the closed dialog (the store is a module singleton)
+const initialState = useCellEditDialogStore.getState()
+export const resetCellEditDialog = () => useCellEditDialogStore.setState(initialState, true)
 
 export const editDialog = (children: ReactNode, header: string, onSubmit: () => Promise<unknown> | void) => {
   useCellEditDialogStore.setState({children, onSubmit, header, error: undefined, pending: false});

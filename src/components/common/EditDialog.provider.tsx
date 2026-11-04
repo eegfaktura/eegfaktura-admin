@@ -12,10 +12,14 @@ type EditDialogState1 = {
   pending?: boolean;
 }
 
-export const useEditDialogStore1 = create<EditDialogState1>((set) => ({
+const useEditDialogStore1 = create<EditDialogState1>((set) => ({
     onSubmit: (event: FormEvent) => {},
     onClose: () => set({children: undefined, error: undefined}),
   }))
+
+// tests: back to the closed dialog (the store is a module singleton)
+const initialState = useEditDialogStore1.getState()
+export const resetEditDialog = () => useEditDialogStore1.setState(initialState, true)
 
 export const openDialog = (children: ReactNode,
                                   header: string, onSubmit: (event: FormEvent) => Promise<unknown> | void) => {

@@ -1,26 +1,22 @@
 import React from "react";
 import {act, render, screen, waitFor} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {StoreApi} from "zustand";
-import {CellEditDialog, editDialog, useCellEditDialogStore} from "./CellEdit.dialog";
-import {EditDialogProvider, openDialog, useEditDialogStore1} from "../common/EditDialog.provider";
-import {openParticipantDialog, ParticipantCellEditDialog, useParticipantEditDialogStore} from "./editor/Participant.editor";
+import {CellEditDialog, editDialog, resetCellEditDialog} from "./CellEdit.dialog";
+import {EditDialogProvider, openDialog, resetEditDialog} from "../common/EditDialog.provider";
+import {openParticipantDialog, ParticipantCellEditDialog, resetParticipantDialog} from "./editor/Participant.editor";
 import {EegParticipant} from "../../model/eeg.model";
 
 // A failed master-data save must stay visible (admin 261005-ca1): the edit dialogs close
 // only after the save went through and show the error otherwise.
 
-// The dialog stores are module singletons: back to their initial state after each test, so a dialog left open
+// The dialog stores are module singletons: every test starts with closed dialogs, so a dialog left open
 // does not show up in the next render.
-const resetter = <T,>(store: StoreApi<T>) => {
-  const initial = store.getState()
-  return () => store.setState(initial, true)
-}
-const resets = [resetter(useCellEditDialogStore), resetter(useEditDialogStore1), resetter(useParticipantEditDialogStore)]
-afterEach(() => {
-  vi.useRealTimers()
-  resets.forEach(reset => reset())
+beforeEach(() => {
+  resetCellEditDialog()
+  resetEditDialog()
+  resetParticipantDialog()
 })
+afterEach(() => vi.useRealTimers())
 
 const deferred = () => {
   let resolve: () => void = () => {}

@@ -24,10 +24,14 @@ type ParticipantEditDialogState = {
   pending?: boolean;
 }
 
-export const useParticipantEditDialogStore = create<ParticipantEditDialogState>((set) => ({
+const useParticipantEditDialogStore = create<ParticipantEditDialogState>((set) => ({
   onUpdate: (data: EegParticipant) => {},
   onClose: () => set({row: undefined, error: undefined})
 }))
+
+// tests: back to the closed dialog (the store is a module singleton)
+const initialState = useParticipantEditDialogStore.getState()
+export const resetParticipantDialog = () => useParticipantEditDialogStore.setState(initialState, true)
 
 export const openParticipantDialog = (row: EegParticipant, onUpdate: (data: EegParticipant) => Promise<unknown> | void) => {
   useParticipantEditDialogStore.setState({row, onUpdate, error: undefined, pending: false});
