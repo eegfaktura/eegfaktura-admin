@@ -1,4 +1,23 @@
-import {cell} from "./RegistrationContext";
+import {cell, normalizeArea} from "./RegistrationContext";
+
+describe("Excel member list: area", () => {
+  it("accepts the keys in any case", () => {
+    expect(normalizeArea("REGIONAL")).toBe("REGIONAL")
+    expect(normalizeArea(" gea ")).toBe("GEA")
+    expect(normalizeArea("Beg")).toBe("BEG")
+  })
+  it("accepts the short forms in any case", () => {
+    expect(normalizeArea("EEG lokal")).toBe("LOCAL")
+    expect(normalizeArea("EEG regional")).toBe("REGIONAL")
+    expect(normalizeArea("eeg REGIONAL ")).toBe("REGIONAL")
+  })
+  it("keeps LOCAL for missing or unknown values", () => {
+    expect(normalizeArea(undefined)).toBe("LOCAL")
+    expect(normalizeArea("")).toBe("LOCAL")
+    expect(normalizeArea("P2P")).toBe("LOCAL")
+    expect(normalizeArea("Bürgergemeinschaften")).toBe("LOCAL")
+  })
+})
 
 describe("Excel member list: column lookup", () => {
   it("finds the email column whether it is called E-Mail or EMail", () => {

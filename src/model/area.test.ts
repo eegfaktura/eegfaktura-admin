@@ -1,4 +1,4 @@
-import {AREA_OPTIONS, areaLabel} from "./area";
+import {AREA_OPTIONS, areaFromText, areaLabel} from "./area";
 
 describe("area labels", () => {
   it("shows the short forms for the known areas", () => {
@@ -13,6 +13,12 @@ describe("area labels", () => {
     expect(areaLabel("toString")).toBe("toString")
     expect(areaLabel("")).toBe("")
     expect(areaLabel(undefined)).toBeUndefined()
+  })
+
+  it("finds the area for a key or a short form, case-insensitive", () => {
+    expect(areaFromText("eeg lokal")).toBe("LOCAL")
+    expect(areaFromText("Regional")).toBe("REGIONAL")
+    expect(areaFromText("EVA")).toBeUndefined()
   })
 
   it("offers the areas in the select with unchanged keys", () => {

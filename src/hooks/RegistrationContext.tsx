@@ -2,6 +2,7 @@ import React, {createContext, FC, ReactNode, useState} from "react";
 import {AccountInfo, AccountUser, EegRegister} from "../model/eeg.model";
 import {useSelector} from "react-redux";
 import {selectGridOperators} from "../redux/features/eegStateSlice";
+import {areaFromText} from "../model/area";
 
 const fieldTransformer = {
   "street": "Straße",
@@ -109,10 +110,9 @@ const normalizeAllocation = (s: string): "DYNAMIC" | "STATIC" => {
   return "DYNAMIC"
 }
 
-const normalizeArea = (s?: string): "LOCAL" | "REGIONAL" | "GEA" | "BEG" => {
-  const res = String(s ?? 'LOCAL').trim().toUpperCase()
-  return (["LOCAL", "REGIONAL", "GEA", "BEG"].includes(res) ? res : 'LOCAL') as "LOCAL" | "REGIONAL" | "GEA" | "BEG"
-}
+// keys and short forms ("EEG lokal"); anything else stays LOCAL as before
+export const normalizeArea = (s?: string): "LOCAL" | "REGIONAL" | "GEA" | "BEG" =>
+  areaFromText(String(s ?? 'LOCAL')) ?? 'LOCAL'
 
 interface RegistrationState {
   eeg: EegRegister;
