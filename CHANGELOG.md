@@ -8,13 +8,28 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+### Added
+- **Peer-to-Peer and Eigenversorgung** (vfeeg-development/eegfaktura-platform#229, part 2): "Region" in the EEG
+  registration also offers "P2P" and "EVA" (stored as `P2P` / `EVA`), and the EEG details of the portal show them with
+  these short forms. Needs admin-backend with P2P/EVA; deploy order: eda-xp → backend → billing, admin-backend →
+  admin, web → operator SQL.
+
 ### Changed
+- **Excel registration: an unknown type is an error of the row** (platform#229, E8). The area column accepts the
+  values and the short forms of all six types, in any case (e.g. "p2p", "EVA", "eeg regional"); an empty cell stays
+  `LOCAL` as before. Any other value no longer becomes `LOCAL`: the select "Region" stays empty and shows "Typ der
+  Gemeinschaft unbekannt, bitte wählen", "Next" does not go on, and a row is not sent until a type is chosen (also
+  when the row was switched to on a later step: a message and back to "Allgemein", instead of a rejected request and
+  the jump to the next row of AD-CQ-2).
+- **New communities only with dynamic allocation** (platform#229, E6): "Verteilung" in the registration offers only
+  "Dynamisch"; the column "Verteilung" of the Excel list is no longer read (before: "statisch" gave `STATIC`).
+  Existing communities are not touched.
 - **"Region" shows the short forms** "EEG lokal", "EEG regional", "GEA" and "BEG" (vfeeg-development/eegfaktura-platform#229,
   part 1): in the select of the EEG registration (before: Local, Regional, Gemeinschaftliche Erzeugungsanlagen,
   Bürgergemeinschaften) and in the EEG details of the portal (before: the stored value, e.g. `LOCAL`; an unknown value is
   still shown as it is). The stored values `LOCAL` / `REGIONAL` / `GEA` / `BEG` are unchanged. The Excel upload of the
   registration also accepts the short forms in the area column (any case, e.g. "EEG regional" → `REGIONAL`); before,
-  they became `LOCAL`. Other unknown values still become `LOCAL`.
+  they became `LOCAL`. (Other unknown values: see the Excel entry above.)
 
 ### Fixed
 - **Portal: edits and the search in the participant list.** A metering-point change made while a search was active
