@@ -23,16 +23,24 @@ describe("Excel member list: area", () => {
   })
   it("gives no area for an unknown type, instead of LOCAL", () => {
     expect(normalizeArea("PP")).toBe("")
-    expect(normalizeArea("Peer-to-Peer")).toBe("")
-    expect(normalizeArea("Bürgergemeinschaften")).toBe("")
+    expect(normalizeArea("Nachbarschaft")).toBe("")
+    expect(normalizeArea("Lokal/Regional")).toBe("")
+  })
+  it("accepts the further spellings of member lists", () => {
+    expect(normalizeArea("lokal")).toBe("LOCAL")
+    expect(normalizeArea("Peer-to-Peer")).toBe("P2P")
+    expect(normalizeArea("Eigenversorger")).toBe("EVA")
+    expect(normalizeArea("Bürgergemeinschaften")).toBe("BEG")
   })
 })
 
 describe("Excel member list: allocation (platform#229, E6)", () => {
-  it("gives DYNAMIC for an empty cell or dynamisch in any case", () => {
+  it("gives DYNAMIC for an empty cell, dynamisch or dynamic in any case", () => {
     expect(normalizeAllocation(undefined)).toBe("DYNAMIC")
     expect(normalizeAllocation(" ")).toBe("DYNAMIC")
     expect(normalizeAllocation(" Dynamisch ")).toBe("DYNAMIC")
+    expect(normalizeAllocation("DYNAMIC")).toBe("DYNAMIC")
+    expect(normalizeAllocation("dynamic")).toBe("DYNAMIC")
   })
   it("gives no allocation for statisch or an unknown value", () => {
     expect(normalizeAllocation("statisch")).toBe("")

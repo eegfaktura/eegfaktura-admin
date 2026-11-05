@@ -15,10 +15,23 @@ const AREA_LABELS: Record<Area, string> = {
 
 export const AREA_OPTIONS = Object.entries(AREA_LABELS).map(([key, value]) => ({key, value}))
 
-// The area for a key or a short form, case-insensitive ("EEG regional" -> REGIONAL); undefined if unknown.
+// Further spellings in member lists, lower case: the template header "Lokal/Regional", the long forms of the concept
+// and the labels before the short forms (platform#229). Read only, never offered.
+const AREA_ALIASES: Record<string, Area> = {
+  "lokal": "LOCAL",
+  "gemeinschaftliche erzeugungsanlagen": "GEA",
+  "bürgergemeinschaften": "BEG",
+  "bürgerenergiegemeinschaft": "BEG",
+  "peer-to-peer": "P2P",
+  "eigenversorgung": "EVA",
+  "eigenversorger": "EVA",
+}
+
+// The area for a key, a short form or an alias, case-insensitive ("EEG regional" -> REGIONAL); undefined if unknown.
 export const areaFromText = (text: string): Area | undefined => {
   const t = text.trim().toLowerCase()
   return (Object.keys(AREA_LABELS) as Area[]).find(a => a.toLowerCase() === t || AREA_LABELS[a].toLowerCase() === t)
+    ?? (Object.prototype.hasOwnProperty.call(AREA_ALIASES, t) ? AREA_ALIASES[t] : undefined)
 }
 
 // Unknown or missing values are shown as they are.

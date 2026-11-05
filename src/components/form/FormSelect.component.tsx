@@ -16,7 +16,6 @@ interface FormSelectComponentProps {
 const FormSelectComponent: FC<FormSelectComponentProps> = ({control, rules, label, name, options, disabled, ...rest}) => {
   return (
     <FormControl>
-      <InputLabel htmlFor={"component-outlined-"+name}>{label}</InputLabel>
       <Controller
         name={name}
         control={control}
@@ -27,6 +26,7 @@ const FormSelectComponent: FC<FormSelectComponentProps> = ({control, rules, labe
                    formState,
                  }) => (
           <>
+            <InputLabel htmlFor={"component-outlined-"+name} error={!!error}>{label}</InputLabel>
             <Select
               labelId={"component-outlined-"+name}
               onChange={onChange}

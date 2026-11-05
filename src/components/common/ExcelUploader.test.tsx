@@ -166,15 +166,16 @@ describe("member list upload (.csv)", () => {
     ['RC-Nummer;"Lokal/Regional\r\nBEG/GEA";Verteilung', "Pflichtfeld;;", "Beispiel;;",
       ...areas.map((a, i) => `RC${i + 1};${a};dynamisch`)].join("\r\n") + "\r\n")
 
-  it("reads the area from the values and short forms, in any case", async () => {
-    const areas = ["p2p", "EVA", "eeg regional", "Gea", "BEG", "LOCAL"]
+  it("reads the area from the values, short forms and further spellings, in any case", async () => {
+    const areas = ["p2p", "EVA", "eeg regional", "Gea", "BEG", "LOCAL", "Lokal", "Peer-to-Peer", "Eigenversorgung",
+      "eigenversorger", "Gemeinschaftliche Erzeugungsanlagen"] // ASCII: SheetJS reads a CSV without BOM not as UTF-8
     await upload("list.csv", areaList(...areas))
     const read = [current.eeg.grid.area]
     areas.slice(1).forEach(() => {
       nextEeg()
       read.push(current.eeg.grid.area)
     })
-    expect(read).toEqual(["P2P", "EVA", "REGIONAL", "GEA", "BEG", "LOCAL"])
+    expect(read).toEqual(["P2P", "EVA", "REGIONAL", "GEA", "BEG", "LOCAL", "LOCAL", "P2P", "EVA", "EVA", "GEA"])
   })
 
   it("keeps LOCAL for an empty area cell (E8)", async () => {
@@ -183,7 +184,7 @@ describe("member list upload (.csv)", () => {
   })
 
   it("gives no area for an unknown type, so the row is not registered as LOCAL", async () => {
-    await upload("list.csv", areaList("Peer-to-Peer", "BEG"))
+    await upload("list.csv", areaList("Nachbarschaft", "BEG"))
     expect(current.eeg.grid.area).toBe("")
     nextEeg()
     expect(current.eeg.grid.area).toBe("BEG")
@@ -193,7 +194,7 @@ describe("member list upload (.csv)", () => {
   const allocationList = (allocation: string) => new TextEncoder().encode(
     ["RC-Nummer;Verteilung", "Pflichtfeld;", "Beispiel;", `RC1;${allocation}`].join("\r\n") + "\r\n")
 
-  it.each([["", "DYNAMIC"], ["dynamisch", "DYNAMIC"], ["DYNAMISCH", "DYNAMIC"], ["statisch", ""], ["Statisch", ""],
+  it.each([["", "DYNAMIC"], ["dynamisch", "DYNAMIC"], ["DYNAMISCH", "DYNAMIC"], ["dynamic", "DYNAMIC"], ["statisch", ""], ["Statisch", ""],
     ["fix", ""]])("reads the allocation %j as %j", async (allocation, expected) => {
     await upload("list.csv", allocationList(allocation))
     expect(current.eeg.grid.allocation).toBe(expected)

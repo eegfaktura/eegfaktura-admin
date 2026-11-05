@@ -102,10 +102,10 @@ const normalizeSettlement = (s: string): 'MONTHLY' | "ANNUAL" | "BIANNUAL" | "QU
   return "MONTHLY"
 }
 
-// new communities only with dynamic allocation (platform#229, E6): an empty cell or "dynamisch" (any case) gives
-// DYNAMIC; "statisch" or anything else gives "", which the form reports as an error of the row
+// new communities only with dynamic allocation (platform#229, E6): an empty cell, "dynamisch", "dynamic" (any case)
+// give DYNAMIC; "statisch" or anything else gives "", which the form reports as an error of the row
 export const normalizeAllocation = (s?: string): EegRegister["grid"]["allocation"] =>
-  !s?.trim() || s.trim().toLowerCase() === "dynamisch" ? "DYNAMIC" : ""
+  ["", "dynamisch", "dynamic"].includes((s ?? "").trim().toLowerCase()) ? "DYNAMIC" : ""
 
 // keys and short forms ("EEG lokal"), any case; an empty cell stays LOCAL; an unknown type gives "", which the form
 // reports as an error of the row (platform#229)

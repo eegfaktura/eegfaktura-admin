@@ -23,7 +23,18 @@ describe("area labels", () => {
     expect(areaFromText("p2p")).toBe("P2P")
     expect(areaFromText(" Eva ")).toBe("EVA")
     expect(areaFromText("PP")).toBeUndefined()
-    expect(areaFromText("Peer-to-Peer")).toBeUndefined()
+    expect(areaFromText("Nachbarschaft")).toBeUndefined()
+  })
+
+  it("finds the area for the further spellings of member lists, case-insensitive", () => {
+    expect(areaFromText("Lokal")).toBe("LOCAL")
+    expect(areaFromText(" Peer-to-Peer ")).toBe("P2P")
+    expect(areaFromText("eigenversorgung")).toBe("EVA")
+    expect(areaFromText("Eigenversorger")).toBe("EVA")
+    expect(areaFromText("Gemeinschaftliche Erzeugungsanlagen")).toBe("GEA")
+    expect(areaFromText("BÜRGERGEMEINSCHAFTEN")).toBe("BEG")
+    expect(areaFromText("Bürgerenergiegemeinschaft")).toBe("BEG")
+    expect(areaFromText("toString")).toBeUndefined()
   })
 
   it("offers the areas in the select with unchanged keys", () => {

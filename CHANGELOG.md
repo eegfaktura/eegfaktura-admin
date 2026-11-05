@@ -16,13 +16,15 @@ this changelog highlights the changes relevant for overview and operations.
 
 ### Changed
 - **Excel registration: an unknown type is an error of the row** (platform#229, E8). The area column accepts the
-  values and the short forms of all six types, in any case (e.g. "p2p", "EVA", "eeg regional"); an empty cell stays
-  `LOCAL` as before. Any other value no longer becomes `LOCAL`: the select "Region" stays empty and shows "Typ der
+  values and the short forms of all six types, in any case and trimmed (e.g. "p2p", "EVA", "eeg regional"), and the
+  further spellings "Lokal" → `LOCAL`, "Gemeinschaftliche Erzeugungsanlagen" → `GEA`, "Bürgergemeinschaften" and
+  "Bürgerenergiegemeinschaft" → `BEG`, "Peer-to-Peer" → `P2P`, "Eigenversorgung" and "Eigenversorger" → `EVA` (the
+  select keeps the short forms); an empty cell stays `LOCAL` as before. Any other value no longer becomes `LOCAL`: the select "Region" stays empty and shows "Typ der
   Gemeinschaft unbekannt, bitte wählen", "Next" does not go on, and a row is not sent until a type is chosen (also
   when the row was switched to on a later step: a message and back to "Allgemein", instead of a rejected request and
   the jump to the next row of AD-CQ-2).
 - **New communities only with dynamic allocation** (platform#229, E6): "Verteilung" in the registration offers only
-  "Dynamisch". In the Excel list an empty cell or "dynamisch" (any case) gives `DYNAMIC`; "statisch" (before:
+  "Dynamisch". In the Excel list an empty cell, "dynamisch" or "dynamic" (any case) gives `DYNAMIC`; "statisch" (before:
   `STATIC`) or any other value is an error of the row like an unknown type: the select stays empty with "Neue
   Gemeinschaften können nur mit dynamischer Aufteilung registriert werden.", "Next" does not go on and nothing is
   sent until "Dynamisch" is chosen. Existing communities are not touched.

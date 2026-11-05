@@ -61,7 +61,7 @@ describe("registration: type and allocation", () => {
   })
 
   it("shows an unknown type of an Excel row as an error and does not go on", async () => {
-    await upload(["Peer-to-Peer"])
+    await upload(["Nachbarschaft"])
     expect(await screen.findByText(UNKNOWN)).toBeInTheDocument()
     fireEvent.click(screen.getByText("Next"))
     await waitFor(() => expect(screen.getByText(UNKNOWN)).toBeInTheDocument())
@@ -69,7 +69,7 @@ describe("registration: type and allocation", () => {
   })
 
   it("clears the error once a type is chosen", async () => {
-    await upload(["Peer-to-Peer"])
+    await upload(["Nachbarschaft"])
     await screen.findByText(UNKNOWN)
     fireEvent.mouseDown(select("Region"))
     fireEvent.click(within(screen.getByRole("listbox")).getByText("P2P"))
@@ -101,7 +101,7 @@ describe("registration: type and allocation", () => {
       "Kennung Netzbetreiber"
     const row = (rc: string, area: string) => `${rc};${area};EEG ${rc};AT003000${rc};Anna;Berg;a@b.at;` +
       "AT611904300234573201;Anna Berg;AT003000"
-    await upload([row("RC1", "BEG"), row("RC2", "Peer-to-Peer")], header)
+    await upload([row("RC1", "BEG"), row("RC2", "Nachbarschaft")], header)
     fireEvent.click(screen.getByText("Next"))
     await screen.findByLabelText("Vorname")
     fireEvent.click(screen.getByText("Next"))
