@@ -23,6 +23,9 @@ export const accountSummary = (results: AccountResult[]): string =>
     .map(a => `${a.email}: ${STATUS_TEXT[a.status] ?? a.status}${a.status === "failed" && a.message ? ` (${a.message})` : ""}`)
     .join("; ")
 
+// selects that an Excel row can leave empty because its value cannot be registered (platform#229)
+const EXCEL_CHECKED = ["grid.area", "grid.allocation"] as const
+
 // the EEG exists, nothing was changed: the form stays for a correction (261015-ca1)
 const EegExists = 409
 
@@ -84,10 +87,12 @@ const RegistrationPage: FC = () => {
     setResets(n => n + 1)
   }, [eeg, formMethods])
 
-  // an unknown type in the Excel row (platform#229): show the error of the select right away, not only on "Next"
+  // an unknown type or a static/unknown allocation in the Excel row (platform#229): show the error of the select
+  // right away, not only on "Next"
   useEffect(() => {
-    if (activeStep === 0 && formMethods.getValues("grid.area") === "") {
-      formMethods.trigger("grid.area")
+    const invalid = EXCEL_CHECKED.filter(f => formMethods.getValues(f) === "")
+    if (activeStep === 0 && invalid.length > 0) {
+      formMethods.trigger(invalid)
     }
   }, [resets, activeStep, formMethods])
 
@@ -106,10 +111,10 @@ const RegistrationPage: FC = () => {
   };
 
   const onSubmit = (data: EegRegister) => {
-    // the select is checked only on the first step; another Excel row chosen on a later step can still lack the type.
+    // the selects are checked only on the first step; another Excel row chosen on a later step can still lack a value.
     // Not sent: admin-backend would reject it and the error path would move on to the next row (AD-CQ-2).
-    if (data.grid.area === "") {
-      setMessage({message: "Typ der Gemeinschaft unbekannt, bitte unter „Allgemein“ wählen.", severity: "error", sticky: true})
+    if (data.grid.area === "" || data.grid.allocation === "") {
+      setMessage({message: "Typ oder Verteilung der Gemeinschaft ungültig, bitte unter „Allgemein“ wählen.", severity: "error", sticky: true})
       setOpen(true)
       setActiveStep(0)
       return

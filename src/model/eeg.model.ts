@@ -35,7 +35,8 @@ export interface EegGrid {
     name: string;
     // "": the type in the Excel list is unknown, the form asks for a choice
     area: "LOCAL" | "REGIONAL" | "GEA" | "BEG" | "P2P" | "EVA" | "";
-    allocation: "DYNAMIC" | "STATIC";
+    // "": the allocation in the Excel list is "statisch" or unknown, new communities are only dynamic
+    allocation: "DYNAMIC" | "STATIC" | "";
   }
 }
 

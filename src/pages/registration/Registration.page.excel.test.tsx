@@ -8,9 +8,11 @@ import RegistrationPage from "./Registration.page";
 import {Api, EegService} from "../../services/eeg.service";
 
 // Type and allocation of a new community in the registration form (platform#229): an unknown type in an Excel row
-// is an error of that row, the allocation offers only "Dynamisch".
+// is an error of that row; the allocation offers only "Dynamisch", "statisch" or an unknown allocation in a row is an
+// error too.
 
 const UNKNOWN = "Typ der Gemeinschaft unbekannt, bitte wählen"
+const ONLY_DYNAMIC = "Neue Gemeinschaften können nur mit dynamischer Aufteilung registriert werden."
 
 const mount = () => {
   const store = makeStore()
@@ -81,6 +83,17 @@ describe("registration: type and allocation", () => {
     expect(screen.queryByText(UNKNOWN)).not.toBeInTheDocument()
   })
 
+  it.each(["statisch", "fix"])("shows the allocation %s of an Excel row as an error and does not go on", async (a) => {
+    await upload([`RC1;${a}`], "RC-Nummer;Verteilung")
+    expect(await screen.findByText(ONLY_DYNAMIC)).toBeInTheDocument()
+    fireEvent.click(screen.getByText("Next"))
+    await waitFor(() => expect(screen.getByText(ONLY_DYNAMIC)).toBeInTheDocument())
+    expect(screen.getByText("Allgemeine Einstellungen Erneuerbarer Energie Gemeinschaften")).toBeInTheDocument()
+    fireEvent.mouseDown(select("Verteilung"))
+    fireEvent.click(within(screen.getByRole("listbox")).getByText("Dynamisch"))
+    await waitFor(() => expect(screen.queryByText(ONLY_DYNAMIC)).not.toBeInTheDocument())
+  })
+
   it("does not send a row with an unknown type chosen on the last step, and goes back to the first", async () => {
     const register = vi.fn()
     Api.eegService = {registerEeg: register} as unknown as EegService
@@ -96,7 +109,7 @@ describe("registration: type and allocation", () => {
     fireEvent.click(screen.getAllByRole("button").find(b => b.querySelector('[data-testid="ArrowRightIcon"]'))!)
     await waitFor(() => expect(screen.getByText("RC-Number: RC2")).toBeInTheDocument())
     fireEvent.click(screen.getByText("Finish"))
-    expect(await screen.findByText("Typ der Gemeinschaft unbekannt, bitte unter „Allgemein“ wählen.")).toBeInTheDocument()
+    expect(await screen.findByText("Typ oder Verteilung der Gemeinschaft ungültig, bitte unter „Allgemein“ wählen.")).toBeInTheDocument()
     expect(await screen.findByText(UNKNOWN)).toBeInTheDocument()
     expect(register).not.toHaveBeenCalled()
   })

@@ -16,6 +16,7 @@ const fieldTransformer = {
   "email": "E-Mail",
   "phone": "Telefon",
   "area": "Lokal/Regional\r\nBEG/GEA",
+  "allocation": "Verteilung",
   "operator_id": "Kennung Netzbetreiber",
   "community_id": "GemID",
   "tenant": "RC-Nummer",
@@ -100,6 +101,11 @@ const normalizeSettlement = (s: string): 'MONTHLY' | "ANNUAL" | "BIANNUAL" | "QU
   }
   return "MONTHLY"
 }
+
+// new communities only with dynamic allocation (platform#229, E6): an empty cell or "dynamisch" (any case) gives
+// DYNAMIC; "statisch" or anything else gives "", which the form reports as an error of the row
+export const normalizeAllocation = (s?: string): EegRegister["grid"]["allocation"] =>
+  !s?.trim() || s.trim().toLowerCase() === "dynamisch" ? "DYNAMIC" : ""
 
 // keys and short forms ("EEG lokal"), any case; an empty cell stays LOCAL; an unknown type gives "", which the form
 // reports as an error of the row (platform#229)
@@ -190,8 +196,7 @@ const RegistrationProvider: FC<{children: ReactNode}> = ({children}) => {
         id: text(cell(data, fieldTransformer.operator_id)),
         name: getGridOperatorName(text(cell(data, fieldTransformer.operator_id))),
         area: normalizeArea(text(cell(data, fieldTransformer.area))),
-        // new communities only with dynamic allocation (platform#229, E6): the column "Verteilung" is not read
-        allocation: "DYNAMIC"
+        allocation: normalizeAllocation(text(cell(data, fieldTransformer.allocation)))
       },
       pontonInfo: {
         host: "",

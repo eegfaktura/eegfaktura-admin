@@ -60,7 +60,8 @@ const CommonEegPropertiesComponent: FC = () => {
         {key: "gesellschaft", value: "Gesellschaft"}]}/>
       {/* new communities only with dynamic allocation (platform#229, E6) */}
       <FormSelectComponent name={"grid.allocation"} label="Verteilung" control={control} options={[
-        {key: "DYNAMIC", value: "Dynamisch"}]} placeholder="Verteilung"/>
+        {key: "DYNAMIC", value: "Dynamisch"}]} placeholder="Verteilung"
+                           rules={{required: "Neue Gemeinschaften können nur mit dynamischer Aufteilung registriert werden."}}/>
       <FormSelectComponent name={"grid.area"} label="Region" control={control} options={AREA_OPTIONS}
                            rules={{required: "Typ der Gemeinschaft unbekannt, bitte wählen"}} placeholder="Region"/>
     </Box>

@@ -22,8 +22,10 @@ this changelog highlights the changes relevant for overview and operations.
   when the row was switched to on a later step: a message and back to "Allgemein", instead of a rejected request and
   the jump to the next row of AD-CQ-2).
 - **New communities only with dynamic allocation** (platform#229, E6): "Verteilung" in the registration offers only
-  "Dynamisch"; the column "Verteilung" of the Excel list is no longer read (before: "statisch" gave `STATIC`).
-  Existing communities are not touched.
+  "Dynamisch". In the Excel list an empty cell or "dynamisch" (any case) gives `DYNAMIC`; "statisch" (before:
+  `STATIC`) or any other value is an error of the row like an unknown type: the select stays empty with "Neue
+  Gemeinschaften können nur mit dynamischer Aufteilung registriert werden.", "Next" does not go on and nothing is
+  sent until "Dynamisch" is chosen. Existing communities are not touched.
 - **"Region" shows the short forms** "EEG lokal", "EEG regional", "GEA" and "BEG" (vfeeg-development/eegfaktura-platform#229,
   part 1): in the select of the EEG registration (before: Local, Regional, Gemeinschaftliche Erzeugungsanlagen,
   Bürgergemeinschaften) and in the EEG details of the portal (before: the stored value, e.g. `LOCAL`; an unknown value is

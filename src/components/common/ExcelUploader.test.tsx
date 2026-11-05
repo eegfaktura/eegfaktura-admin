@@ -67,8 +67,8 @@ describe("member list upload (.xlsx)", () => {
     expect(eeg.communityId).toBe("AT00300000000RC100001000000000001")
     expect(eeg.name).toBe("Sonnenkraft Süd") // rich text in the shared strings
     expect(eeg.businessInfo.settlementInterval).toBe("QUARTER")
-    // header with a line break; the list says "statisch", new communities are only dynamic (platform#229, E6)
-    expect(eeg.grid).toEqual({id: "AT003000", name: "", area: "GEA", allocation: "DYNAMIC"})
+    // header with a line break; the list says "statisch": no allocation, the form reports the row (platform#229, E6)
+    expect(eeg.grid).toEqual({id: "AT003000", name: "", area: "GEA", allocation: ""})
     expect(eeg.user).toMatchObject({firstname: "Jörg", lastname: "Müller", email: "joerg@example.org"})
     expect(eeg.accountInfo).toMatchObject({iban: "AT61 1904 3002 3457 3201", owner: "Müller & Söhne"})
     expect(eeg.contact).toEqual({street: "Hauptstraße", streetNumber: "12", city: "Linz", zip: "4020", phone: "+43 664 1234567"})
@@ -164,7 +164,7 @@ describe("member list upload (.csv)", () => {
   // the area column of the member list: header with a line break, quoted in the CSV (platform#229)
   const areaList = (...areas: string[]) => new TextEncoder().encode(
     ['RC-Nummer;"Lokal/Regional\r\nBEG/GEA";Verteilung', "Pflichtfeld;;", "Beispiel;;",
-      ...areas.map((a, i) => `RC${i + 1};${a};statisch`)].join("\r\n") + "\r\n")
+      ...areas.map((a, i) => `RC${i + 1};${a};dynamisch`)].join("\r\n") + "\r\n")
 
   it("reads the area from the values and short forms, in any case", async () => {
     const areas = ["p2p", "EVA", "eeg regional", "Gea", "BEG", "LOCAL"]
@@ -189,9 +189,14 @@ describe("member list upload (.csv)", () => {
     expect(current.eeg.grid.area).toBe("BEG")
   })
 
-  it("sets dynamic allocation whatever the list says (E6)", async () => {
-    await upload("list.csv", areaList("BEG"))
-    expect(current.eeg.grid.allocation).toBe("DYNAMIC")
+  // the allocation column: new communities only dynamic (platform#229, E6)
+  const allocationList = (allocation: string) => new TextEncoder().encode(
+    ["RC-Nummer;Verteilung", "Pflichtfeld;", "Beispiel;", `RC1;${allocation}`].join("\r\n") + "\r\n")
+
+  it.each([["", "DYNAMIC"], ["dynamisch", "DYNAMIC"], ["DYNAMISCH", "DYNAMIC"], ["statisch", ""], ["Statisch", ""],
+    ["fix", ""]])("reads the allocation %j as %j", async (allocation, expected) => {
+    await upload("list.csv", allocationList(allocation))
+    expect(current.eeg.grid.allocation).toBe(expected)
   })
 
   it("skips empty rows, so the second EEG follows the first", async () => {

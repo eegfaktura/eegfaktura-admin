@@ -1,4 +1,4 @@
-import {cell, normalizeArea} from "./RegistrationContext";
+import {cell, normalizeAllocation, normalizeArea} from "./RegistrationContext";
 
 describe("Excel member list: area", () => {
   it("accepts the keys in any case", () => {
@@ -25,6 +25,19 @@ describe("Excel member list: area", () => {
     expect(normalizeArea("PP")).toBe("")
     expect(normalizeArea("Peer-to-Peer")).toBe("")
     expect(normalizeArea("Bürgergemeinschaften")).toBe("")
+  })
+})
+
+describe("Excel member list: allocation (platform#229, E6)", () => {
+  it("gives DYNAMIC for an empty cell or dynamisch in any case", () => {
+    expect(normalizeAllocation(undefined)).toBe("DYNAMIC")
+    expect(normalizeAllocation(" ")).toBe("DYNAMIC")
+    expect(normalizeAllocation(" Dynamisch ")).toBe("DYNAMIC")
+  })
+  it("gives no allocation for statisch or an unknown value", () => {
+    expect(normalizeAllocation("statisch")).toBe("")
+    expect(normalizeAllocation("STATIC")).toBe("")
+    expect(normalizeAllocation("fix")).toBe("")
   })
 })
 
