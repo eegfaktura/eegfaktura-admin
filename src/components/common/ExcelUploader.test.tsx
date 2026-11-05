@@ -67,7 +67,8 @@ describe("member list upload (.xlsx)", () => {
     expect(eeg.communityId).toBe("AT00300000000RC100001000000000001")
     expect(eeg.name).toBe("Sonnenkraft Süd") // rich text in the shared strings
     expect(eeg.businessInfo.settlementInterval).toBe("QUARTER")
-    expect(eeg.grid).toEqual({id: "AT003000", name: "", area: "GEA", allocation: "STATIC"}) // header with a line break
+    // header with a line break; the list says "statisch", new communities are only dynamic (platform#229, E6)
+    expect(eeg.grid).toEqual({id: "AT003000", name: "", area: "GEA", allocation: "DYNAMIC"})
     expect(eeg.user).toMatchObject({firstname: "Jörg", lastname: "Müller", email: "joerg@example.org"})
     expect(eeg.accountInfo).toMatchObject({iban: "AT61 1904 3002 3457 3201", owner: "Müller & Söhne"})
     expect(eeg.contact).toEqual({street: "Hauptstraße", streetNumber: "12", city: "Linz", zip: "4020", phone: "+43 664 1234567"})
@@ -186,6 +187,11 @@ describe("member list upload (.csv)", () => {
     expect(current.eeg.grid.area).toBe("")
     nextEeg()
     expect(current.eeg.grid.area).toBe("BEG")
+  })
+
+  it("sets dynamic allocation whatever the list says (E6)", async () => {
+    await upload("list.csv", areaList("BEG"))
+    expect(current.eeg.grid.allocation).toBe("DYNAMIC")
   })
 
   it("skips empty rows, so the second EEG follows the first", async () => {

@@ -16,7 +16,6 @@ const fieldTransformer = {
   "email": "E-Mail",
   "phone": "Telefon",
   "area": "Lokal/Regional\r\nBEG/GEA",
-  "allocation": "Verteilung",
   "operator_id": "Kennung Netzbetreiber",
   "community_id": "GemID",
   "tenant": "RC-Nummer",
@@ -100,14 +99,6 @@ const normalizeSettlement = (s: string): 'MONTHLY' | "ANNUAL" | "BIANNUAL" | "QU
     case 'monatlich': return "MONTHLY"
   }
   return "MONTHLY"
-}
-
-const normalizeAllocation = (s: string): "DYNAMIC" | "STATIC" => {
-  switch (s.toLowerCase()) {
-    case 'dynamisch': return "DYNAMIC"
-    case 'statisch': return "STATIC"
-  }
-  return "DYNAMIC"
 }
 
 // keys and short forms ("EEG lokal"), any case; an empty cell stays LOCAL; an unknown type gives "", which the form
@@ -199,7 +190,8 @@ const RegistrationProvider: FC<{children: ReactNode}> = ({children}) => {
         id: text(cell(data, fieldTransformer.operator_id)),
         name: getGridOperatorName(text(cell(data, fieldTransformer.operator_id))),
         area: normalizeArea(text(cell(data, fieldTransformer.area))),
-        allocation: normalizeAllocation(text(cell(data, fieldTransformer.allocation)))
+        // new communities only with dynamic allocation (platform#229, E6): the column "Verteilung" is not read
+        allocation: "DYNAMIC"
       },
       pontonInfo: {
         host: "",

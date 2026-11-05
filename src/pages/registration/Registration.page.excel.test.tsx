@@ -7,8 +7,8 @@ import RegistrationProvider from "../../hooks/RegistrationContext";
 import RegistrationPage from "./Registration.page";
 import {Api, EegService} from "../../services/eeg.service";
 
-// Type of a new community in the registration form (platform#229): an unknown type in an Excel row
-// is an error of that row.
+// Type and allocation of a new community in the registration form (platform#229): an unknown type in an Excel row
+// is an error of that row, the allocation offers only "Dynamisch".
 
 const UNKNOWN = "Typ der Gemeinschaft unbekannt, bitte wählen"
 
@@ -45,15 +45,17 @@ const options = (label: string) => {
   return within(screen.getByRole("listbox")).getAllByRole("option").map(o => o.textContent)
 }
 
-describe("registration: type", () => {
+describe("registration: type and allocation", () => {
   const service = Api.eegService
   afterEach(() => {
     Api.eegService = service
   })
 
-  it("offers P2P and EVA as type", () => {
+  it("offers P2P and EVA as type and only dynamic allocation", () => {
     mount()
     expect(options("Region")).toEqual(["EEG lokal", "EEG regional", "GEA", "BEG", "P2P", "EVA"])
+    fireEvent.keyDown(screen.getByRole("listbox"), {key: "Escape"})
+    expect(options("Verteilung")).toEqual(["Dynamisch"])
   })
 
   it("shows an unknown type of an Excel row as an error and does not go on", async () => {
