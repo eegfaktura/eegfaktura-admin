@@ -33,7 +33,8 @@ export interface EegGrid {
   grid: {
     id: string;
     name: string;
-    area: "LOCAL" | "REGIONAL" | "GEA" | "BEG";
+    // "": the type in the Excel list is unknown, the form asks for a choice
+    area: "LOCAL" | "REGIONAL" | "GEA" | "BEG" | "P2P" | "EVA" | "";
     allocation: "DYNAMIC" | "STATIC";
   }
 }
@@ -109,7 +110,7 @@ export interface EegMember {
   tenant: string;
   description: string;
   legal: string;
-  area: "LOCAL" | "REGIONAL" | "BEG" | "GEA";
+  area: "LOCAL" | "REGIONAL" | "BEG" | "GEA" | "P2P" | "EVA";
   gridOperatorName: string;
   gridOperatorId: string;
   contactPerson: string;

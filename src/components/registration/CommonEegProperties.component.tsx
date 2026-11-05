@@ -62,7 +62,7 @@ const CommonEegPropertiesComponent: FC = () => {
         {key: "STATIC", value: "Statisch"},
         {key: "DYNAMIC", value: "Dynamisch"}]} placeholder="Verteilung"/>
       <FormSelectComponent name={"grid.area"} label="Region" control={control} options={AREA_OPTIONS}
-                           placeholder="Region"/>
+                           rules={{required: "Typ der Gemeinschaft unbekannt, bitte wählen"}} placeholder="Region"/>
     </Box>
 
   )

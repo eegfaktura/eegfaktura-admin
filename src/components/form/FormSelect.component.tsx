@@ -1,5 +1,5 @@
 import React, {FC} from "react";
-import {FormControl, InputLabel, MenuItem, Select} from "@mui/material";
+import {FormControl, FormHelperText, InputLabel, MenuItem, Select} from "@mui/material";
 import {Control, Controller} from "react-hook-form";
 
 interface FormSelectComponentProps {
@@ -26,21 +26,25 @@ const FormSelectComponent: FC<FormSelectComponentProps> = ({control, rules, labe
                    fieldState: { error },
                    formState,
                  }) => (
-          <Select
-            labelId={"component-outlined-"+name}
-            onChange={onChange}
-            label={label}
-            value={value}
-            disabled={disabled}
-            {...rest}
-          >
-            {options.map((o, i) =>(
-              <MenuItem key={i} value={o.key}>
-                {o.value}
-              </MenuItem>
-            ))}
+          <>
+            <Select
+              labelId={"component-outlined-"+name}
+              onChange={onChange}
+              label={label}
+              value={value}
+              disabled={disabled}
+              error={!!error}
+              {...rest}
+            >
+              {options.map((o, i) =>(
+                <MenuItem key={i} value={o.key}>
+                  {o.value}
+                </MenuItem>
+              ))}
 
-          </Select>
+            </Select>
+            {!!error && <FormHelperText error>{error.message}</FormHelperText>}
+          </>
         )}
       />
     </FormControl>

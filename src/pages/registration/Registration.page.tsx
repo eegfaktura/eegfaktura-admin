@@ -76,9 +76,20 @@ const RegistrationPage: FC = () => {
   const [message, setMessage] = React.useState<{message: string, severity: "success" | "error" | "warning" | "info" | undefined, sticky?: boolean}>({message: "", severity: "success"});
   const {reset, eeg, rcNumber, isExcelLoaded, excelFile, next, hasNext, prev, hasPrev} = React.useContext(RegistrationContext);
 
+  // counts the resets: the check below must run after the render that follows a reset, which registers the fields anew
+  const [resets, setResets] = React.useState(0);
+
   useEffect(() => {
     formMethods.reset(eeg);
+    setResets(n => n + 1)
   }, [eeg, formMethods])
+
+  // an unknown type in the Excel row (platform#229): show the error of the select right away, not only on "Next"
+  useEffect(() => {
+    if (activeStep === 0 && formMethods.getValues("grid.area") === "") {
+      formMethods.trigger("grid.area")
+    }
+  }, [resets, activeStep, formMethods])
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -95,6 +106,14 @@ const RegistrationPage: FC = () => {
   };
 
   const onSubmit = (data: EegRegister) => {
+    // the select is checked only on the first step; another Excel row chosen on a later step can still lack the type.
+    // Not sent: admin-backend would reject it and the error path would move on to the next row (AD-CQ-2).
+    if (data.grid.area === "") {
+      setMessage({message: "Typ der Gemeinschaft unbekannt, bitte unter „Allgemein“ wählen.", severity: "error", sticky: true})
+      setOpen(true)
+      setActiveStep(0)
+      return
+    }
     // inside the chain, so that a failing trim ends in the .catch below
     Promise.resolve().then(() => Api.eegService.registerEeg(trimEegRegisterData(data)))
       .then(r => {

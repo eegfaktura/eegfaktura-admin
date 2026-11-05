@@ -110,9 +110,10 @@ const normalizeAllocation = (s: string): "DYNAMIC" | "STATIC" => {
   return "DYNAMIC"
 }
 
-// keys and short forms ("EEG lokal"); anything else stays LOCAL as before
-export const normalizeArea = (s?: string): "LOCAL" | "REGIONAL" | "GEA" | "BEG" =>
-  areaFromText(String(s ?? 'LOCAL')) ?? 'LOCAL'
+// keys and short forms ("EEG lokal"), any case; an empty cell stays LOCAL; an unknown type gives "", which the form
+// reports as an error of the row (platform#229)
+export const normalizeArea = (s?: string): EegRegister["grid"]["area"] =>
+  !s?.trim() ? 'LOCAL' : areaFromText(s) ?? ''
 
 interface RegistrationState {
   eeg: EegRegister;

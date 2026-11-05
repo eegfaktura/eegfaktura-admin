@@ -9,6 +9,8 @@ const AREA_LABELS: Record<Area, string> = {
   REGIONAL: "EEG regional",
   GEA: "GEA",
   BEG: "BEG",
+  P2P: "P2P",
+  EVA: "EVA",
 }
 
 export const AREA_OPTIONS = Object.entries(AREA_LABELS).map(([key, value]) => ({key, value}))

@@ -11,11 +11,20 @@ describe("Excel member list: area", () => {
     expect(normalizeArea("EEG regional")).toBe("REGIONAL")
     expect(normalizeArea("eeg REGIONAL ")).toBe("REGIONAL")
   })
-  it("keeps LOCAL for missing or unknown values", () => {
+  it("accepts P2P and EVA in any case (platform#229)", () => {
+    expect(normalizeArea("P2P")).toBe("P2P")
+    expect(normalizeArea("p2p")).toBe("P2P")
+    expect(normalizeArea(" eva ")).toBe("EVA")
+  })
+  it("keeps LOCAL for an empty cell (E8)", () => {
     expect(normalizeArea(undefined)).toBe("LOCAL")
     expect(normalizeArea("")).toBe("LOCAL")
-    expect(normalizeArea("P2P")).toBe("LOCAL")
-    expect(normalizeArea("Bürgergemeinschaften")).toBe("LOCAL")
+    expect(normalizeArea("  ")).toBe("LOCAL")
+  })
+  it("gives no area for an unknown type, instead of LOCAL", () => {
+    expect(normalizeArea("PP")).toBe("")
+    expect(normalizeArea("Peer-to-Peer")).toBe("")
+    expect(normalizeArea("Bürgergemeinschaften")).toBe("")
   })
 })
 

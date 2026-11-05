@@ -160,6 +160,34 @@ describe("member list upload (.csv)", () => {
     expect(current.eeg.contact.city).toBe("Linz\nUrfahr")
   })
 
+  // the area column of the member list: header with a line break, quoted in the CSV (platform#229)
+  const areaList = (...areas: string[]) => new TextEncoder().encode(
+    ['RC-Nummer;"Lokal/Regional\r\nBEG/GEA";Verteilung', "Pflichtfeld;;", "Beispiel;;",
+      ...areas.map((a, i) => `RC${i + 1};${a};statisch`)].join("\r\n") + "\r\n")
+
+  it("reads the area from the values and short forms, in any case", async () => {
+    const areas = ["p2p", "EVA", "eeg regional", "Gea", "BEG", "LOCAL"]
+    await upload("list.csv", areaList(...areas))
+    const read = [current.eeg.grid.area]
+    areas.slice(1).forEach(() => {
+      nextEeg()
+      read.push(current.eeg.grid.area)
+    })
+    expect(read).toEqual(["P2P", "EVA", "REGIONAL", "GEA", "BEG", "LOCAL"])
+  })
+
+  it("keeps LOCAL for an empty area cell (E8)", async () => {
+    await upload("list.csv", areaList(""))
+    expect(current.eeg.grid.area).toBe("LOCAL")
+  })
+
+  it("gives no area for an unknown type, so the row is not registered as LOCAL", async () => {
+    await upload("list.csv", areaList("Peer-to-Peer", "BEG"))
+    expect(current.eeg.grid.area).toBe("")
+    nextEeg()
+    expect(current.eeg.grid.area).toBe("BEG")
+  })
+
   it("skips empty rows, so the second EEG follows the first", async () => {
     await upload("list.csv", csv(["RC1;1;", ";;", "", "RC2;2;"]))
     expect(current.eeg.tenant).toBe("RC1")
