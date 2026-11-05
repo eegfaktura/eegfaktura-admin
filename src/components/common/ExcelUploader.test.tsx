@@ -168,14 +168,14 @@ describe("member list upload (.csv)", () => {
 
   it("reads the area from the values, short forms and further spellings, in any case", async () => {
     const areas = ["p2p", "EVA", "eeg regional", "Gea", "BEG", "LOCAL", "Lokal", "Peer-to-Peer", "Eigenversorgung",
-      "eigenversorger", "Gemeinschaftliche Erzeugungsanlagen"] // ASCII: SheetJS reads a CSV without BOM not as UTF-8
+      "eigenversorger", "Gemeinschaftliche Erzeugungsanlagen", "Bürgerenergiegemeinschaft"]
     await upload("list.csv", areaList(...areas))
     const read = [current.eeg.grid.area]
     areas.slice(1).forEach(() => {
       nextEeg()
       read.push(current.eeg.grid.area)
     })
-    expect(read).toEqual(["P2P", "EVA", "REGIONAL", "GEA", "BEG", "LOCAL", "LOCAL", "P2P", "EVA", "EVA", "GEA"])
+    expect(read).toEqual(["P2P", "EVA", "REGIONAL", "GEA", "BEG", "LOCAL", "LOCAL", "P2P", "EVA", "EVA", "GEA", "BEG"])
   })
 
   it("keeps LOCAL for an empty area cell (E8)", async () => {
@@ -198,6 +198,21 @@ describe("member list upload (.csv)", () => {
     ["fix", ""]])("reads the allocation %j as %j", async (allocation, expected) => {
     await upload("list.csv", allocationList(allocation))
     expect(current.eeg.grid.allocation).toBe(expected)
+  })
+
+  // a CSV saved as UTF-8 without BOM, with BOM, and as Windows-1252 (Excel's "CSV (Trennzeichen-getrennt)")
+  const nameList = "RC-Nummer;Name der EG\r\nPflichtfeld;\r\nBeispiel;\r\nRC1;Sonnenkraft Süd Österreich\r\n"
+  it("reads a CSV without BOM as UTF-8", async () => {
+    await upload("list.csv", new TextEncoder().encode(nameList))
+    expect(current.eeg.name).toBe("Sonnenkraft Süd Österreich")
+  })
+  it("reads a CSV with BOM as UTF-8", async () => {
+    await upload("list.csv", new TextEncoder().encode("\uFEFF" + nameList))
+    expect(current.eeg.name).toBe("Sonnenkraft Süd Österreich")
+  })
+  it("reads a CSV that is no UTF-8 as before (Windows-1252)", async () => {
+    await upload("list.csv", Uint8Array.from(nameList, c => c.charCodeAt(0)))
+    expect(current.eeg.name).toBe("Sonnenkraft Süd Österreich")
   })
 
   it("skips empty rows, so the second EEG follows the first", async () => {

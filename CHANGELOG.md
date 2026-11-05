@@ -36,6 +36,9 @@ this changelog highlights the changes relevant for overview and operations.
   they became `LOCAL`. (Other unknown values: see the Excel entry above.)
 
 ### Fixed
+- **Excel registration: a CSV saved as UTF-8 without BOM keeps its umlauts.** Before, "Süd" became "SÃ¼d" (names,
+  addresses, and spellings such as "Bürgerenergiegemeinschaft"). A CSV with BOM, a CSV that is no UTF-8 (e.g.
+  Windows-1252 from Excel) and .xlsx/.xls files are read as before.
 - **Portal: edits and the search in the participant list.** A metering-point change made while a search was active
   was lost once the search was cleared, and saving a participant showed the whole list again although the search
   text stayed. Edits now go to the loaded participants and the search is applied on top: a change keeps the search,
