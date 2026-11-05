@@ -2,7 +2,6 @@ import React from "react";
 import {act, render, screen, waitFor} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {CellEditDialog, editDialog, resetCellEditDialog} from "./CellEdit.dialog";
-import {EditDialogProvider, openDialog, resetEditDialog} from "../common/EditDialog.provider";
 import {openParticipantDialog, ParticipantCellEditDialog, resetParticipantDialog} from "./editor/Participant.editor";
 import {EegParticipant} from "../../model/eeg.model";
 
@@ -13,7 +12,6 @@ import {EegParticipant} from "../../model/eeg.model";
 // does not show up in the next render.
 beforeEach(() => {
   resetCellEditDialog()
-  resetEditDialog()
   resetParticipantDialog()
 })
 afterEach(() => vi.useRealTimers())
@@ -76,21 +74,6 @@ describe("CellEditDialog", () => {
 
     act(() => editDialog(<div>Inhalt</div>, "Update INACTIVESINCE", () => Promise.resolve()))
     expect(screen.queryByRole("alert")).not.toBeInTheDocument()
-  })
-})
-
-describe("EditDialogProvider", () => {
-  it("stays open and shows the error when the save fails, closes when it succeeds", async () => {
-    render(<EditDialogProvider/>)
-    act(() => openDialog(<div>Inhalt</div>, "Verrechnung", () => Promise.reject(new Error("400"))))
-
-    userEvent.click(screen.getByRole("button", {name: "Subscribe"}))
-    expect(await screen.findByRole("alert")).toHaveTextContent("Speichern fehlgeschlagen: 400")
-    expect(screen.getByText("Verrechnung")).toBeInTheDocument()
-
-    act(() => openDialog(<div>Inhalt</div>, "Verrechnung", () => Promise.resolve()))
-    userEvent.click(screen.getByRole("button", {name: "Subscribe"}))
-    await waitFor(() => expect(screen.queryByText("Verrechnung")).not.toBeInTheDocument())
   })
 })
 

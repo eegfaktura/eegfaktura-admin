@@ -23,7 +23,6 @@ describe("PortalService master-data updates", () => {
   const calls: [string, (s: PortalService) => Promise<unknown>][] = [
     ["changeProcessState", s => s.changeProcessState("PROCESSSTATUS", {...update})],
     ["changeParticipantState", s => s.changeParticipantState("PARTICIPANT", {...update})],
-    ["changeEegState", s => s.changeEegState("EEG", {...update})],
   ]
 
   it.each(calls)("%s resolves with the body for any 2xx, not only 200", async (_, call) => {
@@ -38,6 +37,6 @@ describe("PortalService master-data updates", () => {
 
   it("keeps the status text in the error when there is one", async () => {
     mockFetch(400, undefined, "Bad Request")
-    await expect(service.changeEegState("EEG", {...update})).rejects.toThrow("400 Bad Request")
+    await expect(service.changeParticipantState("PARTICIPANT", {...update})).rejects.toThrow("400 Bad Request")
   })
 })

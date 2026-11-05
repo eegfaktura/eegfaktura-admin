@@ -25,6 +25,14 @@ this changelog highlights the changes relevant for overview and operations.
   stays (AD-CQ-12).
 
 ### Removed
+- **Portal: the settlement interval can no longer be changed here** (vfeeg-development/eegfaktura-platform#230). The
+  edit button and the "Verrechnung" dialog in the EEG details are gone. The interval is changed only in eegfaktura-web,
+  with the rules of platform#230: from the start of a period after the last final billing, only when everything
+  before it is billed, not while a calculation runs, and every change is recorded. The admin tool cannot check
+  billing and so cannot keep these rules. The EEG details still show the interval, now as "Abrechnungszeitraum" with
+  the German value (Monatlich, Vierteljährlich, Halbjährlich, Jährlich) instead of "Settlement" and the stored value.
+  The registration of a community still sets the first interval. Also removed with it: the generic edit dialog it
+  used and the client call to `/admin/master/update/eeg` (admin-backend is unchanged).
 - **Code-quality cleanup (review 2026-11-03), no visible change:** unused files (`keycloak.js`, the logout, home and
   portal-overview pages, the address and business registration steps, `EegContext`/`TenantProvider`, `assets/`,
   `logo.svg`, `reportWebVitals`, `colorConfigs`, `App.css`), an unused generic dialog store, model types copied from eegfaktura-web, unused participant state in

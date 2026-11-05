@@ -1,16 +1,7 @@
 import React, {FC, useEffect, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {selectedEeg, updateEegByTenant} from "../../redux/features/eegStateSlice";
-import {
-  Box,
-  CircularProgress,
-  FormControl,
-  FormControlLabel,
-  Grid,
-  IconButton,
-  Radio,
-  RadioGroup
-} from "@mui/material";
+import {useSelector} from "react-redux";
+import {selectedEeg} from "../../redux/features/eegStateSlice";
+import {Box, CircularProgress, Grid} from "@mui/material";
 import {Api} from "../../services/eeg.service";
 import {EegMember} from "../../model/eeg.model";
 import {EegParticipantsComponent} from "./EegParticipants.component";
@@ -18,36 +9,8 @@ import {EegParticipantsComponent} from "./EegParticipants.component";
 import "./EegMemberDetails.component.scss"
 import {useParticipantContext} from "./context/participant.context";
 import {SearchBarComponent} from "./AppBar.component";
-import EditIcon from "@mui/icons-material/Edit";
-import {Control, Controller, useForm} from "react-hook-form";
-import {EditDialogProvider, openDialog} from "../common/EditDialog.provider";
-import {AdminUpdateData} from "../../model/admin.model";
 import {areaLabel} from "../../model/area";
-
-const SettlementElement: FC<{control: Control<Record<string, any>>}> = ({control}) => {
-
-  return (
-        <div>
-          <FormControl>
-            <Controller
-              rules={{ required: true }}
-              control={control}
-              name="settlementInterval"
-              render={({ field }) => (
-                <RadioGroup
-                  aria-labelledby="demo-radio-buttons-group-label"
-                  {...field}
-                >
-                  <FormControlLabel value="ANNUAL" control={<Radio />} label="Jährlich" />
-                  <FormControlLabel value="BIANNUAL" control={<Radio />} label="Halbjährlich" />
-                  <FormControlLabel value="QUARTER" control={<Radio />} label="Quartal" />
-                  <FormControlLabel value="MONTHLY" control={<Radio />} label="Monatlich" />
-                </RadioGroup>)} />
-
-          </FormControl>
-        </div>
-  )
-}
+import {settlementLabel} from "../../model/settlement";
 
 const EegMemberDetailsComponent: FC = () => {
 
@@ -56,7 +19,6 @@ const EegMemberDetailsComponent: FC = () => {
   const [eeg, setEeg] = useState<EegMember>()
 
   const {participantsLoaded, selectParticipant} = useParticipantContext()
-  const dispatch = useDispatch()
 
   useEffect(() => {
     selectParticipant(undefined);
@@ -69,33 +31,6 @@ const EegMemberDetailsComponent: FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the context functions are new on every render; listing them would refetch in a loop
   }, [eegSelected])
-
-  const {handleSubmit, control, setValue, reset} = useForm<Record<string, any>>()
-
-  const updateEeg = (data: Record<string, any>) => {
-    const eegData = {
-      tenant: eeg?.tenant,
-      value: data,
-    } as AdminUpdateData;
-
-    // returned so the dialog waits for it and shows a failure
-    return Api.portalService.changeEegState("EEG", eegData)
-      .then(d => {
-        dispatch(updateEegByTenant(d))
-        setEeg(s => s ? {...s, ...eegData.value} : undefined)
-      })
-  }
-
-  const onSettlementChanged = (values: Record<string, any>) => {
-
-    reset({})
-    for (const key of Object.keys(values)) {
-      if (key in values) {
-        setValue(key, values[key])
-      }
-    }
-    openDialog(<SettlementElement control={control}/>, "Verrechnung", handleSubmit(updateEeg))
-  }
 
   if (!eeg) {
     return (
@@ -134,15 +69,8 @@ const EegMemberDetailsComponent: FC = () => {
         </Grid>
         <Grid item xs={2}>
           <div className="item-box">
-            <div style={{position: "relative"}}>
-              <div style={{fontSize:"12px"}}>Settlement</div>
-              <div>{eeg.settlementInterval}</div>
-              <div style={{position: "absolute", top: "0", right: "0"}}>
-                <IconButton onClick={(_) => onSettlementChanged({"settlementInterval": eeg.settlementInterval})}>
-                  <EditIcon />
-                </IconButton>
-              </div>
-            </div>
+            <div style={{fontSize:"12px"}}>Abrechnungszeitraum</div>
+            <div>{settlementLabel(eeg.settlementInterval)}</div>
           </div>
         </Grid>
         <Grid item xs={2}>
@@ -162,7 +90,6 @@ const EegMemberDetailsComponent: FC = () => {
         <SearchBarComponent />
         <EegParticipantsComponent />
       </Box>
-      <EditDialogProvider/>
     </Box>
   )
 }
