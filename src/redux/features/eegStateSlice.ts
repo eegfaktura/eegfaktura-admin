@@ -32,11 +32,6 @@ export const eegStateSlice = createSlice({
       state.selectedEeg = action.payload
     },
 
-    updateEegByTenant: (state, action: PayloadAction<EegMember>) => {
-      eegAdapter.updateOne(state.eegSlice, {id: action.payload.tenant,  changes: action.payload});
-      // state.selectedEeg = action.payload;
-    },
-
     setOperators: (state, action: PayloadAction<GridOperator[]>) => {
       operatorsAdapter.setAll(state.gridOperators, action.payload)
     }
@@ -46,7 +41,6 @@ export const eegStateSlice = createSlice({
 export const {
   setEegAll,
   setSelectedEeg,
-  updateEegByTenant,
   setOperators,
 } = eegStateSlice.actions;
 

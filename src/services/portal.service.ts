@@ -1,5 +1,5 @@
 import {AuthService} from "./auth.service";
-import {EegMember, EegParticipant, Metering} from "../model/eeg.model";
+import {EegParticipant, Metering} from "../model/eeg.model";
 import {AdminUpdateData} from "../model/admin.model";
 
 const ADMIN_API_SERVER = import.meta.env.REACT_APP_ADMIN_SERVER_URL;
@@ -56,21 +56,6 @@ export class PortalService {
     data["updateClass"] = proto;
 
     return await fetch(`${ADMIN_API_SERVER}/admin/master/update/participant`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(data)
-    }).then(this.handleErrors).then(res => res.json());
-  }
-
-  async changeEegState(proto: string, props: AdminUpdateData): Promise<EegMember> {
-    const token = await this.getUser()
-    const data: Record<string, any> = props;
-    data["updateClass"] = proto;
-
-    return await fetch(`${ADMIN_API_SERVER}/admin/master/update/eeg`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
