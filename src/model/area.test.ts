@@ -6,6 +6,8 @@ describe("area labels", () => {
     expect(areaLabel("REGIONAL")).toBe("EEG regional")
     expect(areaLabel("GEA")).toBe("GEA")
     expect(areaLabel("BEG")).toBe("BEG")
+    expect(areaLabel("P2P")).toBe("P2P")
+    expect(areaLabel("EVA")).toBe("EVA")
   })
 
   it("shows unknown or missing values as they are", () => {
@@ -18,7 +20,21 @@ describe("area labels", () => {
   it("finds the area for a key or a short form, case-insensitive", () => {
     expect(areaFromText("eeg lokal")).toBe("LOCAL")
     expect(areaFromText("Regional")).toBe("REGIONAL")
-    expect(areaFromText("EVA")).toBeUndefined()
+    expect(areaFromText("p2p")).toBe("P2P")
+    expect(areaFromText(" Eva ")).toBe("EVA")
+    expect(areaFromText("PP")).toBeUndefined()
+    expect(areaFromText("Nachbarschaft")).toBeUndefined()
+  })
+
+  it("finds the area for the further spellings of member lists, case-insensitive", () => {
+    expect(areaFromText("Lokal")).toBe("LOCAL")
+    expect(areaFromText(" Peer-to-Peer ")).toBe("P2P")
+    expect(areaFromText("eigenversorgung")).toBe("EVA")
+    expect(areaFromText("Eigenversorger")).toBe("EVA")
+    expect(areaFromText("Gemeinschaftliche Erzeugungsanlagen")).toBe("GEA")
+    expect(areaFromText("BÜRGERGEMEINSCHAFTEN")).toBe("BEG")
+    expect(areaFromText("Bürgerenergiegemeinschaft")).toBe("BEG")
+    expect(areaFromText("toString")).toBeUndefined()
   })
 
   it("offers the areas in the select with unchanged keys", () => {
@@ -27,6 +43,8 @@ describe("area labels", () => {
       {key: "REGIONAL", value: "EEG regional"},
       {key: "GEA", value: "GEA"},
       {key: "BEG", value: "BEG"},
+      {key: "P2P", value: "P2P"},
+      {key: "EVA", value: "EVA"},
     ])
   })
 })

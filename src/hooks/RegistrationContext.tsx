@@ -102,17 +102,15 @@ const normalizeSettlement = (s: string): 'MONTHLY' | "ANNUAL" | "BIANNUAL" | "QU
   return "MONTHLY"
 }
 
-const normalizeAllocation = (s: string): "DYNAMIC" | "STATIC" => {
-  switch (s.toLowerCase()) {
-    case 'dynamisch': return "DYNAMIC"
-    case 'statisch': return "STATIC"
-  }
-  return "DYNAMIC"
-}
+// new communities only with dynamic allocation (platform#229, E6): an empty cell, "dynamisch", "dynamic" (any case)
+// give DYNAMIC; "statisch" or anything else gives "", which the form reports as an error of the row
+export const normalizeAllocation = (s?: string): EegRegister["grid"]["allocation"] =>
+  ["", "dynamisch", "dynamic"].includes((s ?? "").trim().toLowerCase()) ? "DYNAMIC" : ""
 
-// keys and short forms ("EEG lokal"); anything else stays LOCAL as before
-export const normalizeArea = (s?: string): "LOCAL" | "REGIONAL" | "GEA" | "BEG" =>
-  areaFromText(String(s ?? 'LOCAL')) ?? 'LOCAL'
+// keys and short forms ("EEG lokal"), any case; an empty cell stays LOCAL; an unknown type gives "", which the form
+// reports as an error of the row (platform#229)
+export const normalizeArea = (s?: string): EegRegister["grid"]["area"] =>
+  !s?.trim() ? 'LOCAL' : areaFromText(s) ?? ''
 
 interface RegistrationState {
   eeg: EegRegister;

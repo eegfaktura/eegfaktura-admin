@@ -67,7 +67,8 @@ describe("member list upload (.xlsx)", () => {
     expect(eeg.communityId).toBe("AT00300000000RC100001000000000001")
     expect(eeg.name).toBe("Sonnenkraft Süd") // rich text in the shared strings
     expect(eeg.businessInfo.settlementInterval).toBe("QUARTER")
-    expect(eeg.grid).toEqual({id: "AT003000", name: "", area: "GEA", allocation: "STATIC"}) // header with a line break
+    // header with a line break; the list says "statisch": no allocation, the form reports the row (platform#229, E6)
+    expect(eeg.grid).toEqual({id: "AT003000", name: "", area: "GEA", allocation: ""})
     expect(eeg.user).toMatchObject({firstname: "Jörg", lastname: "Müller", email: "joerg@example.org"})
     expect(eeg.accountInfo).toMatchObject({iban: "AT61 1904 3002 3457 3201", owner: "Müller & Söhne"})
     expect(eeg.contact).toEqual({street: "Hauptstraße", streetNumber: "12", city: "Linz", zip: "4020", phone: "+43 664 1234567"})
@@ -158,6 +159,60 @@ describe("member list upload (.csv)", () => {
   it("gives a line break in a quoted cell as LF, like .xlsx", async () => {
     await upload("list.csv", csv(['RC1;;;"Linz\r\nUrfahr"']))
     expect(current.eeg.contact.city).toBe("Linz\nUrfahr")
+  })
+
+  // the area column of the member list: header with a line break, quoted in the CSV (platform#229)
+  const areaList = (...areas: string[]) => new TextEncoder().encode(
+    ['RC-Nummer;"Lokal/Regional\r\nBEG/GEA";Verteilung', "Pflichtfeld;;", "Beispiel;;",
+      ...areas.map((a, i) => `RC${i + 1};${a};dynamisch`)].join("\r\n") + "\r\n")
+
+  it("reads the area from the values, short forms and further spellings, in any case", async () => {
+    const areas = ["p2p", "EVA", "eeg regional", "Gea", "BEG", "LOCAL", "Lokal", "Peer-to-Peer", "Eigenversorgung",
+      "eigenversorger", "Gemeinschaftliche Erzeugungsanlagen", "Bürgerenergiegemeinschaft"]
+    await upload("list.csv", areaList(...areas))
+    const read = [current.eeg.grid.area]
+    areas.slice(1).forEach(() => {
+      nextEeg()
+      read.push(current.eeg.grid.area)
+    })
+    expect(read).toEqual(["P2P", "EVA", "REGIONAL", "GEA", "BEG", "LOCAL", "LOCAL", "P2P", "EVA", "EVA", "GEA", "BEG"])
+  })
+
+  it("keeps LOCAL for an empty area cell (E8)", async () => {
+    await upload("list.csv", areaList(""))
+    expect(current.eeg.grid.area).toBe("LOCAL")
+  })
+
+  it("gives no area for an unknown type, so the row is not registered as LOCAL", async () => {
+    await upload("list.csv", areaList("Nachbarschaft", "BEG"))
+    expect(current.eeg.grid.area).toBe("")
+    nextEeg()
+    expect(current.eeg.grid.area).toBe("BEG")
+  })
+
+  // the allocation column: new communities only dynamic (platform#229, E6)
+  const allocationList = (allocation: string) => new TextEncoder().encode(
+    ["RC-Nummer;Verteilung", "Pflichtfeld;", "Beispiel;", `RC1;${allocation}`].join("\r\n") + "\r\n")
+
+  it.each([["", "DYNAMIC"], ["dynamisch", "DYNAMIC"], ["DYNAMISCH", "DYNAMIC"], ["dynamic", "DYNAMIC"], ["statisch", ""], ["Statisch", ""],
+    ["fix", ""]])("reads the allocation %j as %j", async (allocation, expected) => {
+    await upload("list.csv", allocationList(allocation))
+    expect(current.eeg.grid.allocation).toBe(expected)
+  })
+
+  // a CSV saved as UTF-8 without BOM, with BOM, and as Windows-1252 (Excel's "CSV (Trennzeichen-getrennt)")
+  const nameList = "RC-Nummer;Name der EG\r\nPflichtfeld;\r\nBeispiel;\r\nRC1;Sonnenkraft Süd Österreich\r\n"
+  it("reads a CSV without BOM as UTF-8", async () => {
+    await upload("list.csv", new TextEncoder().encode(nameList))
+    expect(current.eeg.name).toBe("Sonnenkraft Süd Österreich")
+  })
+  it("reads a CSV with BOM as UTF-8", async () => {
+    await upload("list.csv", new TextEncoder().encode("\uFEFF" + nameList))
+    expect(current.eeg.name).toBe("Sonnenkraft Süd Österreich")
+  })
+  it("reads a CSV that is no UTF-8 as before (Windows-1252)", async () => {
+    await upload("list.csv", Uint8Array.from(nameList, c => c.charCodeAt(0)))
+    expect(current.eeg.name).toBe("Sonnenkraft Süd Österreich")
   })
 
   it("skips empty rows, so the second EEG follows the first", async () => {
