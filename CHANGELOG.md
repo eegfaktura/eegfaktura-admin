@@ -8,6 +8,8 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+## [1.3.0] – 2026-11-06
+
 ### Added
 - **Peer-to-Peer and Eigenversorgung** (vfeeg-development/eegfaktura-platform#229, part 2): "Region" in the EEG
   registration also offers "P2P" and "EVA" (stored as `P2P` / `EVA`), and the EEG details of the portal show them with
