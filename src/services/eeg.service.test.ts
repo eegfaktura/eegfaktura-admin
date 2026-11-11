@@ -1,6 +1,6 @@
 import {APIError, EegService} from "./eeg.service";
 import {AuthService} from "./auth.service";
-import {PontonRegister} from "../model/eeg.model";
+import {EegRegister, PontonRegister} from "../model/eeg.model";
 
 // admin-backend answers POST /eeg/ponton with HTTP 200 and reports the outcome
 // as {status, message} in the body.
@@ -13,13 +13,13 @@ const ponton = {
 const authService = {getToken: async () => "token"} as unknown as AuthService
 
 const mockFetch = (httpStatus: number, body: unknown, json = async () => body) => {
-  global.fetch = jest.fn().mockResolvedValue({
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
     ok: httpStatus >= 200 && httpStatus < 300,
     status: httpStatus,
     statusText: "",
     json,
     text: async () => JSON.stringify(body),
-  }) as unknown as typeof fetch
+  }))
 }
 
 describe("EegService.registerPonton", () => {
@@ -57,11 +57,22 @@ describe("EegService.registerPonton", () => {
   })
 })
 
+describe("EegService.registerEeg", () => {
+  it("rejects with the admin-backend's code and message for an EEG that exists (261015-ca1)", async () => {
+    const message = "EEG ist bereits registriert (Tenant RC100100, RC-Nummer RC100100). Es wurde nichts geändert; fehlende Logins oder Ponton über „EEG Accounts“ bzw. „Ponton Verbindung“ ergänzen."
+    mockFetch(409, {code: 409, message})
+    const err = await new EegService(authService).registerEeg({} as EegRegister).catch(e => e)
+    expect(err).toBeInstanceOf(APIError)
+    expect(err.code).toBe(409)
+    expect(err.message).toBe(message)
+  })
+})
+
 describe("addAccount (platform#166)", () => {
   const service = new EegService({getToken: async () => "t"} as any)
   const answer = (status: number, body: unknown) =>
-    jest.spyOn(global, "fetch").mockResolvedValue(new Response(JSON.stringify(body), {status}) as any)
-  afterEach(() => jest.restoreAllMocks())
+    vi.spyOn(global, "fetch").mockResolvedValue(new Response(JSON.stringify(body), {status}) as any)
+  afterEach(() => vi.restoreAllMocks())
 
   it("returns the result of the admin-backend, also for 400", async () => {
     answer(400, {email: "x", status: "failed", message: "E-Mail-Adresse ungültig"})

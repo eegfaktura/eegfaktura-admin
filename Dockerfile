@@ -1,6 +1,6 @@
 # Basis gepinnt statt :latest - sonst zieht jeder Build eine beliebige neue
 # Caddy-Version, ohne dass es jemand merkt. Gleiche Version wie eegfaktura-web.
-FROM caddy:2.8.4
+FROM caddy:2.11.7
 
 ADD build /var/www/html/registration-web/
 
@@ -8,6 +8,10 @@ ADD caddy.conf /etc/caddy/Caddyfile
 ADD keycloak-config.json /srv
 
 #VOLUME /var/www/html/registration-web/config
+
+# CVE-2026-111497: caddy:2.11.7 bringt brotli-libs 1.2.0 mit, ein neueres Caddy-Image gibt es
+# noch nicht. Entfernen, sobald die Basis mindestens 1.2.1-r0 enthaelt.
+RUN apk add --no-cache 'brotli-libs>=1.2.1-r0'
 
 # Nicht als root laufen (Befund A06 der Altsystem-Analyse).
 # Caddy lauscht laut caddy.conf oberhalb von 1024 - es braucht dafuer keine

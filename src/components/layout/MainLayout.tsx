@@ -1,6 +1,5 @@
 import {Outlet} from "react-router-dom";
 import {Box} from "@mui/material";
-import colorConfigs from "../../configs/colorConfigs";
 import sizeConfigs from "../../configs/sizeConfigs";
 import Sidebar from "../common/Sidebar";
 
@@ -27,7 +26,7 @@ const MainLayout = () => {
           minHeight: "100vh",
           // maxHeight: "100vh",
           // overview: "auto",
-          backgroundColor: colorConfigs.mainBg
+          backgroundColor: "#fffaf2"
         }}
       >
         <Outlet />

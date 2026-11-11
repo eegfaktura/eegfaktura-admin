@@ -2,14 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
 
 import {store} from './redux/store';
 import {Provider} from "react-redux";
 import {CssBaseline} from "@mui/material";
 
 import {Api, EegService} from "./services/eeg.service";
-import TenantProvider from "./hooks/EegContext";
 import {OidcProvider} from "./components/layout/OidcProvider";
 import {AppConfig, globalConfigUrl} from "./config";
 import {UserManager, UserManagerSettings} from "oidc-client-ts";
@@ -56,10 +54,8 @@ fetch(globalConfigUrl)
       <React.StrictMode>
         <Provider store={store}>
           <OidcProvider _userManager={userManager}>
-            <TenantProvider>
-              <CssBaseline/>
-              <App/>
-            </TenantProvider>
+            <CssBaseline/>
+            <App/>
           </OidcProvider>
           {/*</AuthProvider>*/}
         </Provider>
@@ -74,7 +70,3 @@ fetch(globalConfigUrl)
       </React.StrictMode>
     )
   })
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();

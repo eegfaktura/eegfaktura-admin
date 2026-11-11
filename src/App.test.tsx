@@ -1,13 +1,13 @@
 import React from 'react';
 import {render, screen} from '@testing-library/react';
 import {Provider} from "react-redux";
-import {store} from "./redux/store";
+import {makeStore} from "./redux/store";
 import App from './App';
 
 // Smoke test of the app shell: sign-in redirect, the page for accounts without the role
 // `superuser`, and the portal layout with the sidebar. Keycloak (react-oidc-context) is mocked.
 const mockAuth: Record<string, any> = {};
-jest.mock("react-oidc-context", () => ({
+vi.mock("react-oidc-context", () => ({
   useAuth: () => mockAuth,
   hasAuthParams: () => false,
 }));
@@ -22,12 +22,13 @@ const setAuth = (isAuthenticated: boolean, roles: string[] = []) => {
     isLoading: false,
     activeNavigator: undefined,
     user: isAuthenticated ? {access_token: token(roles)} : undefined,
-    signinRedirect: jest.fn(),
-    removeUser: jest.fn(),
+    signinRedirect: vi.fn(),
+    removeUser: vi.fn(),
   });
 };
 
-const renderApp = () => render(<Provider store={store}><App/></Provider>);
+// a fresh store per test: the app state set by one test must not carry over to the next
+const renderApp = () => render(<Provider store={makeStore()}><App/></Provider>);
 
 test('redirects to the sign-in when not authenticated', () => {
   setAuth(false);

@@ -23,6 +23,26 @@ export const accountSummary = (results: AccountResult[]): string =>
     .map(a => `${a.email}: ${STATUS_TEXT[a.status] ?? a.status}${a.status === "failed" && a.message ? ` (${a.message})` : ""}`)
     .join("; ")
 
+// selects that an Excel row can leave empty because its value cannot be registered (platform#229)
+const EXCEL_CHECKED = ["grid.area", "grid.allocation"] as const
+
+// the EEG exists, nothing was changed: the form stays for a correction (261015-ca1)
+const EegExists = 409
+
+export const registerErrorMessage = (e: APIError): {message: string, severity: "error" | "warning", sticky?: boolean} => {
+  switch (e.code) {
+    case EegExists:
+      return {message: e.message, severity: "error", sticky: true}
+    case 501:
+      return {message: e.message, severity: "error"}
+    case 502:
+    case 510:
+      return {message: e.message, severity: "warning"}
+    default:
+      return {message: "Error beim Anlegen des Mitglieds", severity: "error"}
+  }
+}
+
 const RegistrationPage: FC = () => {
 
   const newEeg: EegRegister = {
@@ -49,13 +69,7 @@ const RegistrationPage: FC = () => {
     },
     accounts: [],
   }
-  const steps: { label: string, optional?: boolean }[] = [
-    {label: 'Allgemein'},
-    {label: 'Betreiber'},
-    // {label: 'Business'},
-    // {label: 'Contact'},
-    {label: 'Kommunikation'},
-  ];
+  const steps = ['Allgemein', 'Betreiber', 'Kommunikation'];
 
   // const {handleSubmit, control, watch, formState: {errors}, reset} = useForm<EegRegister>({defaultValues: newEeg})
   const formMethods = useForm<EegRegister>({defaultValues: newEeg, mode: "all"});
@@ -63,50 +77,31 @@ const RegistrationPage: FC = () => {
   const [open, setOpen] = React.useState(false);
   const [activeStep, setActiveStep] = React.useState(0);
   const [message, setMessage] = React.useState<{message: string, severity: "success" | "error" | "warning" | "info" | undefined, sticky?: boolean}>({message: "", severity: "success"});
-  const [skipped, setSkipped] = React.useState(new Set<number>());
   const {reset, eeg, rcNumber, isExcelLoaded, excelFile, next, hasNext, prev, hasPrev} = React.useContext(RegistrationContext);
 
-  const isStepOptional = (index: number) => {
-    const step = steps[index]
-    return step.optional && step.optional;
-  };
-
-  const isStepSkipped = (step: number) => {
-    return skipped.has(step);
-  };
+  // counts the resets: the check below must run after the render that follows a reset, which registers the fields anew
+  const [resets, setResets] = React.useState(0);
 
   useEffect(() => {
     formMethods.reset(eeg);
+    setResets(n => n + 1)
   }, [eeg, formMethods])
 
-  const handleNext = () => {
-    let newSkipped = skipped;
-    if (isStepSkipped(activeStep)) {
-      newSkipped = new Set(newSkipped.values());
-      newSkipped.delete(activeStep);
+  // an unknown type or a static/unknown allocation in the Excel row (platform#229): show the error of the select
+  // right away, not only on "Next"
+  useEffect(() => {
+    const invalid = EXCEL_CHECKED.filter(f => formMethods.getValues(f) === "")
+    if (activeStep === 0 && invalid.length > 0) {
+      formMethods.trigger(invalid)
     }
+  }, [resets, activeStep, formMethods])
 
+  const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped(newSkipped);
   };
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const handleSkip = () => {
-    if (!isStepOptional(activeStep)) {
-      // You probably want to guard against something like this,
-      // it should never occur unless someone's actively trying to break something.
-      throw new Error("You can't skip a step that isn't optional.");
-    }
-
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped((prevSkipped) => {
-      const newSkipped = new Set(prevSkipped.values());
-      newSkipped.add(activeStep);
-      return newSkipped;
-    });
   };
 
   const handleReset = () => {
@@ -116,38 +111,35 @@ const RegistrationPage: FC = () => {
   };
 
   const onSubmit = (data: EegRegister) => {
-    try {
-      Api.eegService.registerEeg(trimEegRegisterData(data))
-        .then(r => {
-          const results = r?.accounts ?? []
-          const failed = results.some(a => a.status === "failed")
-          setMessage({
-            message: ["EEG wurde angelegt.", accountSummary(results)].filter(Boolean).join(" "),
-            severity: failed ? "warning" : "success",
-            sticky: failed,
-          })
-          setOpen(true)
-          handleReset()
-        })
-        .catch((e: APIError) => {
-          console.error("ERROR-Request: ", e, "Code: ", e.code)
-          switch (e.code) {
-            case 501:
-              setMessage({message: e.message, severity: "error"})
-              break;
-            case 502:
-            case 510:
-              setMessage({message: e.message, severity: "warning"})
-              break;
-            default:
-              setMessage({message: "Error beim Anlegen des Mitglieds", severity: "error"})
-          }
-          setOpen(true)
-          handleReset()
-        })
-    } catch (e) {
-      console.error("ERROR: ", e)
+    // the selects are checked only on the first step; another Excel row chosen on a later step can still lack a value.
+    // Not sent: admin-backend would reject it and the error path would move on to the next row (AD-CQ-2).
+    if (data.grid.area === "" || data.grid.allocation === "") {
+      setMessage({message: "Typ oder Verteilung der Gemeinschaft ungültig, bitte unter „Allgemein“ wählen.", severity: "error", sticky: true})
+      setOpen(true)
+      setActiveStep(0)
+      return
     }
+    // inside the chain, so that a failing trim ends in the .catch below
+    Promise.resolve().then(() => Api.eegService.registerEeg(trimEegRegisterData(data)))
+      .then(r => {
+        const results = r?.accounts ?? []
+        const failed = results.some(a => a.status === "failed")
+        setMessage({
+          message: ["EEG wurde angelegt.", accountSummary(results)].filter(Boolean).join(" "),
+          severity: failed ? "warning" : "success",
+          sticky: failed,
+        })
+        setOpen(true)
+        handleReset()
+      })
+      .catch((e: APIError) => {
+        console.error("ERROR-Request: ", e, "Code: ", e.code)
+        setMessage(registerErrorMessage(e))
+        setOpen(true)
+        if (e.code !== EegExists) {
+          handleReset()
+        }
+      })
   };
 
   const trimEegRegisterData = (data: EegRegister): EegRegister => {
@@ -184,10 +176,6 @@ const RegistrationPage: FC = () => {
         return <CommonEegPropertiesComponent/>
       case 1:
         return <UserEegPropertiesComponent />
-      // case 2:
-      //   return <BusinessEegPropertiesComponent control={formMethods.control}/>
-      // case 3:
-      //   return <AddressEegPropertiesComponent />
       case 2:
         return <PontonPropertiesComponent />
       default:
@@ -222,25 +210,11 @@ const RegistrationPage: FC = () => {
       <FormProvider {...formMethods} >
         <div style={{flex: "1 1 auto"}}>
           <Stepper activeStep={activeStep}>
-            {steps.map((step: { label: string, optional?: boolean }, index) => {
-              const stepProps: { completed?: boolean } = {};
-              const labelProps: {
-                optional?: React.ReactNode;
-              } = {};
-              if (isStepOptional(index)) {
-                labelProps.optional = (
-                  <Typography variant="caption">Optional</Typography>
-                );
-              }
-              if (isStepSkipped(index)) {
-                stepProps.completed = false;
-              }
-              return (
-                <Step key={step.label} {...stepProps}>
-                  <StepLabel {...labelProps}>{step.label}</StepLabel>
-                </Step>
-              );
-            })}
+            {steps.map(label => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
           </Stepper>
           {/*{Object.values(formMethods.formState.errors).map((e, i) => (*/}
           {/*  <div>{e.message}</div>*/}
@@ -281,11 +255,6 @@ const RegistrationPage: FC = () => {
               </Box>
             )}
             <Box sx={{flex: '0 0 auto'}}>
-            {isStepOptional(activeStep) && (
-              <Button color="inherit" onClick={handleSkip} sx={{mr: 1}}>
-                Skip
-              </Button>
-            )}
             {(activeStep === steps.length - 1) ?
               (<Button variant="contained" onClick={formMethods.handleSubmit(onSubmit)}>
                 Finish

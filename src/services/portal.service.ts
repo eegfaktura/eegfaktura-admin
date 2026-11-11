@@ -1,9 +1,9 @@
 import {AuthService} from "./auth.service";
-import {EegMember, EegParticipant, Metering} from "../model/eeg.model";
+import {EegParticipant, Metering} from "../model/eeg.model";
 import {AdminUpdateData} from "../model/admin.model";
 
-const ADMIN_API_SERVER = process.env.REACT_APP_ADMIN_SERVER_URL;
-const ENERGY_SERVER = process.env.REACT_APP_ENERGY_SERVER_URL;
+const ADMIN_API_SERVER = import.meta.env.REACT_APP_ADMIN_SERVER_URL;
+const ENERGY_SERVER = import.meta.env.REACT_APP_ENERGY_SERVER_URL;
 
 export class PortalService {
 
@@ -29,7 +29,7 @@ export class PortalService {
 
   private handleErrors(response: Response) {
     if (!response.ok) {
-      throw Error(response.statusText);
+      throw Error(`${response.status} ${response.statusText}`.trim());
     }
     return response;
   }
@@ -47,11 +47,7 @@ export class PortalService {
         'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify(data)
-    }).then(this.handleErrors).then(async res => {
-      if (res.status === 200) {
-        return await res.json();
-      }
-    });
+    }).then(this.handleErrors).then(res => res.json());
   }
 
   async changeParticipantState(proto: string, props: AdminUpdateData): Promise<EegParticipant> {
@@ -66,30 +62,7 @@ export class PortalService {
         'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify(data)
-    }).then(this.handleErrors).then(async res => {
-      if (res.status === 200) {
-        return await res.json();
-      }
-    });
-  }
-
-  async changeEegState(proto: string, props: AdminUpdateData): Promise<EegMember> {
-    const token = await this.getUser()
-    const data: Record<string, any> = props;
-    data["updateClass"] = proto;
-
-    return await fetch(`${ADMIN_API_SERVER}/admin/master/update/eeg`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(data)
-    }).then(this.handleErrors).then(async res => {
-      if (res.status === 200) {
-        return await res.json();
-      }
-    });
+    }).then(this.handleErrors).then(res => res.json());
   }
 
   // Ops: delete raw energy data of one metering point in a time range (dryRun previews
@@ -172,6 +145,10 @@ async function describeRawDataDeleteError(res: Response): Promise<string> {
 
   return detail ? `${message} [Server: ${detail}]` : message;
 }
+
+// Text for a failed master-data save, shown in the edit dialogs.
+export const saveFailedMessage = (e: unknown) =>
+  `Speichern fehlgeschlagen: ${e instanceof Error ? e.message : String(e)}`
 
 export interface RawDataDeleteResult {
   meteringPoint: string,

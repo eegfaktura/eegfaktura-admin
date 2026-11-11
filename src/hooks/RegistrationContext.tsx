@@ -2,6 +2,7 @@ import React, {createContext, FC, ReactNode, useState} from "react";
 import {AccountInfo, AccountUser, EegRegister} from "../model/eeg.model";
 import {useSelector} from "react-redux";
 import {selectGridOperators} from "../redux/features/eegStateSlice";
+import {areaFromText} from "../model/area";
 
 const fieldTransformer = {
   "street": "Straße",
@@ -50,14 +51,23 @@ const initialEeg: EegRegister = {
   accounts: [],
 }
 
+// Excel's notation for text in a CSV, ="0664123": read as written (raw), so unwrapped here
+const unwrapExcelText = (s: string) => {
+  const wrapped = /^="([\s\S]*)"$/.exec(s)
+  return wrapped ? wrapped[1].replace(/""/g, '"').trim() : s
+}
+
 // Column headers vary between list versions ("E-Mail" / "EMail", line breaks LF / CRLF): compare without
 // case, white space and hyphens
-const normalizeHeader = (h: string) => h.toLowerCase().replace(/[\s-]/g, "")
+const normalizeHeader = (h: string) => unwrapExcelText(h.trim()).toLowerCase().replace(/[\s-]/g, "")
 export const cell = (row: Record<string, any>, header: string) => {
   const key = Object.keys(row).find(k => normalizeHeader(k) === normalizeHeader(header))
   return key === undefined ? undefined : row[key]
 }
-const text = (v: any) => (v === undefined || v === null ? "" : String(v).trim())
+const text = (v: any) => {
+  if (v === undefined || v === null) return ""
+  return unwrapExcelText(String(v).replace(/\r\n?/g, "\n").trim())
+}
 
 const accountFrom = (row: Record<string, any>, prefix: string): AccountUser => ({
   firstname: text(cell(row, `${prefix}\nVorname`)),
@@ -92,18 +102,15 @@ const normalizeSettlement = (s: string): 'MONTHLY' | "ANNUAL" | "BIANNUAL" | "QU
   return "MONTHLY"
 }
 
-const normalizeAllocation = (s: string): "DYNAMIC" | "STATIC" => {
-  switch (s.toLowerCase()) {
-    case 'dynamisch': return "DYNAMIC"
-    case 'statisch': return "STATIC"
-  }
-  return "DYNAMIC"
-}
+// new communities only with dynamic allocation (platform#229, E6): an empty cell, "dynamisch", "dynamic" (any case)
+// give DYNAMIC; "statisch" or anything else gives "", which the form reports as an error of the row
+export const normalizeAllocation = (s?: string): EegRegister["grid"]["allocation"] =>
+  ["", "dynamisch", "dynamic"].includes((s ?? "").trim().toLowerCase()) ? "DYNAMIC" : ""
 
-const normalizeArea = (s?: string): "LOCAL" | "REGIONAL" | "GEA" | "BEG" => {
-  const res = String(s ?? 'LOCAL').trim().toUpperCase()
-  return (["LOCAL", "REGIONAL", "GEA", "BEG"].includes(res) ? res : 'LOCAL') as "LOCAL" | "REGIONAL" | "GEA" | "BEG"
-}
+// keys and short forms ("EEG lokal"), any case; an empty cell stays LOCAL; an unknown type gives "", which the form
+// reports as an error of the row (platform#229)
+export const normalizeArea = (s?: string): EegRegister["grid"]["area"] =>
+  !s?.trim() ? 'LOCAL' : areaFromText(s) ?? ''
 
 interface RegistrationState {
   eeg: EegRegister;
@@ -153,6 +160,10 @@ const RegistrationProvider: FC<{children: ReactNode}> = ({children}) => {
   }
 
   const onLoad = (fileName: string, data: Record<string, any>[]) => {
+    if (data.length < 3) {
+      alert("No EEG found: the list needs a header, two further rows and then one row per EEG.")
+      return
+    }
     setExcelFile(fileName)
     setExcelData(data)
     setExcelIndex(2)

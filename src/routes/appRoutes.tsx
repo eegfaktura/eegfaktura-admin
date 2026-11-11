@@ -61,25 +61,6 @@ const appRoutes: RouteType[] = [
       icon: <DeleteForeverTwoTone/>
     },
   }
-  //   child: [
-  //     {
-  //       path: "/portal/manager-overview",
-  //       element: <PortalOverview />,
-  //       state: "manager.overview",
-  //       sidebarProps: {
-  //         displayText: "EEG Mitglieder",
-  //       },
-  //     },
-  //     {
-  //       path: "/portal/manager-billing",
-  //       element: <RegistrationPontonPage />,
-  //       state: "manager.billing",
-  //       sidebarProps: {
-  //         displayText: "EEG Rechungen",
-  //       }
-  //     },
-  //   ]
-  // }
 ];
 
 export default appRoutes;

@@ -13,7 +13,7 @@ import {
 import {AuthService} from "./auth.service";
 import {PortalService} from "./portal.service";
 
-const ADMIN_API_SERVER = process.env.REACT_APP_ADMIN_SERVER_URL;
+const ADMIN_API_SERVER = import.meta.env.REACT_APP_ADMIN_SERVER_URL;
 
 export class APIError extends Error {
   status: number;
@@ -41,15 +41,6 @@ export class EegService {
   public constructor(private authService: AuthService) {
   }
 
-
-  // private getUser() {
-  //   const oidcStorage = sessionStorage.getItem(`oidc.user:https://login.ourproject.at/auth/realms/VFEEG/:at.ourproject.vfeeg.admin`)
-  //   if (!oidcStorage) {
-  //     return null;
-  //   }
-  //
-  //   return User.fromStorageString(oidcStorage);
-  // }
 
   private async getUser() {
     return this.authService.getToken()
@@ -202,12 +193,3 @@ export class EegService {
     });
   }
 }
-// export const eegService = new EegService(authService);
-//
-// export const useToken = () => {
-//   const auth = useAuth()
-//
-//   const token = auth.user?.access_token
-//
-//   return token
-// }

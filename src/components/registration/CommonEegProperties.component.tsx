@@ -2,6 +2,7 @@ import React, {FC, useContext, useEffect} from "react";
 import {useFormContext, useWatch} from "react-hook-form";
 import FormInputComponent from "../form/FormInput.component";
 import FormSelectComponent from "../form/FormSelect.component";
+import {AREA_OPTIONS} from "../../model/area";
 import {
   Box,
 } from "@mui/material";
@@ -12,7 +13,7 @@ import {RegistrationContext} from "../../hooks/RegistrationContext";
 
 const CommonEegPropertiesComponent: FC = () => {
 
-  const {excelFile, onLoad} = useContext(RegistrationContext)
+  const {onLoad} = useContext(RegistrationContext)
 
   const {control, setValue} = useFormContext()
 
@@ -26,7 +27,7 @@ const CommonEegPropertiesComponent: FC = () => {
       {/*<CorePageTemplate>*/}
       <Box sx={{display: "flex", justifyContent: "space-between", flexDirection: "row", alignItems: "center"}}>
         <h2>Allgemeine Einstellungen Erneuerbarer Energie Gemeinschaften</h2>
-        <ExcelUploader fileName={excelFile} onLoad={(f: string,  d: Record<string, any>[]) => {
+        <ExcelUploader onLoad={(f: string,  d: Record<string, any>[]) => {
           onLoad(f, d)
         }}/>
       </Box>
@@ -57,14 +58,12 @@ const CommonEegPropertiesComponent: FC = () => {
         {key: "verein", value: "Verein"},
         {key: "genossenschaft", value: "Genossenschaft"},
         {key: "gesellschaft", value: "Gesellschaft"}]}/>
+      {/* new communities only with dynamic allocation (platform#229, E6) */}
       <FormSelectComponent name={"grid.allocation"} label="Verteilung" control={control} options={[
-        {key: "STATIC", value: "Statisch"},
-        {key: "DYNAMIC", value: "Dynamisch"}]} placeholder="Verteilung"/>
-      <FormSelectComponent name={"grid.area"} label="Region" control={control} options={[
-        {key: "LOCAL", value: "Local"},
-        {key: "REGIONAL", value: "Regional"},
-        {key: "GEA", value: "Gemeinschaftliche Erzeugungsanlagen"},
-        {key: "BEG", value: "Bürgergemeinschaften"}]} placeholder="Region"/>
+        {key: "DYNAMIC", value: "Dynamisch"}]} placeholder="Verteilung"
+                           rules={{required: "Neue Gemeinschaften können nur mit dynamischer Aufteilung registriert werden."}}/>
+      <FormSelectComponent name={"grid.area"} label="Region" control={control} options={AREA_OPTIONS}
+                           rules={{required: "Typ der Gemeinschaft unbekannt, bitte wählen"}} placeholder="Region"/>
     </Box>
 
   )
