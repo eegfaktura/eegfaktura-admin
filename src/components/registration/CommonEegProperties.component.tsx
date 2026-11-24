@@ -4,7 +4,7 @@ import FormInputComponent from "../form/FormInput.component";
 import FormSelectComponent from "../form/FormSelect.component";
 import {AREA_OPTIONS} from "../../model/area";
 import {
-  Box,
+  Box, Typography,
 } from "@mui/material";
 
 import "../component.scss"
@@ -26,15 +26,15 @@ const CommonEegPropertiesComponent: FC = () => {
     <Box className={"flex-col-mgap"} style={{padding: "16px"}} bgcolor={"background.paper"}>
       {/*<CorePageTemplate>*/}
       <Box sx={{display: "flex", justifyContent: "space-between", flexDirection: "row", alignItems: "center"}}>
-        <h2>Allgemeine Einstellungen Erneuerbarer Energie Gemeinschaften</h2>
+        <Typography variant="h5" component="h1">Allgemeine Einstellungen Erneuerbarer Energie Gemeinschaften</Typography>
         <ExcelUploader onLoad={(f: string,  d: Record<string, any>[]) => {
           onLoad(f, d)
         }}/>
       </Box>
       <FormInputComponent name={"name"} label="Kurzname" control={control} rules={{required: "Name fehlt"}} type="text"
-                          placeholder="Kurzname deiner EEG"/>
+                          placeholder="Kurzname der EEG"/>
       <FormInputComponent name={"description"} label="EEG Beschreibung" control={control}
-                          rules={{required: "Name fehlt"}} type="text" placeholder="Kurzbeschreibung deiner EEG"/>
+                          rules={{required: "Name fehlt"}} type="text" placeholder="Kurzbeschreibung der EEG"/>
       <FormInputComponent name={"rcNumber"} label="RC-Nummer" control={control} rules={{
         required: "RC-Nummer fehlt",
         pattern: {value: /^[A-Za-z0-9]*$/, message: "Tenant darf nur Zeichen und Ziffern enthalten"}

@@ -11,7 +11,7 @@ export const CellEditElement:FC<{params: GridRenderCellParams<EegParticipant | M
     <>
       <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
         <div style={{ width: "100%"}}>{params.formattedValue}</div>
-        <IconButton color="primary" sx={{ fontSize: "6px" }} aria-label="directions" onClick={() => onStartEdit(params.row)}>
+        <IconButton color="primary" sx={{ fontSize: "6px" }} aria-label={`${params.colDef.headerName ?? params.field} bearbeiten`} onClick={() => onStartEdit(params.row)}>
           <ModeEditRounded sx={{fontSize: "18px"}}/>
         </IconButton>
       </Box>

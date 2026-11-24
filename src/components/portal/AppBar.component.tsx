@@ -60,15 +60,15 @@ export const SearchBarComponent: FC = () => {
             component="div"
             sx={{ display: { xs: 'none', sm: 'block' } }}
           >
-            PortalManager
+            Mitglieder
           </Typography>
           <Search>
             <SearchIconWrapper>
               <SearchIcon />
             </SearchIconWrapper>
             <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ 'aria-label': 'search' }}
+              placeholder="Suchen…"
+              inputProps={{ 'aria-label': 'Mitglieder suchen' }}
               spellCheck={false}
               onInput={(e: ChangeEvent<HTMLInputElement>) => setSearchItem(e.target?.value)}
             />

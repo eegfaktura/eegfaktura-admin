@@ -1,6 +1,6 @@
 import {renderHook} from "@testing-library/react";
 import {useForm} from "react-hook-form";
-import {dayToEpochMs, rejectInvalidDate} from "./DateCell.editor";
+import {dayToEpochMs, formatDay, rejectInvalidDate} from "./DateCell.editor";
 
 // The backend (adminService.go) takes epoch ms and keeps the calendar day of that moment in Europe/Berlin
 // (image ENV TZ), the admin may work in any other zone (admin 261005-ca3).
@@ -48,5 +48,20 @@ describe("rejectInvalidDate", () => {
 
     await expect(result.current.handleSubmit(save, rejectInvalidDate)()).rejects.toThrow("Datum fehlt oder ist ungültig")
     expect(save).not.toHaveBeenCalled()
+  })
+})
+
+// the date cells of the meter grid (admin 261124-mm1)
+describe("formatDay", () => {
+  it.each([[undefined], [null], [""], [0]])("leaves a cell without a date (%s) empty, not today", (value) => {
+    expect(formatDay(value)).toBe("")
+  })
+
+  it("shows the day as DD.MM.YYYY", () => {
+    expect(formatDay(new Date(2026, 0, 15))).toBe("15.01.2026")
+  })
+
+  it("shows a date of the admin-backend (epoch ms, noon UTC) as that day", () => {
+    expect(formatDay(Date.UTC(2026, 0, 15, 12))).toBe("15.01.2026")
   })
 })

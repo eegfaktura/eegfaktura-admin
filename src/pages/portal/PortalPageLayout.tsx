@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from "react";
-import {Box, Card, CardContent, Grid} from "@mui/material";
+import {Alert, Box, Card, CardActionArea, CardContent, CircularProgress, Grid} from "@mui/material";
 import {Api} from "../../services/eeg.service";
 import {EegMember} from "../../model/eeg.model";
 import EegMemberDetailsComponent from "../../components/portal/EegMemberDetails.component";
@@ -19,9 +19,15 @@ const PortalPageLayout = () => {
   const members = useSelector(allEegs)
   const eegSelected = useSelector(selectedEeg)
   const [filterString, setFilterString] = useState<string | undefined>()
+  const [loadState, setLoadState] = useState<"loading" | "loaded" | "failed">("loading")
 
   useEffect(() => {
-    Api.eegService.getEeg().then(eegs => dispatch(setEegAll(eegs)))
+    Api.eegService.getEeg()
+      .then(eegs => {
+        dispatch(setEegAll(eegs))
+        setLoadState("loaded")
+      })
+      .catch(() => setLoadState("failed"))
   }, [dispatch]);
 
   const filteredMembers = useMemo(() => {
@@ -44,30 +50,43 @@ const PortalPageLayout = () => {
     </React.Fragment>
   );
 
-  if (members === undefined || members.length === 0) {
-    return <></>
+  // a list loaded before stays visible while it is loaded again
+  if (members.length === 0) {
+    switch (loadState) {
+      case "loading":
+        return <Box sx={{display: "flex", justifyContent: "center", p: 3}}><CircularProgress aria-label="Gemeinschaften werden geladen"/></Box>
+      case "failed":
+        return <Box sx={{p: 3}}><Alert severity="error">Gemeinschaften konnten nicht geladen werden.</Alert></Box>
+      default:
+        return <Box sx={{p: 3}}><Alert severity="info">Keine Gemeinschaften</Alert></Box>
+    }
   }
 
   return (
     <Box height="100%" flex={1}>
       <Grid container height="100%" flexDirection={"row"}>
-        <Grid item xs={2} height="100%">
+        <Grid item xs={3} height="100%">
           <Box display="flex" flexDirection="column" height="100%" sx={{p: 2}}>
             <SearchInputComponent setSearchItem={setFilterString}></SearchInputComponent>
-            <div style={{padding: "5px", fontWeight: "bold"}}>Members</div>
+            <div style={{padding: "5px", fontWeight: "bold"}}>Gemeinschaften</div>
             <div style={{overflow: "auto", flex: "1"}}>
               <Box style={{display: "flex", flexDirection: "column", rowGap: "10px", width: "100%", padding: "12px"}}
                    overflow="auto">
                 {filteredMembers && filteredMembers.sort((a:EegMember, b:EegMember) => a.tenant > b.tenant ? 1 : -1).map((m, i) => {
                   return (
-                    <Card variant="outlined" key={i} onClick={() => dispatch(setSelectedEeg(m))}>{card(m)}</Card>
+                    <Card variant="outlined" key={i}>
+                      <CardActionArea onClick={() => dispatch(setSelectedEeg(m))}
+                                      aria-current={m.tenant === eegSelected?.tenant ? "true" : undefined}>
+                        {card(m)}
+                      </CardActionArea>
+                    </Card>
                   )
                 })}
               </Box>
             </div>
           </Box>
         </Grid>
-        <Grid item xs={10} width="100%" height="100%" overflow="auto">
+        <Grid item xs={9} width="100%" height="100%" overflow="auto">
           <ParticipantProvider>
             <EegMemberDetailsComponent />
           </ParticipantProvider>

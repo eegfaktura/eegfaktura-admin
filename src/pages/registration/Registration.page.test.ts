@@ -12,6 +12,6 @@ describe("registerErrorMessage", () => {
     expect(registerErrorMessage(new APIError(400, 501, "a"))).toEqual({message: "a", severity: "error"})
     expect(registerErrorMessage(new APIError(400, 502, "b"))).toEqual({message: "b", severity: "warning"})
     expect(registerErrorMessage(new APIError(400, 510, "c"))).toEqual({message: "c", severity: "warning"})
-    expect(registerErrorMessage(new APIError(500, 500, "d"))).toEqual({message: "Error beim Anlegen des Mitglieds", severity: "error"})
+    expect(registerErrorMessage(new APIError(500, 500, "d"))).toEqual({message: "Fehler beim Anlegen der EEG", severity: "error"})
   })
 })
