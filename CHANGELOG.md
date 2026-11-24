@@ -8,6 +8,8 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+## [1.5.0] – 2026-11-24
+
 ### Added
 - **Bulk change: value from file** (konzept-massenaenderungen.md, Teil 2). New action „Wert aus Datei“ for the
   mandate reference and the mandate date: the support downloads the template `public/vorlage-massenaenderung.xlsx`
