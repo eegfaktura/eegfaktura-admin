@@ -1,6 +1,6 @@
 import {BulkAction, BulkChangeError, BulkClass, BulkCommunity, BulkCondition, BulkDirection, BulkField, BulkRule, BulkTariff} from "../../../services/bulkchange.service";
 
-// German texts of the bulk change page. backend sends codes (classes, F1–F8, H1–H9, L1–L3, skip reasons,
+// German texts of the bulk change page. backend sends codes (classes, F1–F8, H1–H10, L1–L3, skip reasons,
 // error codes 6100–6107); the texts belong to admin (konzept-massenaenderungen.md, Fachliche Logik 7 and 8).
 
 export const FIELD_LABELS: Record<BulkField, string> = {

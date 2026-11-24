@@ -99,7 +99,7 @@ describe("value from file", () => {
     ({...initialForm("MANDATE_DATE"), action: "FROM_FILE", fileValues});
 
   it("needs a file with values, at most 5,000", () => {
-    expect(formProblems(form(null)).value).toBe("Datei und Spalten wählen");
+    expect(formProblems(form(null)).value).toBe("Vorlage ausfüllen und laden");
     expect(formProblems(form([])).value).toMatch(/keine Zeile/);
     const many = Array.from({length: 5001}, (_, i) => ({participantNumber: String(i), value: "2024-01-01"}));
     expect(formProblems(form(many)).value).toMatch(/Höchstens 5.000/);

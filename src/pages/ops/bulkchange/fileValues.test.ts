@@ -103,6 +103,20 @@ describe("reading the template", () => {
     });
   });
 
+  it("other number formats are taken as written, not in en-US style", () => {
+    const rows = readSheet(xlsx([HEADER, [1234, "", 7]], ws => {
+      ws["A2"] = {t: "n", v: 1234, z: "#,##0"};
+      ws["C2"] = {t: "n", v: 7, z: "0.00"};
+    }), "x.xlsx");
+    expect(templateValues(rows, "MANDATE_REFERENCE")).toMatchObject({values: [{participantNumber: "1234", value: "7"}]});
+  });
+
+  it("a file longer than 10,000 rows is refused, not cut off", () => {
+    const aoa: unknown[][] = [HEADER, ...Array.from({length: 10001}, (_, i) => [String(i + 1), "", `R-${i + 1}`])];
+    expect(templateValues(readSheet(xlsx(aoa), "x.xlsx"), "MANDATE_REFERENCE"))
+      .toEqual({problem: expect.stringMatching(/mehr als 10.000 Zeilen/)});
+  });
+
   it("dates of a 1904 workbook (old Mac Excel) are not shifted", () => {
     // 2024-01-01 is serial 43830 in the 1904 date system
     const rows = readSheet(xlsx([HEADER, ["1", "", "", null]], ws => {

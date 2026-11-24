@@ -42,7 +42,7 @@ export interface RuleForm {
   condition: BulkCondition;
   conditionValue: string;
   direction: BulkDirection | "";
-  // FROM_FILE: the values of the chosen file and columns (null until both columns are chosen)
+  // FROM_FILE: the values of the loaded template (null while no usable file is loaded)
   fileValues: BulkFileValue[] | null;
 }
 
@@ -92,7 +92,7 @@ export function formProblems(f: RuleForm, today = todayIso()): Partial<Record<"v
     if (p) out.value = p;
   }
   if (f.action === "FROM_FILE") {
-    if (!f.fileValues) out.value = "Datei und Spalten wählen";
+    if (!f.fileValues) out.value = "Vorlage ausfüllen und laden";
     else if (f.fileValues.length === 0) out.value = "Die Datei hat keine Zeile mit Mitgliedsnummer und Wert";
     else if (f.fileValues.length > MAX_FILE_VALUES) out.value = `Höchstens ${MAX_FILE_VALUES.toLocaleString("de-AT")} Zeilen mit Wert je Lauf`;
   }

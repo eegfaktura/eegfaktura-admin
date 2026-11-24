@@ -2,6 +2,7 @@ import * as XLSX from "xlsx";
 import {BulkField, BulkFileValue} from "../../../services/bulkchange.service";
 import {readWorkbook} from "../../../components/common/readWorkbook";
 import {MAX_FILE_VALUES} from "./rule";
+import {FIELD_LABELS} from "./texts";
 
 // "Wert aus Datei" (konzept-massenaenderungen.md, Teil 2): the support fills in the template
 // public/vorlage-massenaenderung.xlsx (columns Mitgliedsnummer, Name, Mandatsreferenz, Mandatsdatum) and loads it.
@@ -25,8 +26,9 @@ const MAX_COLS = 50;
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-// One cell as text. Error cells (#N/A) are empty. A number formatted as a date is a date; another number is taken as
-// Excel shows it (format "0000": 0007), a number without format as written (7).
+// One cell as text. Error cells (#N/A) are empty. A number formatted as a date is a date; a number with a
+// leading-zero format ("0000") is taken as Excel shows it (0007), any other number as written (7, 1234 — not the
+// "1,234" SheetJS would format in en-US style).
 function cellText(cell: XLSX.CellObject | undefined, date1904: boolean): string {
   if (!cell || cell.t === "e" || cell.v === undefined || cell.v === null) return "";
   if (cell.t === "n" && typeof cell.v === "number") {
@@ -34,20 +36,24 @@ function cellText(cell: XLSX.CellObject | undefined, date1904: boolean): string 
       const d = XLSX.SSF.parse_date_code(cell.v, {date1904});
       if (d) return `${d.y}-${pad(d.m)}-${pad(d.d)}`;
     }
-    return cell.z && cell.z !== "General" && cell.w ? cell.w : String(cell.v);
+    return typeof cell.z === "string" && /^0+$/.test(cell.z) && cell.w ? cell.w : String(cell.v);
   }
   return String(cell.v);
 }
 
-// The first sheet as text cells, rows and columns from A1 (index + 1 = Excel row number).
+// More rows than read: the file is refused (rows below the cap must not drop out silently).
+export const TOO_MANY_ROWS = `Die Datei hat mehr als ${MAX_ROWS.toLocaleString("de-AT")} Zeilen. Bitte aufteilen.`;
+
+// The first sheet as text cells, rows and columns from A1 (index + 1 = Excel row number); one row more than the
+// cap, so that templateValues sees a file that is too long.
 export function readSheet(buffer: ArrayBuffer, fileName: string): string[][] {
-  const wb = readWorkbook(buffer, fileName, {cellNF: true});
+  const wb = readWorkbook(buffer, fileName, {cellNF: true, sheetRows: MAX_ROWS + 1});
   const ws = wb.Sheets[wb.SheetNames[0]];
   if (!ws?.["!ref"]) return [];
   const date1904 = !!wb.Workbook?.WBProps?.date1904;
   const range = XLSX.utils.decode_range(ws["!ref"]);
   const rows: string[][] = [];
-  for (let r = 0; r <= Math.min(range.e.r, MAX_ROWS); r++) {
+  for (let r = 0; r <= Math.min(range.e.r, MAX_ROWS); r++) { // rows 0..MAX_ROWS: MAX_ROWS + 1 rows
     const row: string[] = [];
     for (let c = 0; c <= Math.min(range.e.c, MAX_COLS); c++) {
       row.push(cellText(ws[XLSX.utils.encode_cell({r, c})] as XLSX.CellObject | undefined, date1904).trim());
@@ -92,9 +98,10 @@ const isHeader = (cell: string, header: string) => cell.toLowerCase() === header
 // row with a cell "Mitgliedsnummer". Empty values are left out (the member stays unchanged); duplicates are sent as
 // they are — backend decides (one value counts, different values are F8) — and counted for the summary.
 export function templateValues(rows: string[][], field: BulkField): FileValues {
-  const valueHeader = VALUE_HEADERS[field];
+  const valueHeader = VALUE_HEADERS[field] ?? FIELD_LABELS[field];
+  if (rows.length > MAX_ROWS && rows[MAX_ROWS].some(c => c !== "")) return {problem: TOO_MANY_ROWS};
   const header = rows.findIndex(r => r.some(c => isHeader(c, NUMBER_HEADER)));
-  if (!valueHeader || header < 0) {
+  if (header < 0) {
     return {problem: `Die Datei hat keine Spalte „${NUMBER_HEADER}“. Bitte die Vorlage verwenden.`};
   }
   const numberCol = rows[header].findIndex(c => isHeader(c, NUMBER_HEADER));

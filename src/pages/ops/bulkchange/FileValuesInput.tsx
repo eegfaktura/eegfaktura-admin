@@ -1,4 +1,4 @@
-import React, {FC, useRef, useState} from "react";
+import React, {FC, useEffect, useRef, useState} from "react";
 import {Alert, Button, Stack, Typography} from "@mui/material";
 import {FileDownloadOutlined, UploadFileOutlined} from "@mui/icons-material";
 import {BulkField, BulkFileValue} from "../../../services/bulkchange.service";
@@ -27,13 +27,20 @@ interface Loaded {
 const FileValuesInput: FC<{ field: BulkField, disabled: boolean, onChange: (values: BulkFileValue[] | null) => void }> = ({field, disabled, onChange}) => {
   const input = useRef<HTMLInputElement>(null);
   const [loaded, setLoaded] = useState<Loaded | null>(null);
+  // the input left the page (other action or field) while a file was read: drop the result
+  const mounted = useRef(true);
+  useEffect(() => () => {
+    mounted.current = false;
+  }, []);
 
   const choose = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = ""; // the same file again sends a change event
     if (!file) return;
     try {
-      const result = templateValues(readSheet(await file.arrayBuffer(), file.name), field);
+      const buffer = await file.arrayBuffer();
+      if (!mounted.current) return;
+      const result = templateValues(readSheet(buffer, file.name), field);
       if ("problem" in result) {
         setLoaded({fileName: file.name, text: result.problem, severity: "error"});
         onChange(null);
@@ -44,6 +51,7 @@ const FileValuesInput: FC<{ field: BulkField, disabled: boolean, onChange: (valu
       setLoaded({fileName: file.name, text: summaryText(summary, values.length), severity: warn ? "warning" : "info"});
       onChange(values);
     } catch {
+      if (!mounted.current) return;
       setLoaded({fileName: file.name, text: "Die Datei konnte nicht gelesen werden (XLSX, XLS oder CSV).", severity: "error"});
       onChange(null);
     }
