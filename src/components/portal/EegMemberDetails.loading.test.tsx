@@ -29,9 +29,8 @@ const member = (firstName: string) => ({id: firstName, firstName, lastName: "X",
 
 const deferred = <T, >() => {
   let resolve: (v: T) => void = () => {}
-  let reject: (e: Error) => void = () => {}
-  const promise = new Promise<T>((res, rej) => { resolve = res; reject = rej })
-  return {promise, resolve, reject}
+  const promise = new Promise<T>(res => { resolve = res })
+  return {promise, resolve}
 }
 
 const service = Api.eegService
