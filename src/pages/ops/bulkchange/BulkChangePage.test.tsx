@@ -4,6 +4,7 @@ import BulkChangePage from "./BulkChangePage";
 import {BulkChangeError, BulkChangeService} from "../../../services/bulkchange.service";
 import communities from "../../../services/__fixtures__/bulkchange/communities.response.json";
 import tariffs from "../../../services/__fixtures__/bulkchange/tariffs.response.json";
+import previewEmpty from "../../../services/__fixtures__/bulkchange/preview.empty.response.json";
 import previewResponse from "../../../services/__fixtures__/bulkchange/preview.response.json";
 import applyResponse from "../../../services/__fixtures__/bulkchange/apply.response.json";
 
@@ -184,8 +185,7 @@ describe("BulkChangePage flows", {timeout: 15000}, () => {
 
   it("a preview without matches says so", async () => {
     const service = makeService();
-    service.preview.mockResolvedValue({counts: {changed: 0, withHint: 0, unchangedCondition: 0, unchangedTarget: 0, errors: 0},
-      runHints: [], rows: []});
+    service.preview.mockResolvedValue(previewEmpty);
     await toPreview(service);
     expect(screen.getByText("Die Regel trifft kein Mitglied dieser Gemeinschaft.")).toBeInTheDocument();
     expect(screen.getByText("Nichts zu ändern.")).toBeInTheDocument();

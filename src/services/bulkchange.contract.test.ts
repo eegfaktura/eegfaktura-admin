@@ -7,6 +7,7 @@ import previewResponse from "./__fixtures__/bulkchange/preview.response.json";
 import applyRequest from "./__fixtures__/bulkchange/apply.request.json";
 import applyResponse from "./__fixtures__/bulkchange/apply.response.json";
 import tariffs from "./__fixtures__/bulkchange/tariffs.response.json";
+import previewEmpty from "./__fixtures__/bulkchange/preview.empty.response.json";
 import errorResponse from "./__fixtures__/bulkchange/error.response.json";
 
 // Contract with eegfaktura-backend (copies of api/testdata/bulkchange, source commit in the fixtures' README):
@@ -83,6 +84,13 @@ describe("bulk change contract", () => {
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toMatch(/\/bulkchange\/apply$/);
     expect(JSON.parse(init.body)).toEqual(applyRequest);
+  });
+
+  it("reads the preview without hits of the fixture", async () => {
+    answer(200, previewEmpty);
+    const res = await service.preview("TE000441", buildRule(fixtureForm));
+    expect(res).toEqual(previewEmpty);
+    expect(applyItems(res)).toEqual([]);
   });
 
   it("an empty preview may come with null lists: the page gets empty arrays", async () => {

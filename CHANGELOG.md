@@ -24,7 +24,7 @@ this changelog highlights the changes relevant for overview and operations.
   `REACT_APP_API_SERVER_URL` (`/api`), dev proxy `/api` → backend port 9080. Needs backend with the bulk change
   (eegfaktura-backend#165) and the ingress rule `/api/bulkchange` on the admin host (gitops, platform,
   docker-compose); deploy order backend → ingress → admin. Fixtures copied from backend
-  `api/testdata/bulkchange` (commit 3d51149) in `src/services/__fixtures__/bulkchange/`.
+  `api/testdata/bulkchange` (commit 27774b0) in `src/services/__fixtures__/bulkchange/`.
 
 ### Changed
 - Dependabot (Docker base images): no more major updates (legacy system, replaced by v3 in the medium term; majors
