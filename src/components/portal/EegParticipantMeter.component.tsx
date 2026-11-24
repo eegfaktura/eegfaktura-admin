@@ -2,7 +2,7 @@ import {FC} from "react";
 import {Metering} from "../../model/eeg.model";
 import {
   Box,
-  FormControl, FormControlLabel,
+  FormControl, FormControlLabel, FormLabel,
   IconButton,
   Radio,
   RadioGroup
@@ -25,7 +25,7 @@ const CellEditInputElement1:FC<{params: GridRenderCellParams<Metering, string>, 
     <>
       <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
         <div style={{ width: "100%"}}>{params.value}</div>
-        <IconButton color="primary" sx={{ fontSize: "6px" }} aria-label="directions" onClick={() => onStartEdit(params.row)}>
+        <IconButton color="primary" sx={{ fontSize: "6px" }} aria-label={`${params.colDef.headerName ?? params.field} bearbeiten`} onClick={() => onStartEdit(params.row)}>
           <ModeEditRounded sx={{fontSize: "18px"}}/>
         </IconButton>
       </Box>
@@ -69,13 +69,14 @@ const ProcessStateEditor: FC<{params: GridRenderCellParams<Metering, string>, up
       editDialog (
       <div>
         <FormControl>
+          <FormLabel id="process-state-label">Prozessstatus</FormLabel>
           <Controller
             rules={{ required: true }}
             control={control}
             name="processState"
             render={({ field }) => (
           <RadioGroup
-            aria-labelledby="demo-radio-buttons-group-label"
+            aria-labelledby="process-state-label"
             {...field}
           >
             <FormControlLabel value="ACTIVE" control={<Radio />} label="Aktiv" />

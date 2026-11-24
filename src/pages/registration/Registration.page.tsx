@@ -245,10 +245,10 @@ const RegistrationPage: FC = () => {
                   </Typography>
                 </Box>
                 <Box sx={{flex: '0 0 auto'}}>
-                  <IconButton disabled={!hasPrev()} onClick={() => prev()}>
+                  <IconButton disabled={!hasPrev()} onClick={() => prev()} aria-label="Vorherige EEG der Liste">
                     <ArrowLeft />
                   </IconButton>
-                  <IconButton disabled={!hasNext()} onClick={() => next()}>
+                  <IconButton disabled={!hasNext()} onClick={() => next()} aria-label="Nächste EEG der Liste">
                     <ArrowRight />
                   </IconButton>
                 </Box>

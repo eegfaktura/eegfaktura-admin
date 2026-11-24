@@ -78,7 +78,7 @@ describe("registration: type and allocation", () => {
 
   it("shows no error for a known type or an empty cell", async () => {
     await upload(["p2p", ""])
-    fireEvent.click(screen.getAllByRole("button").find(b => b.querySelector('[data-testid="ArrowRightIcon"]'))!)
+    fireEvent.click(screen.getByRole("button", {name: "Nächste EEG der Liste"}))
     await waitFor(() => expect(screen.getByText("RC-Nummer: RC2")).toBeInTheDocument())
     expect(screen.queryByText(UNKNOWN)).not.toBeInTheDocument()
   })
@@ -106,7 +106,7 @@ describe("registration: type and allocation", () => {
     await screen.findByLabelText("Vorname")
     fireEvent.click(screen.getByText("Weiter"))
     await screen.findByText("Registrieren")
-    fireEvent.click(screen.getAllByRole("button").find(b => b.querySelector('[data-testid="ArrowRightIcon"]'))!)
+    fireEvent.click(screen.getByRole("button", {name: "Nächste EEG der Liste"}))
     await waitFor(() => expect(screen.getByText("RC-Nummer: RC2")).toBeInTheDocument())
     fireEvent.click(screen.getByText("Registrieren"))
     expect(await screen.findByText("Typ oder Verteilung der Gemeinschaft ungültig, bitte unter „Allgemein“ wählen.")).toBeInTheDocument()

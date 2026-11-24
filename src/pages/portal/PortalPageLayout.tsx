@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from "react";
-import {Box, Card, CardContent, Grid} from "@mui/material";
+import {Box, Card, CardActionArea, CardContent, Grid} from "@mui/material";
 import {Api} from "../../services/eeg.service";
 import {EegMember} from "../../model/eeg.model";
 import EegMemberDetailsComponent from "../../components/portal/EegMemberDetails.component";
@@ -60,7 +60,12 @@ const PortalPageLayout = () => {
                    overflow="auto">
                 {filteredMembers && filteredMembers.sort((a:EegMember, b:EegMember) => a.tenant > b.tenant ? 1 : -1).map((m, i) => {
                   return (
-                    <Card variant="outlined" key={i} onClick={() => dispatch(setSelectedEeg(m))}>{card(m)}</Card>
+                    <Card variant="outlined" key={i}>
+                      <CardActionArea onClick={() => dispatch(setSelectedEeg(m))}
+                                      aria-current={m.tenant === eegSelected?.tenant ? "true" : undefined}>
+                        {card(m)}
+                      </CardActionArea>
+                    </Card>
                   )
                 })}
               </Box>

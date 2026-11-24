@@ -68,7 +68,7 @@ export const SearchBarComponent: FC = () => {
             </SearchIconWrapper>
             <StyledInputBase
               placeholder="Suchen…"
-              inputProps={{ 'aria-label': 'search' }}
+              inputProps={{ 'aria-label': 'Mitglieder suchen' }}
               spellCheck={false}
               onInput={(e: ChangeEvent<HTMLInputElement>) => setSearchItem(e.target?.value)}
             />

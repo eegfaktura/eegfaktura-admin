@@ -7,6 +7,7 @@ import {
   DialogTitle,
   FormControl,
   FormControlLabel,
+  FormLabel,
   Radio,
   PaperProps, RadioGroup, TextField
 } from "@mui/material";
@@ -59,12 +60,13 @@ export const ParticipantCellEditDialog: FC = () => {
       <DialogContent>
         {error && <Alert severity="error">{error}</Alert>}
         <FormControl fullWidth>
+          <FormLabel id="participant-business-role-label">Mitgliedsart</FormLabel>
           <Controller
             rules={{ required: true }}
             control={control}
             name="businessRole"
             render={({ field }) => (<RadioGroup row
-              aria-labelledby="demo-radio-buttons-group-label"
+              aria-labelledby="participant-business-role-label"
               {...field}
             >
               <FormControlLabel value="EEG_PRIVATE" control={<Radio />} label="Privat" />

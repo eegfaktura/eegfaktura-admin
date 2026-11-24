@@ -4,6 +4,8 @@ import userEvent from "@testing-library/user-event";
 import {CellEditDialog, editDialog, resetCellEditDialog} from "./CellEdit.dialog";
 import {openParticipantDialog, ParticipantCellEditDialog, resetParticipantDialog} from "./editor/Participant.editor";
 import {EegParticipant} from "../../model/eeg.model";
+import {CellEditElement} from "./editor/CellEdit.element";
+import {GridRenderCellParams} from "@mui/x-data-grid";
 
 // A failed master-data save must stay visible (admin 261005-ca1): the edit dialogs close
 // only after the save went through and show the error otherwise.
@@ -93,6 +95,13 @@ describe("ParticipantCellEditDialog", () => {
     expect(screen.getByText("Mitglied bearbeiten")).toBeInTheDocument()
   })
 
+  it("names the radio group of the member type", () => {
+    render(<ParticipantCellEditDialog/>)
+    act(() => openParticipantDialog(row, () => Promise.resolve()))
+
+    expect(screen.getByRole("radiogroup", {name: "Mitgliedsart"})).toBeInTheDocument()
+  })
+
   it("closes when the save went through", async () => {
     render(<ParticipantCellEditDialog/>)
     act(() => openParticipantDialog(row, () => Promise.resolve()))
@@ -101,5 +110,16 @@ describe("ParticipantCellEditDialog", () => {
     userEvent.click(screen.getByRole("button", {name: "Speichern"}))
 
     await waitFor(() => expect(screen.queryByText("Mitglied bearbeiten")).not.toBeInTheDocument())
+  })
+})
+
+describe("CellEditElement", () => {
+  it("names its edit button after the column", () => {
+    const onStartEdit = vi.fn()
+    const params = {colDef: {headerName: "Aktiv"}, field: "activeSince", formattedValue: "15.01.2026", row: {meteringPoint: "AT0001"}}
+    render(<CellEditElement params={params as unknown as GridRenderCellParams} onStartEdit={onStartEdit}/>)
+
+    userEvent.click(screen.getByRole("button", {name: "Aktiv bearbeiten"}))
+    expect(onStartEdit).toHaveBeenCalledWith({meteringPoint: "AT0001"})
   })
 })
