@@ -18,7 +18,7 @@ import {AdminUpdateData} from "../../model/admin.model";
 import {CellEditDialog, editDialog} from "./CellEdit.dialog";
 import {GridRowModel} from "@mui/x-data-grid/models/gridRows";
 import {useParticipantContext} from "./context/participant.context";
-import {DateCellEditor, dayToEpochMs, rejectInvalidDate} from "./editor/DateCell.editor";
+import {DateCellEditor, dayToEpochMs, formatDay, rejectInvalidDate} from "./editor/DateCell.editor";
 
 const CellEditInputElement1:FC<{params: GridRenderCellParams<Metering, string>, onStartEdit: (row: GridRowModel<Metering>) => void}> = ({params, onStartEdit}) => {
   return (
@@ -140,14 +140,12 @@ const EegParticipantMeterComponent: FC = () => {
     { field: 'activeSince', headerName: 'Aktiv', flex: 0.5,
       renderCell: (params:GridRenderCellParams<Metering, string>) =>
         <DateCellEditor params={params} label="Aktiv seit" header="Aktiv seit ändern" proto="ACTIVESINCE" propertyName="activeSince" updateMeter={onUpdateMeter} />,
-      valueFormatter: params =>
-        moment(params?.value).format("DD/MM/YYYY")
+      valueFormatter: params => formatDay(params?.value)
     },
     { field: 'inactiveSince', headerName: 'Inaktiv', flex: 0.5,
       renderCell: (params:GridRenderCellParams<Metering, string>) =>
         <DateCellEditor params={params} label="Inaktiv seit" header="Inaktiv seit ändern" proto="INACTIVESINCE" propertyName="inactiveSince" updateMeter={onUpdateMeter} />,
-      valueFormatter: params =>
-        moment(params?.value).format("DD/MM/YYYY")
+      valueFormatter: params => formatDay(params?.value)
     },
   ];
 
