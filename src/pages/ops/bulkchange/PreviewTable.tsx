@@ -16,8 +16,10 @@ export const RunHints: FC<{ codes: string[] }> = ({codes}) => (
   </>
 );
 
+// several chips wrap onto their own lines with a gap (Stack spacing would shift the wrapped ones);
+// the grid row grows with them (getRowHeight "auto")
 const RowChips: FC<{ row: BulkRow }> = ({row}) => (
-  <Stack direction="row" spacing={0.5} sx={{flexWrap: "wrap"}}>
+  <Box sx={{display: "flex", flexWrap: "wrap", gap: 0.5, py: 0.5}}>
     {row.error && (
       <Tooltip title={codeText(ERROR_TEXTS, row.error).long}>
         <Chip size="small" color="error" label={`${row.error} ${codeText(ERROR_TEXTS, row.error).short}`}/>
@@ -28,7 +30,7 @@ const RowChips: FC<{ row: BulkRow }> = ({row}) => (
         <Chip size="small" color="warning" label={`${h} ${codeText(HINT_TEXTS, h).short}`}/>
       </Tooltip>
     ))}
-  </Stack>
+  </Box>
 );
 
 export const RowsTable: FC<{ field: BulkField, rows: BulkRow[] }> = ({field, rows}) => {
@@ -46,6 +48,7 @@ export const RowsTable: FC<{ field: BulkField, rows: BulkRow[] }> = ({field, row
   return (
     <Box sx={{height: 520, width: "100%", backgroundColor: "white"}}>
       <DataGrid rows={rows} columns={columns} getRowId={rowKey} density="compact" disableRowSelectionOnClick
+                getRowHeight={() => "auto"}
                 initialState={{pagination: {paginationModel: {pageSize: 100}}}} pageSizeOptions={[25, 100]}/>
     </Box>
   );
