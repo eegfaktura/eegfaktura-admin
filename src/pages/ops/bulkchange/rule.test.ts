@@ -69,6 +69,9 @@ describe("formProblems", () => {
     expect(formProblems(initialForm("DEBIT_TYPE"), today).value).toBe("Wert fehlt");
     expect(formProblems({...initialForm("PARTICIPANT_TARIFF"), value: "Tarif A"}, today).value).toBe("Tarif wählen");
     expect(formProblems({...initialForm("MANDATE_DATE"), value: "25.11.2026"}, today).value).toBe("Datum ungültig");
+    ["2026-02-30", "2026-02-29", "2025-13-01", "2025-04-31", "2025-00-10"].forEach(d =>
+      expect(formProblems({...initialForm("MANDATE_DATE"), value: d}, today).value).toBe("Datum ungültig"));
+    expect(formProblems({...initialForm("MANDATE_DATE"), value: "2024-02-29"}, today)).toEqual({});
   });
 
   it("a mandate date in the future cannot be set, but can be a condition", () => {

@@ -51,6 +51,14 @@ export const withField = (field: BulkField): RuleForm => initialForm(field);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
+// A real calendar day as YYYY-MM-DD: Date would roll 2026-02-30 over to 2026-03-02, so the day must survive the
+// round trip (backend parses the same way, time.DateOnly).
+const isCalendarDate = (t: string) => {
+  if (!ISO_DATE.test(t)) return false;
+  const d = new Date(`${t}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === t;
+};
+
 // Today as ISO date in the browser's time zone (the date input's max).
 export const todayIso = (now = new Date()) =>
   `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
@@ -63,7 +71,7 @@ export function valueProblem(kind: ValueKind, v: string, setting: boolean, today
     case "debitType":
       return DEBIT_TYPES.includes(t) ? null : "Einzugsart wählen";
     case "date":
-      if (!ISO_DATE.test(t) || Number.isNaN(Date.parse(t))) return "Datum ungültig";
+      if (!isCalendarDate(t)) return "Datum ungültig";
       return setting && t > today ? "Datum liegt in der Zukunft" : null;
     case "tariff":
       return UUID.test(t) ? null : "Tarif wählen";
