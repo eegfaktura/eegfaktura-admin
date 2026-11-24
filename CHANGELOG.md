@@ -8,6 +8,20 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+### Added
+- **Bulk change: value from file** (konzept-massenaenderungen.md, Teil 2). New action „Wert aus Datei“ for the
+  mandate reference and the mandate date: choose an XLSX/XLS/CSV file (sheet, header row detected and editable), the
+  column of the member number and the column of the value; a summary counts rows, rows without value or number and
+  duplicate numbers. The file is read in the browser only (the SheetJS library already in use); backend gets number
+  and value of the two columns. Date cells and `T.M.JJJJ` become `JJJJ-MM-TT`. The preview shows „unverändert: nicht
+  in der Datei“, the errors F7/F8 and the numbers of the file without a member of the community (also in the CSV of
+  „alle“). At most 5,000 rows with a value.
+
+### Contract
+- Sends the action `FROM_FILE` with `values`; reads `counts.unchangedNotInFile`, `notFound`, the class
+  `UNCHANGED_NOT_IN_FILE` and F7/F8. Needs the backend with this action (eegfaktura-backend, branch
+  `feat/bulk-change-from-file`); an older one answers 400. Fixture copies `*.file.*.json`, source commit in their README.
+
 ## [1.4.0] – 2026-11-24
 
 ### Added

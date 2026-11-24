@@ -107,7 +107,8 @@ const BulkChangePage: FC<{ service?: BulkChangeService }> = ({service = Api.bulk
 
   const download = (rows: BulkRow[], filter: Filter) => {
     if (!preview) return;
-    downloadCsv(csvFileName(preview.tenant, preview.rule.field, filter, todayIso()), previewCsv(preview.rule.field, rows));
+    downloadCsv(csvFileName(preview.tenant, preview.rule.field, filter, todayIso()),
+      previewCsv(preview.rule.field, rows, filter === "all" ? preview.data.notFound : []));
   };
 
   return (

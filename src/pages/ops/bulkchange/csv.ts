@@ -1,6 +1,6 @@
 import {BulkField, BulkRow} from "../../../services/bulkchange.service";
 import type {Filter} from "./PreviewTable";
-import {CLASS_LABELS, codeText, ERROR_TEXTS, FIELD_LABELS, HINT_TEXTS} from "./texts";
+import {CLASS_LABELS, codeText, ERROR_TEXTS, FIELD_LABELS, HINT_TEXTS, NOT_FOUND_LABEL} from "./texts";
 
 // Download of the preview for the ticket (konzept-massenaenderungen.md, Tech Design A): UTF-8 with BOM, separator
 // ";", quoted where needed, never an IBAN (the preview has none). A cell that starts with = + - @ tab or CR, also
@@ -18,13 +18,15 @@ const notes = (r: BulkRow) => [
   ...r.hints.map(h => `${h} ${codeText(HINT_TEXTS, h).short}`),
 ].join(", ");
 
-// The rows of the preview as the page shows them under the current filter.
-export function previewCsv(field: BulkField, rows: BulkRow[]): string {
+// The rows of the preview as the page shows them under the current filter; notFound (FROM_FILE, filter "alle"):
+// the member numbers of the file without a member, one line each.
+export function previewCsv(field: BulkField, rows: BulkRow[], notFound: string[] = []): string {
   const meter = field === "METER_TARIFF";
   const header = ["Mitgliedsnummer", "Name", ...(meter ? ["Zählpunkt"] : []), "Feld", "Bisher", "Neu", "Ergebnis",
     "Hinweis/Fehler"];
   const lines = rows.map(r => [r.participantNumber, r.name, ...(meter ? [r.meteringPointId ?? ""] : []),
     FIELD_LABELS[field], r.oldText, r.newText, CLASS_LABELS[r.class] ?? r.class, notes(r)]);
+  notFound.forEach(nr => lines.push([nr, "", ...(meter ? [""] : []), FIELD_LABELS[field], "", "", NOT_FOUND_LABEL, ""]));
   return "\uFEFF" + [header, ...lines].map(l => l.map(csvCell).join(";")).join("\r\n") + "\r\n";
 }
 

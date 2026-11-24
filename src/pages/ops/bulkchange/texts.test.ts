@@ -1,14 +1,15 @@
 import {BulkChangeError} from "../../../services/bulkchange.service";
-import {codeText, describeError, ruleSummary, tariffLabel, ERROR_TEXTS, HINT_TEXTS, RUN_HINT_TEXTS, SKIP_TEXTS} from "./texts";
+import {CLASS_LABELS, codeText, describeError, ruleSummary, tariffLabel, ERROR_TEXTS, HINT_TEXTS, RUN_HINT_TEXTS, SKIP_TEXTS} from "./texts";
 import previewResponse from "../../../services/__fixtures__/bulkchange/preview.response.json";
 import applyResponse from "../../../services/__fixtures__/bulkchange/apply.response.json";
+import previewFileResponse from "../../../services/__fixtures__/bulkchange/preview.file.response.json";
 
 // backend sends codes; every code of the concept has a German text here.
 
 const codes = (prefix: string, n: number) => Array.from({length: n}, (_, i) => `${prefix}${i + 1}`);
 
 describe("texts of the codes", () => {
-  it.each(codes("F", 6))("error %s has a short and a long text", c => {
+  it.each(codes("F", 8))("error %s has a short and a long text", c => {
     expect(ERROR_TEXTS[c].short).not.toBe("");
     expect(ERROR_TEXTS[c].long.length).toBeGreaterThan(ERROR_TEXTS[c].short.length);
   });
@@ -22,12 +23,13 @@ describe("texts of the codes", () => {
     expect(RUN_HINT_TEXTS[c]).toBeTruthy();
   });
 
-  it.each(["CHANGED_SINCE_PREVIEW", ...codes("F", 6)])("skip reason %s has a text", c => {
+  it.each(["CHANGED_SINCE_PREVIEW", ...codes("F", 8)])("skip reason %s has a text", c => {
     expect(SKIP_TEXTS[c]).toBeTruthy();
   });
 
   it("knows every code of the fixtures", () => {
-    const rows = [...previewResponse.rows, ...applyResponse.rows];
+    const rows = [...previewResponse.rows, ...applyResponse.rows, ...previewFileResponse.rows];
+    rows.forEach(r => expect(CLASS_LABELS[r.class as keyof typeof CLASS_LABELS]).toBeDefined());
     rows.flatMap(r => r.hints).forEach(h => expect(HINT_TEXTS[h]).toBeDefined());
     rows.flatMap(r => ("error" in r && r.error ? [r.error] : [])).forEach(e => expect(ERROR_TEXTS[e]).toBeDefined());
     [...previewResponse.runHints, ...applyResponse.runHints].forEach(l => expect(RUN_HINT_TEXTS[l]).toBeDefined());

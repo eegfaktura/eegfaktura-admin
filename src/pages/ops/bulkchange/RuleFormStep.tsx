@@ -3,6 +3,7 @@ import {MenuItem, Stack, TextField, Typography} from "@mui/material";
 import {BulkDirection, BulkTariff} from "../../../services/bulkchange.service";
 import {actionsFor, CONDITIONS, DEBIT_TYPES, DIRECTIONS, FIELDS, formProblems, RuleForm, tariffOptions, todayIso, valueKind, initialForm} from "./rule";
 import {ACTION_LABELS, clearLabel, CONDITION_LABELS, DEBIT_TYPE_LABELS, DIRECTION_LABELS, FIELD_LABELS, tariffLabel} from "./texts";
+import FileValuesInput from "./FileValuesInput";
 
 // Step 2: the rule. Only the combinations of the matrix are offered (rule.ts); a changed field starts afresh.
 // tariffs: the active tariffs of the community and whether they are there; disabled while a call runs.
@@ -60,7 +61,7 @@ const RuleFormStep: FC<{
           {FIELDS.map(f => <MenuItem key={f} value={f}>{FIELD_LABELS[f]}</MenuItem>)}
         </TextField>
         <TextField select disabled={disabled} label="Aktion" value={form.action} fullWidth
-                   onChange={e => set({action: e.target.value as RuleForm["action"], value: "", prefix: "", suffix: ""})}>
+                   onChange={e => set({action: e.target.value as RuleForm["action"], value: "", prefix: "", suffix: "", fileValues: null})}>
           {actionsFor(form.field).map(a => (
             <MenuItem key={a} value={a}>{a === "CLEAR" ? clearLabel(form.field) : ACTION_LABELS[a]}</MenuItem>
           ))}
@@ -88,6 +89,10 @@ const RuleFormStep: FC<{
             {" "}+ ? / - : ( ) . , ' — sonst Fehler F1 in der Vorschau.
           </Typography>
         </Stack>
+      )}
+
+      {form.action === "FROM_FILE" && (
+        <FileValuesInput field={form.field} disabled={disabled} onChange={fileValues => set({fileValues})}/>
       )}
 
       <Stack direction={{xs: "column", md: "row"}} spacing={2}>

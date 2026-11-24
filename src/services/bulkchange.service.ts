@@ -8,10 +8,10 @@ import {AuthService} from "./auth.service";
 const API_SERVER = import.meta.env.REACT_APP_API_SERVER_URL;
 
 export type BulkField = "DEBIT_TYPE" | "MANDATE_REFERENCE" | "MANDATE_DATE" | "PARTICIPANT_TARIFF" | "METER_TARIFF";
-export type BulkAction = "SET" | "CLEAR" | "COPY";
+export type BulkAction = "SET" | "CLEAR" | "COPY" | "FROM_FILE";
 export type BulkCondition = "ALL" | "EMPTY" | "EQUALS";
 export type BulkDirection = "CONSUMPTION" | "GENERATOR";
-export type BulkClass = "CHANGED" | "UNCHANGED_CONDITION" | "UNCHANGED_TARGET" | "ERROR";
+export type BulkClass = "CHANGED" | "UNCHANGED_CONDITION" | "UNCHANGED_TARGET" | "UNCHANGED_NOT_IN_FILE" | "ERROR";
 
 // An active tariff of the community that a tariff rule can set (type EEG for members, VZP/EZP for metering points).
 export interface BulkTariff {
@@ -27,6 +27,12 @@ export interface BulkCommunity {
   rcNumber: string;
 }
 
+// One row of a file for "Wert aus Datei" (action FROM_FILE): member number and the new value.
+export interface BulkFileValue {
+  participantNumber: string;
+  value: string;
+}
+
 // The rule of preview and apply; keys the rule does not use are left out (backend refuses them when set).
 export interface BulkRule {
   field: BulkField;
@@ -38,6 +44,7 @@ export interface BulkRule {
   condition: BulkCondition;
   conditionValue?: string;
   direction?: BulkDirection;
+  values?: BulkFileValue[];
 }
 
 export interface BulkRow {
@@ -60,12 +67,16 @@ export interface BulkCounts {
   unchangedCondition: number;
   unchangedTarget: number;
   errors: number;
+  // FROM_FILE only: members without a value in the file (backend omits it otherwise; the service fills in 0)
+  unchangedNotInFile: number;
 }
 
 export interface BulkPreview {
   counts: BulkCounts;
   runHints: string[];
   rows: BulkRow[];
+  // FROM_FILE only: member numbers of the file without a member in the community, as written in the file
+  notFound: string[];
 }
 
 export interface BulkApplyItem {
@@ -124,7 +135,10 @@ export class BulkChangeService {
 
   async preview(tenant: string, rule: BulkRule): Promise<BulkPreview> {
     const p = await this.call<BulkPreview>("POST", "/bulkchange/preview", tenant, {rule});
-    return {...p, runHints: p.runHints ?? [], rows: normRows(p.rows)};
+    return {
+      ...p, counts: {...p.counts, unchangedNotInFile: p.counts?.unchangedNotInFile ?? 0},
+      runHints: p.runHints ?? [], rows: normRows(p.rows), notFound: p.notFound ?? [],
+    };
   }
 
   async apply(tenant: string, rule: BulkRule, items: BulkApplyItem[]): Promise<BulkApplyResult> {
