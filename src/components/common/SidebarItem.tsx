@@ -20,8 +20,9 @@ const SidebarItem = ({ item, nested }: Props) => {
       <ListItemButton
         component={Link}
         to={item.path}
+        aria-current={appState === item.state ? "page" : undefined}
         sx={{
-          "&: hover": {
+          "&:hover": {
             backgroundColor: `${theme.palette.primary.main}24`
           },
           backgroundColor: appState === item.state ? `${theme.palette.primary.main}34` : "unset",

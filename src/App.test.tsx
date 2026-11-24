@@ -61,12 +61,13 @@ test('shows the portal with its sidebar for a superuser', () => {
   expect(screen.queryByText("Kein Zugriff auf das Verwaltungsportal")).not.toBeInTheDocument();
 });
 
-test('opens the portal on the start address', async () => {
+test('opens the portal on the start address, marked in the menu', async () => {
   setAuth(true, ["superuser"]);
   renderApp();
   expect(window.location.pathname).toBe("/portal");
   expect(await screen.findByText("Keine Gemeinschaften")).toBeInTheDocument();
-  expect(screen.getByRole("link", {name: "Gemeinschaften"})).toBeInTheDocument();
+  expect(screen.getByRole("link", {name: "Gemeinschaften"})).toHaveAttribute("aria-current", "page");
+  expect(screen.getByRole("link", {name: "Energiedaten löschen"})).not.toHaveAttribute("aria-current");
 });
 
 test('shows the group "Betrieb" in the menu', () => {
