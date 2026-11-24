@@ -27,8 +27,10 @@ this changelog highlights the changes relevant for overview and operations.
   with `aria-current="page"`, a working hover colour, brand "eegFaktura Admin". The start address `/` opens the
   portal.
 - **Look** (B2, B11, B12, B13): white text on the primary colour (before grey, too little contrast; changes all
-  contained buttons and bars), page headings as h1 with the theme's typography and padding, neutral placeholders in
-  the registration ("Kurzname der EEG"), a wider list of communities in the portal (fits at 1366px).
+  contained buttons and bars), the page headings of "EEG Accounts", "Ponton Verbindung", "Energiedaten löschen" and
+  of the first registration step (CommonEegProperties) as h1 with the theme's typography (Accounts and Ponton also
+  with the theme's padding; the later registration steps keep their h2), neutral placeholders in the registration
+  ("Kurzname der EEG"), a wider list of communities in the portal (fits at 1366px).
 
 ### Fixed
 - **Empty date cells of a meter showed today** (admin 261124-mm1, B5): the columns "Aktiv" and "Inaktiv" in the
