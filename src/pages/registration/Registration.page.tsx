@@ -39,7 +39,7 @@ export const registerErrorMessage = (e: APIError): {message: string, severity: "
     case 510:
       return {message: e.message, severity: "warning"}
     default:
-      return {message: "Error beim Anlegen des Mitglieds", severity: "error"}
+      return {message: "Fehler beim Anlegen der EEG", severity: "error"}
   }
 }
 
@@ -229,7 +229,7 @@ const RegistrationPage: FC = () => {
               onClick={handleBack}
               sx={{mr: 1}}
             >
-              Back
+              Zurück
             </Button>
             {isExcelLoaded && (
               <Box sx={{display:'flex', flexDirection:'row', gap:'24px', paddingRight:'20px'}}>
@@ -238,10 +238,10 @@ const RegistrationPage: FC = () => {
                 {/*</IconButton>*/}
                 <Box sx={{flex: '0 0 auto'}}>
                   <Typography fontSize={"0.8em"}>
-                    Filename: {excelFile}
+                    Datei: {excelFile}
                   </Typography>
                   <Typography fontSize={"0.8em"}>
-                    RC-Number: {rcNumber()}
+                    RC-Nummer: {rcNumber()}
                   </Typography>
                 </Box>
                 <Box sx={{flex: '0 0 auto'}}>
@@ -257,10 +257,10 @@ const RegistrationPage: FC = () => {
             <Box sx={{flex: '0 0 auto'}}>
             {(activeStep === steps.length - 1) ?
               (<Button variant="contained" onClick={formMethods.handleSubmit(onSubmit)}>
-                Finish
+                Registrieren
               </Button>) :
               (<Button variant="outlined" onClick={formMethods.handleSubmit(handleNext)}>
-                Next
+                Weiter
               </Button>)
             }
             </Box>

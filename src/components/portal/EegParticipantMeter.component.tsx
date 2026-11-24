@@ -78,26 +78,26 @@ const ProcessStateEditor: FC<{params: GridRenderCellParams<Metering, string>, up
             aria-labelledby="demo-radio-buttons-group-label"
             {...field}
           >
-            <FormControlLabel value="ACTIVE" control={<Radio />} label="ACTIVE" />
+            <FormControlLabel value="ACTIVE" control={<Radio />} label="Aktiv" />
             {field.value === 'ACTIVE' && <Controller
               rules={{ required: true }}
               control={control}
               name="activeSince"
               render={({ field }) => (<DatePicker
-                label="Active seit ..."
+                label="Aktiv seit"
                 format="DD.MM.YYYY"
                 value={field.value ? moment(field.value) : null}
                 onChange={(newValue) => field.onChange((newValue?.isValid() ? newValue.toDate() : null) as unknown as Date)}
                 slotProps={{textField: {id: "date", size: "small", required: true, sx: {width: 220}}}}
                 />)}
             />}
-            <FormControlLabel value="INACTIVE" control={<Radio />} label="Zählpunkt INACTIVE" />
+            <FormControlLabel value="INACTIVE" control={<Radio />} label="Inaktiv" />
             {field.value === 'INACTIVE' && <Controller
                 rules={{ required: true }}
                 control={control}
                 name="inactiveSince"
                 render={({ field }) => (<DatePicker
-                  label="Inactive seit ..."
+                  label="Inaktiv seit"
                   format="DD.MM.YYYY"
                   value={field.value ? moment(field.value) : null}
                   onChange={(newValue) => field.onChange((newValue?.isValid() ? newValue.toDate() : null) as unknown as Date)}
@@ -126,26 +126,26 @@ const EegParticipantMeterComponent: FC = () => {
   }
 
   const columns: GridColDef<Metering>[] = [
-    { field: 'meteringPoint', headerName: 'Meter-Id', flex: 1.5},
+    { field: 'meteringPoint', headerName: 'Zählpunkt', flex: 1.5},
     { field: 'direction', headerName: 'Richtung', flex: 0.7 },
     { field: 'status', headerName: 'Zustand', flex: 0.7 },
     {
       field: 'processState',
-      headerName: 'Prozess Status',
-      description: 'This column has a value getter and is not sortable.',
+      headerName: 'Prozessstatus',
+      description: 'Nicht sortierbar',
       sortable: false,
       flex: 1,
       renderCell: (params: GridRenderCellParams<any, string>) => <ProcessStateEditor params={params} updateMeter={onUpdateMeter}/>
     },
     { field: 'activeSince', headerName: 'Aktiv', flex: 0.5,
       renderCell: (params:GridRenderCellParams<Metering, string>) =>
-        <DateCellEditor params={params} label="Active seit ..." header="Aktiv seit ändern" proto="ACTIVESINCE" propertyName="activeSince" updateMeter={onUpdateMeter} />,
+        <DateCellEditor params={params} label="Aktiv seit" header="Aktiv seit ändern" proto="ACTIVESINCE" propertyName="activeSince" updateMeter={onUpdateMeter} />,
       valueFormatter: params =>
         moment(params?.value).format("DD/MM/YYYY")
     },
     { field: 'inactiveSince', headerName: 'Inaktiv', flex: 0.5,
       renderCell: (params:GridRenderCellParams<Metering, string>) =>
-        <DateCellEditor params={params} label="Inactive seit ..." header="Inaktiv seit ändern" proto="INACTIVESINCE" propertyName="inactiveSince" updateMeter={onUpdateMeter} />,
+        <DateCellEditor params={params} label="Inaktiv seit" header="Inaktiv seit ändern" proto="INACTIVESINCE" propertyName="inactiveSince" updateMeter={onUpdateMeter} />,
       valueFormatter: params =>
         moment(params?.value).format("DD/MM/YYYY")
     },

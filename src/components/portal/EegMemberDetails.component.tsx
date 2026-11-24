@@ -57,14 +57,14 @@ const EegMemberDetailsComponent: FC = () => {
         </Grid>
         <Grid item xs={2}>
           <div className="item-box">
-            <div style={{fontSize:"12px"}}>Mode</div>
+            <div style={{fontSize:"12px"}}>Verteilung</div>
             <div>{eeg.allocationMode}</div>
           </div>
         </Grid>
         <Grid item xs={1}>
           <div className="item-box">
             <div style={{fontSize:"12px"}}>Online</div>
-            <div>{eeg.online ? "Yes" : "No"}</div>
+            <div>{eeg.online ? "Ja" : "Nein"}</div>
           </div>
         </Grid>
         <Grid item xs={2}>
@@ -75,13 +75,13 @@ const EegMemberDetailsComponent: FC = () => {
         </Grid>
         <Grid item xs={2}>
           <div className="item-box">
-            <div style={{fontSize:"12px"}}>Contact</div>
+            <div style={{fontSize:"12px"}}>Kontakt</div>
             <div>{eeg.contactPerson}</div>
           </div>
         </Grid>
         <Grid item xs={2}>
           <div className="item-box">
-            <div style={{fontSize:"12px"}}>Area</div>
+            <div style={{fontSize:"12px"}}>Region</div>
             <div>{areaLabel(eeg.area)}</div>
           </div>
         </Grid>

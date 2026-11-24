@@ -80,7 +80,7 @@ const RegistrationPontonPage: FC = () => {
         <Box sx={{display: 'flex', flexDirection: 'row', pt: 2}}>
           <Box sx={{flex: '1 1 auto'}}/>
           <Button variant="contained" onClick={handleSubmit(onSubmit)} disabled={pending}>
-            Finish
+            Speichern
           </Button>
         </Box>
       </div>

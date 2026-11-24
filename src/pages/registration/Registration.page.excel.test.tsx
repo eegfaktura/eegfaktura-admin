@@ -35,7 +35,7 @@ const upload = async (areas: string[], header?: string) => {
   const file = new File([content], "list.csv")
   file.arrayBuffer = async () => content // jsdom's File has no arrayBuffer()
   fireEvent.change(mount(), {target: {files: [file]}})
-  await waitFor(() => expect(screen.getByText("Filename: list.csv")).toBeInTheDocument())
+  await waitFor(() => expect(screen.getByText("Datei: list.csv")).toBeInTheDocument())
 }
 
 // the select of a label (the label is not linked to the select by id)
@@ -63,7 +63,7 @@ describe("registration: type and allocation", () => {
   it("shows an unknown type of an Excel row as an error and does not go on", async () => {
     await upload(["Nachbarschaft"])
     expect(await screen.findByText(UNKNOWN)).toBeInTheDocument()
-    fireEvent.click(screen.getByText("Next"))
+    fireEvent.click(screen.getByText("Weiter"))
     await waitFor(() => expect(screen.getByText(UNKNOWN)).toBeInTheDocument())
     expect(screen.getByText("Allgemeine Einstellungen Erneuerbarer Energie Gemeinschaften")).toBeInTheDocument()
   })
@@ -79,14 +79,14 @@ describe("registration: type and allocation", () => {
   it("shows no error for a known type or an empty cell", async () => {
     await upload(["p2p", ""])
     fireEvent.click(screen.getAllByRole("button").find(b => b.querySelector('[data-testid="ArrowRightIcon"]'))!)
-    await waitFor(() => expect(screen.getByText("RC-Number: RC2")).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText("RC-Nummer: RC2")).toBeInTheDocument())
     expect(screen.queryByText(UNKNOWN)).not.toBeInTheDocument()
   })
 
   it.each(["statisch", "fix"])("shows the allocation %s of an Excel row as an error and does not go on", async (a) => {
     await upload([`RC1;${a}`], "RC-Nummer;Verteilung")
     expect(await screen.findByText(ONLY_DYNAMIC)).toBeInTheDocument()
-    fireEvent.click(screen.getByText("Next"))
+    fireEvent.click(screen.getByText("Weiter"))
     await waitFor(() => expect(screen.getByText(ONLY_DYNAMIC)).toBeInTheDocument())
     expect(screen.getByText("Allgemeine Einstellungen Erneuerbarer Energie Gemeinschaften")).toBeInTheDocument()
     fireEvent.mouseDown(select("Verteilung"))
@@ -102,13 +102,13 @@ describe("registration: type and allocation", () => {
     const row = (rc: string, area: string) => `${rc};${area};EEG ${rc};AT003000${rc};Anna;Berg;a@b.at;` +
       "AT611904300234573201;Anna Berg;AT003000"
     await upload([row("RC1", "BEG"), row("RC2", "Nachbarschaft")], header)
-    fireEvent.click(screen.getByText("Next"))
+    fireEvent.click(screen.getByText("Weiter"))
     await screen.findByLabelText("Vorname")
-    fireEvent.click(screen.getByText("Next"))
-    await screen.findByText("Finish")
+    fireEvent.click(screen.getByText("Weiter"))
+    await screen.findByText("Registrieren")
     fireEvent.click(screen.getAllByRole("button").find(b => b.querySelector('[data-testid="ArrowRightIcon"]'))!)
-    await waitFor(() => expect(screen.getByText("RC-Number: RC2")).toBeInTheDocument())
-    fireEvent.click(screen.getByText("Finish"))
+    await waitFor(() => expect(screen.getByText("RC-Nummer: RC2")).toBeInTheDocument())
+    fireEvent.click(screen.getByText("Registrieren"))
     expect(await screen.findByText("Typ oder Verteilung der Gemeinschaft ungültig, bitte unter „Allgemein“ wählen.")).toBeInTheDocument()
     expect(await screen.findByText(UNKNOWN)).toBeInTheDocument()
     expect(register).not.toHaveBeenCalled()

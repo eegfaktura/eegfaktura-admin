@@ -53,8 +53,8 @@ const EegParticipantItem: FC = () => {
 
   const columns: GridColDef<EegParticipant>[] = [
     { field: 'id'},
-    { field: 'firstName', headerName: 'First name', flex: 2 },
-    { field: 'lastName', headerName: 'Last name', flex: 2 },
+    { field: 'firstName', headerName: 'Vorname', flex: 2 },
+    { field: 'lastName', headerName: 'Nachname', flex: 2 },
     {
       field: 'status',
       headerName: 'Status',
@@ -62,8 +62,8 @@ const EegParticipantItem: FC = () => {
     },
     {
       field: 'businessRole',
-      headerName: 'Business Role',
-      description: 'Business Role of participant',
+      headerName: 'Mitgliedsart',
+      description: 'Privat oder Business',
       sortable: false,
       flex: 1.5,
       // renderCell: (params: GridRenderCellParams<EegParticipant, string>) =>
@@ -75,14 +75,14 @@ const EegParticipantItem: FC = () => {
     {
       field: 'actions',
       type: 'actions',
-      headerName: 'Actions',
+      headerName: 'Aktionen',
       width: 100,
       cellClassName: 'actions',
       getActions: ({ row }) => {
         return [
           <GridActionsCellItem
             icon={<EditIcon />}
-            label="Edit"
+            label="Bearbeiten"
             className="textPrimary"
             onClick={handleEditClick(row)}
             color="inherit"

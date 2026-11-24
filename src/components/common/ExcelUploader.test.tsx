@@ -98,7 +98,7 @@ describe("member list without an EEG row", () => {
     const alert = vi.spyOn(window, "alert").mockImplementation(() => undefined)
     choose(mount(), "list.csv", new TextEncoder().encode("RC-Nummer;Nr.\r\nPflichtfeld;\r\nBeispiel;\r\n"))
     await waitFor(() => expect(alert).toHaveBeenCalledTimes(1))
-    expect(alert).toHaveBeenCalledWith(expect.stringContaining("No EEG found"))
+    expect(alert).toHaveBeenCalledWith(expect.stringContaining("Keine EEG gefunden"))
     expect(screen.queryByText("loaded")).not.toBeInTheDocument()
     alert.mockRestore()
   })

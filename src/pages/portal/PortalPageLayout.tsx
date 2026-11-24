@@ -54,7 +54,7 @@ const PortalPageLayout = () => {
         <Grid item xs={2} height="100%">
           <Box display="flex" flexDirection="column" height="100%" sx={{p: 2}}>
             <SearchInputComponent setSearchItem={setFilterString}></SearchInputComponent>
-            <div style={{padding: "5px", fontWeight: "bold"}}>Members</div>
+            <div style={{padding: "5px", fontWeight: "bold"}}>Gemeinschaften</div>
             <div style={{overflow: "auto", flex: "1"}}>
               <Box style={{display: "flex", flexDirection: "column", rowGap: "10px", width: "100%", padding: "12px"}}
                    overflow="auto">
