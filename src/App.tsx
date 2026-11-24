@@ -4,6 +4,8 @@ import { routes } from "./routes";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import {hasAuthParams, useAuth} from "react-oidc-context";
 import {createTheme, ThemeOptions, ThemeProvider} from "@mui/material";
+import {deDE} from "@mui/material/locale";
+import {deDE as dataGridDeDE} from "@mui/x-data-grid";
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
 import AccessDenied from "./components/layout/AccessDenied";
@@ -19,7 +21,7 @@ export const IDENTITY_CONFIG = {
 export const METADATA_OIDC = {
 };
 
-export const themeOptions: ThemeOptions = {
+const themeOptions: ThemeOptions = {
   palette: {
     primary: {
       main: '#2B6860',
@@ -35,7 +37,8 @@ export const themeOptions: ThemeOptions = {
     },
   },
 };
-const theme = createTheme(themeOptions)
+// German texts of the MUI components and of the DataGrid (pagination, filter, column menu)
+export const theme = createTheme(themeOptions, deDE, dataGridDeDE)
 
 function App() {
   const auth = useAuth()

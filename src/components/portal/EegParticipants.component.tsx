@@ -7,11 +7,11 @@ import {
   GridColDef,
 
 } from "@mui/x-data-grid";
-import {Box, createTheme, ThemeProvider} from "@mui/material";
+import {Box, ThemeProvider} from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import EegParticipantMeterComponent from "./EegParticipantMeter.component";
 import {useParticipantContext} from "./context/participant.context";
-import {themeOptions} from "../../App";
+import {theme} from "../../App";
 import {GridRowSelectionModel} from "@mui/x-data-grid/models/gridRowSelectionModel";
 import {openParticipantDialog, ParticipantCellEditDialog} from "./editor/Participant.editor";
 import {Api} from "../../services/eeg.service";
@@ -100,7 +100,6 @@ const EegParticipantItem: FC = () => {
     selectParticipant(participants.find(p => selectionModel.findIndex(pp => pp === p.id) >= 0))
   }
 
-  const theme = createTheme(themeOptions)
   return (
     <ThemeProvider theme={theme}>
     <Box sx={{ height: "50%", width: '100%', display: 'flex' }}>
