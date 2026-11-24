@@ -1,0 +1,93 @@
+import {BulkAction, BulkCondition, BulkDirection, BulkField, BulkRule} from "../../../services/bulkchange.service";
+
+// The rule matrix of konzept-massenaenderungen.md (Tech Design A), the same as backend's BulkRule.Validate:
+// the form offers only these combinations and builds the request body from them.
+
+export const FIELDS: BulkField[] = ["DEBIT_TYPE", "MANDATE_REFERENCE", "MANDATE_DATE", "PARTICIPANT_TARIFF", "METER_TARIFF"];
+export const CONDITIONS: BulkCondition[] = ["ALL", "EMPTY", "EQUALS"];
+export const DIRECTIONS: BulkDirection[] = ["CONSUMPTION", "GENERATOR"];
+export const DEBIT_TYPES = ["CORE", "B2B", "NONE"];
+
+// The mandate reference has no value that is the same for all: only copy (with text before/after) or clear.
+export const actionsFor = (field: BulkField): BulkAction[] =>
+  field === "MANDATE_REFERENCE" ? ["COPY", "CLEAR"] : ["SET", "CLEAR"];
+
+// What a value of the field is: drives the input of "Wert setzen" and of "nur wo gleich …".
+export type ValueKind = "debitType" | "text" | "date" | "tariff";
+
+export const valueKind = (field: BulkField): ValueKind =>
+  field === "DEBIT_TYPE" ? "debitType"
+    : field === "MANDATE_REFERENCE" ? "text"
+      : field === "MANDATE_DATE" ? "date" : "tariff";
+
+export interface RuleForm {
+  field: BulkField;
+  action: BulkAction;
+  value: string;
+  prefix: string;
+  suffix: string;
+  condition: BulkCondition;
+  conditionValue: string;
+  direction: BulkDirection | "";
+}
+
+export const initialForm = (field: BulkField = "DEBIT_TYPE"): RuleForm => ({
+  field, action: actionsFor(field)[0], value: "", prefix: "", suffix: "",
+  condition: "ALL", conditionValue: "", direction: "",
+});
+
+// A new field starts a new rule: values of the old field do not fit the new one.
+export const withField = (field: BulkField): RuleForm => initialForm(field);
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+// Today as ISO date in the browser's time zone (the date input's max).
+export const todayIso = (now = new Date()) =>
+  `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+
+// Checks one value of the field's kind; returns the German problem or null.
+export function valueProblem(kind: ValueKind, v: string, setting: boolean, today = todayIso()): string | null {
+  const t = v.trim();
+  if (t === "") return "Wert fehlt";
+  switch (kind) {
+    case "debitType":
+      return DEBIT_TYPES.includes(t) ? null : "Einzugsart wählen";
+    case "date":
+      if (!ISO_DATE.test(t) || Number.isNaN(Date.parse(t))) return "Datum ungültig";
+      return setting && t > today ? "Datum liegt in der Zukunft" : null;
+    case "tariff":
+      return UUID.test(t) ? null : "Tarif-ID ungültig (UUID, z. B. aus dem Tarif in eegFaktura)";
+  }
+  return null;
+}
+
+// The problems of the form, by input; empty when the rule can be sent.
+export function formProblems(f: RuleForm, today = todayIso()): Partial<Record<"value" | "conditionValue" | "direction", string>> {
+  const out: Partial<Record<"value" | "conditionValue" | "direction", string>> = {};
+  const kind = valueKind(f.field);
+  if (f.action === "SET") {
+    const p = valueProblem(kind, f.value, true, today);
+    if (p) out.value = p;
+  }
+  if (f.condition === "EQUALS") {
+    const p = valueProblem(kind, f.conditionValue, false, today);
+    if (p) out.conditionValue = p;
+  }
+  if (f.field === "METER_TARIFF" && !f.direction) out.direction = "Richtung wählen";
+  return out;
+}
+
+// The request body of the rule: only the keys of this combination, values trimmed (prefix/suffix as typed).
+export function buildRule(f: RuleForm): BulkRule {
+  const rule: BulkRule = {field: f.field, action: f.action, condition: f.condition};
+  if (f.action === "SET") rule.value = f.value.trim();
+  if (f.action === "COPY") {
+    rule.source = "PARTICIPANT_NUMBER";
+    if (f.prefix) rule.prefix = f.prefix;
+    if (f.suffix) rule.suffix = f.suffix;
+  }
+  if (f.condition === "EQUALS") rule.conditionValue = f.conditionValue.trim();
+  if (f.field === "METER_TARIFF" && f.direction) rule.direction = f.direction;
+  return rule;
+}

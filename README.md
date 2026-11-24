@@ -44,13 +44,16 @@ Dev server:
 npm start          # http://localhost:3000
 ```
 
-`vite.config.ts` (`server.proxy`) proxies `/admin` and `/energystore` to local backend services.
+`vite.config.ts` (`server.proxy`) proxies `/admin`, `/energystore` and `/api` (eegfaktura-backend, port 9080) to local
+backend services.
 
 Docker: the built image serves `build/` via Caddy on port **8080**.
 
 ## Configuration
 
 - `REACT_APP_ADMIN_SERVER_URL` — admin backend base path (default `/admin`)
+- `REACT_APP_API_SERVER_URL` — eegfaktura-backend base path (`/api`); only `/api/bulkchange/…` is used (page
+  „Massenänderung“), and the admin host's ingress exposes only that path to backend
 - Runtime OIDC config: `public/config/keycloak-config.json` (authority, realm, client)
 
 Ports: dev **3000**; container **8080**.
@@ -58,6 +61,8 @@ Ports: dev **3000**; container **8080**.
 ## Dependencies
 
 - **eegfaktura-admin-backend** — REST API under `/admin`
+- **eegfaktura-backend** — `/api/bulkchange/…` (Massenänderung, realm role `superuser` only); JSON contract in
+  `src/services/__fixtures__/bulkchange/` (copies of backend's `api/testdata/bulkchange`)
 - **Keycloak** — OIDC authentication
 - **SheetJS (`xlsx`) from the vendor CDN, not npm** — SheetJS stopped publishing to npm after 0.18.5, which has known
   vulnerabilities. `package.json` points to `https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz` (v0.20.3, tagged
