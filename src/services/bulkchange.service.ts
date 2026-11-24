@@ -13,6 +13,14 @@ export type BulkCondition = "ALL" | "EMPTY" | "EQUALS";
 export type BulkDirection = "CONSUMPTION" | "GENERATOR";
 export type BulkClass = "CHANGED" | "UNCHANGED_CONDITION" | "UNCHANGED_TARGET" | "ERROR";
 
+// An active tariff of the community that a tariff rule can set (type EEG for members, VZP/EZP for metering points).
+export interface BulkTariff {
+  id: string;
+  name: string;
+  type: "EEG" | "VZP" | "EZP";
+  joiningFee: number;
+}
+
 export interface BulkCommunity {
   tenant: string;
   name: string;
@@ -108,6 +116,10 @@ export class BulkChangeService {
 
   async communities(): Promise<BulkCommunity[]> {
     return this.call("GET", "/bulkchange/communities");
+  }
+
+  async tariffs(tenant: string): Promise<BulkTariff[]> {
+    return this.call("GET", "/bulkchange/tariffs", tenant);
   }
 
   async preview(tenant: string, rule: BulkRule): Promise<BulkPreview> {

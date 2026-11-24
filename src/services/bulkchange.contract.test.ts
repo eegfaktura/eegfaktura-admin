@@ -6,6 +6,7 @@ import previewRequest from "./__fixtures__/bulkchange/preview.request.json";
 import previewResponse from "./__fixtures__/bulkchange/preview.response.json";
 import applyRequest from "./__fixtures__/bulkchange/apply.request.json";
 import applyResponse from "./__fixtures__/bulkchange/apply.response.json";
+import tariffs from "./__fixtures__/bulkchange/tariffs.response.json";
 import errorResponse from "./__fixtures__/bulkchange/error.response.json";
 
 // Contract with eegfaktura-backend (copies of api/testdata/bulkchange, source commit in the fixtures' README):
@@ -48,6 +49,19 @@ describe("bulk change contract", () => {
     expect(url).toMatch(/\/bulkchange\/communities$/);
     expect(init.method).toBe("GET");
     expect(init.headers).toEqual({Authorization: "Bearer token"});
+  });
+
+  it("loads the tariffs of the community with the tenant in the header", async () => {
+    const fetchMock = answer(200, tariffs);
+    await expect(service.tariffs("TE000441")).resolves.toEqual(tariffs);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toMatch(/\/bulkchange\/tariffs$/);
+    expect(init.method).toBe("GET");
+    expect(init.headers).toEqual({Authorization: "Bearer token", tenant: "TE000441"});
+    tariffs.forEach(t => {
+      expect(Object.keys(t).sort()).toEqual(["id", "joiningFee", "name", "type"]);
+      expect(["EEG", "VZP", "EZP"]).toContain(t.type);
+    });
   });
 
   it("posts the preview with the tenant in the header, never in the body", async () => {
