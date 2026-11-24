@@ -39,7 +39,7 @@ const themeOptions: ThemeOptions = {
   },
 };
 // German texts of the MUI components and of the DataGrid (pagination, filter, column menu)
-export const theme = createTheme(themeOptions, deDE, dataGridDeDE)
+const theme = createTheme(themeOptions, deDE, dataGridDeDE)
 
 function App() {
   const auth = useAuth()
