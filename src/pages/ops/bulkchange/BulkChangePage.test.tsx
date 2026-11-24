@@ -20,10 +20,6 @@ vi.mock("@mui/x-data-grid", async (importOriginal) => ({
   DataGrid: ({rows}: { rows: { name: string }[] }) => <ul>{rows.map((r, i) => <li key={i}>{r.name}</li>)}</ul>,
 }));
 
-// each flow drives several MUI selects (1-2 s alone); under the parallel load of the whole suite that can pass
-// the default 5 s
-vi.setConfig({testTimeout: 15000});
-
 // The flow of the page against the fixtures: community, rule, preview, "Vorschau geprüft", apply, errors.
 
 const makeService = () => ({
@@ -69,6 +65,31 @@ describe("BulkChangePage", () => {
     expect(screen.getByRole("option").textContent).toBe("EEG Massenänderung · Tenant TE000441 · RC100441");
   });
 
+  it("says why the preview cannot be computed yet", async () => {
+    render(<BulkChangePage service={makeService() as unknown as BulkChangeService}/>);
+    await screen.findByLabelText(/Gemeinschaft \(Name/);
+    expect(screen.getByRole("button", {name: "Vorschau berechnen"})).toBeDisabled();
+    expect(screen.getByText("Zuerst die Gemeinschaft wählen.")).toBeInTheDocument();
+  });
+
+  it("403 when loading the communities names the role", async () => {
+    const service = makeService();
+    service.communities.mockRejectedValue(new BulkChangeError(403, 0, ""));
+    render(<BulkChangePage service={service as unknown as BulkChangeService}/>);
+    expect(await screen.findByText(/superuser/, {selector: ".MuiAlert-message"})).toBeInTheDocument();
+    service.communities.mockResolvedValue(communities);
+    fireEvent.click(screen.getByRole("button", {name: "Neu laden"}));
+    await waitFor(() => expect(screen.getByLabelText(/Gemeinschaft \(Name/)).toBeInTheDocument());
+  });
+});
+
+// each flow drives several MUI selects and menus (1-2 s alone); under the parallel load of the whole suite that
+// can pass the default 5 s
+describe("BulkChangePage flows", {timeout: 15000}, () => {
+  beforeEach(() => {
+    downloads.length = 0;
+  });
+
   it("previews the rule for the chosen tenant and shows counts and run hints", async () => {
     const service = makeService();
     await toPreview(service);
@@ -96,7 +117,6 @@ describe("BulkChangePage", () => {
   });
 
   it("the CSV holds the rows of the current filter and names the filter", async () => {
-    downloads.length = 0;
     await toPreview(makeService());
     fireEvent.click(screen.getByRole("button", {name: "mit Hinweis (1)"}));
     fireEvent.click(screen.getByRole("button", {name: "Herunterladen (CSV)"}));
@@ -118,7 +138,6 @@ describe("BulkChangePage", () => {
   });
 
   it("the result can be downloaded as CSV of the written rows", async () => {
-    downloads.length = 0;
     const service = makeService();
     await toPreview(service);
     fireEvent.click(screen.getByLabelText(/^Vorschau .*geprüft$/));
@@ -128,13 +147,6 @@ describe("BulkChangePage", () => {
     fireEvent.click(buttons[buttons.length - 1]);
     expect(downloads[0].name).toMatch(/^massenaenderung-TE000441-mandate_reference-ergebnis-/);
     expect(downloads[0].content.split("\r\n").filter(l => l !== "")).toHaveLength(1 + applyResponse.rows.length);
-  });
-
-  it("says why the preview cannot be computed yet", async () => {
-    render(<BulkChangePage service={makeService() as unknown as BulkChangeService}/>);
-    await screen.findByLabelText(/Gemeinschaft \(Name/);
-    expect(screen.getByRole("button", {name: "Vorschau berechnen"})).toBeDisabled();
-    expect(screen.getByText("Zuerst die Gemeinschaft wählen.")).toBeInTheDocument();
   });
 
   it("while a preview is computed: progress, locked form, the old preview stays", async () => {
@@ -230,15 +242,5 @@ describe("BulkChangePage", () => {
     fireEvent.click(applyButton());
     expect(await within(step("3 Vorschau")).findByText(/nichts geändert/)).toBeInTheDocument();
     expect(applyButton()).toBeEnabled();
-  });
-
-  it("403 when loading the communities names the role", async () => {
-    const service = makeService();
-    service.communities.mockRejectedValue(new BulkChangeError(403, 0, ""));
-    render(<BulkChangePage service={service as unknown as BulkChangeService}/>);
-    expect(await screen.findByText(/superuser/, {selector: ".MuiAlert-message"})).toBeInTheDocument();
-    service.communities.mockResolvedValue(communities);
-    fireEvent.click(screen.getByRole("button", {name: "Neu laden"}));
-    await waitFor(() => expect(screen.getByLabelText(/Gemeinschaft \(Name/)).toBeInTheDocument());
   });
 });
