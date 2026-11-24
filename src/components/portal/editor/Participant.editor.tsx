@@ -70,7 +70,7 @@ export const ParticipantCellEditDialog: FC = () => {
               {...field}
             >
               <FormControlLabel value="EEG_PRIVATE" control={<Radio />} label="Privat" />
-              <FormControlLabel value="EEG_BUSINESS" control={<Radio />} label="Business" />
+              <FormControlLabel value="EEG_BUSINESS" control={<Radio />} label="Unternehmen" />
             </RadioGroup>)}
           />
 

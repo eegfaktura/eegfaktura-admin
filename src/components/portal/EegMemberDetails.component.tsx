@@ -1,7 +1,7 @@
 import React, {FC, useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import {selectedEeg} from "../../redux/features/eegStateSlice";
-import {Alert, Box, CircularProgress, Grid} from "@mui/material";
+import {Alert, Box, Button, CircularProgress, Grid} from "@mui/material";
 import {Api} from "../../services/eeg.service";
 import {EegMember} from "../../model/eeg.model";
 import {EegParticipantsComponent} from "./EegParticipants.component";
@@ -18,6 +18,8 @@ const EegMemberDetailsComponent: FC = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const [eeg, setEeg] = useState<EegMember>()
   const [loadError, setLoadError] = useState<string>()
+  // counts "Neu laden": loads the members of the same community again
+  const [reload, setReload] = useState(0)
 
   const {participantsLoaded, selectParticipant} = useParticipantContext()
 
@@ -38,7 +40,7 @@ const EegMemberDetailsComponent: FC = () => {
       return () => { current = false }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the context functions are new on every render; listing them would refetch in a loop
-  }, [eegSelected])
+  }, [eegSelected, reload])
 
   if (!eeg) {
     return (
@@ -94,7 +96,12 @@ const EegMemberDetailsComponent: FC = () => {
           </div>
         </Grid>
       </Grid>
-      {loadError ? <Alert severity="error" sx={{mt: 2}}>{loadError}</Alert> : (
+      {loadError ? (
+        <Alert severity="error" sx={{mt: 2}}
+               action={<Button color="inherit" size="small" onClick={() => setReload(n => n + 1)}>Neu laden</Button>}>
+          {loadError}
+        </Alert>
+      ) : (
         <Box>
           <SearchBarComponent />
           <EegParticipantsComponent />

@@ -7,6 +7,7 @@ import {createTheme, ThemeOptions, ThemeProvider} from "@mui/material";
 import {deDE} from "@mui/material/locale";
 import {deDE as dataGridDeDE} from "@mui/x-data-grid";
 import {LocalizationProvider} from "@mui/x-date-pickers";
+import {deDE as datePickersDeDE} from "@mui/x-date-pickers/locales";
 import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
 import AccessDenied from "./components/layout/AccessDenied";
 import {hasSuperuserRole} from "./services/superuser";
@@ -38,7 +39,7 @@ const themeOptions: ThemeOptions = {
   },
 };
 // German texts of the MUI components and of the DataGrid (pagination, filter, column menu)
-export const theme = createTheme(themeOptions, deDE, dataGridDeDE)
+const theme = createTheme(themeOptions, deDE, dataGridDeDE)
 
 function App() {
   const auth = useAuth()
@@ -70,7 +71,8 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-    <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale="de">
+    <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale="de"
+                          localeText={datePickersDeDE.components.MuiLocalizationProvider.defaultProps.localeText}>
     <div>
       <BrowserRouter>
         <Routes>

@@ -7,19 +7,19 @@ import {
   GridColDef,
 
 } from "@mui/x-data-grid";
-import {Alert, Box, ThemeProvider} from "@mui/material";
+import {Alert, Box} from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import EegParticipantMeterComponent from "./EegParticipantMeter.component";
 import {useParticipantContext} from "./context/participant.context";
-import {theme} from "../../App";
 import {GridRowSelectionModel} from "@mui/x-data-grid/models/gridRowSelectionModel";
 import {openParticipantDialog, ParticipantCellEditDialog} from "./editor/Participant.editor";
 import {Api} from "../../services/eeg.service";
 import {AdminUpdateData} from "../../model/admin.model";
+import {businessRoleLabel} from "../../model/displayLabels";
 
 const EegParticipantItem: FC = () => {
 
-  const {participants, selectParticipant, updateParticipant} = useParticipantContext()
+  const {participants, hasParticipants, searchItem, selectParticipant, updateParticipant} = useParticipantContext()
 
   function extractProperties<T extends object, K extends keyof T>(
     obj: T,
@@ -63,8 +63,9 @@ const EegParticipantItem: FC = () => {
     {
       field: 'businessRole',
       headerName: 'Mitgliedsart',
-      description: 'Privat oder Business',
+      description: 'Privat oder Unternehmen',
       sortable: false,
+      valueFormatter: params => businessRoleLabel(params?.value),
       flex: 1.5,
       // renderCell: (params: GridRenderCellParams<EegParticipant, string>) =>
       //   <BusinessCellEditor
@@ -93,7 +94,9 @@ const EegParticipantItem: FC = () => {
   ];
 
   if (participants === undefined || participants.length === 0) {
-    return <Alert severity="info" sx={{mt: 2}}>Keine Mitglieder</Alert>
+    return <Alert severity="info" sx={{mt: 2}}>
+      {hasParticipants && searchItem ? `Keine Treffer für „${searchItem}“` : "Keine Mitglieder"}
+    </Alert>
   }
 
   const onRowSelectionChanged = (selectionModel: GridRowSelectionModel, details: GridCallbackDetails) => {
@@ -101,7 +104,7 @@ const EegParticipantItem: FC = () => {
   }
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
     <Box sx={{ height: "50%", width: '100%', display: 'flex' }}>
       <DataGrid
         rows={participants}
@@ -137,7 +140,7 @@ const EegParticipantItem: FC = () => {
       />
     </Box>
       <ParticipantCellEditDialog />
-    </ThemeProvider>
+    </>
   )
 }
 

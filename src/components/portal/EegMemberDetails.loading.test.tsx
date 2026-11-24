@@ -1,5 +1,6 @@
 import React from "react";
 import {act, render, screen, waitFor} from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import {Provider} from "react-redux";
 import {makeStore} from "../../redux/store";
 import {setSelectedEeg} from "../../redux/features/eegStateSlice";
@@ -28,9 +29,8 @@ const member = (firstName: string) => ({id: firstName, firstName, lastName: "X",
 
 const deferred = <T, >() => {
   let resolve: (v: T) => void = () => {}
-  let reject: (e: Error) => void = () => {}
-  const promise = new Promise<T>((res, rej) => { resolve = res; reject = rej })
-  return {promise, resolve, reject}
+  const promise = new Promise<T>(res => { resolve = res })
+  return {promise, resolve}
 }
 
 const service = Api.eegService
@@ -55,6 +55,19 @@ describe("EegMemberDetails: changing the community", () => {
     select("TE2")
     expect(await screen.findByRole("alert")).toHaveTextContent("Mitglieder konnten nicht geladen werden.")
     expect(screen.queryByText("Anna")).not.toBeInTheDocument()
+  })
+
+  it("loads the members again with \"Neu laden\" after a failed load", async () => {
+    let fail = true
+    const select = mount({TE1: () => fail ? Promise.reject(new Error("500")) : Promise.resolve([member("Anna")])})
+
+    select("TE1")
+    await screen.findByRole("alert")
+    fail = false
+    userEvent.click(screen.getByRole("button", {name: "Neu laden"}))
+
+    expect(await screen.findByTestId("members")).toHaveTextContent("Anna")
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
   })
 
   it("ignores the late answer for a community that is no longer chosen", async () => {
