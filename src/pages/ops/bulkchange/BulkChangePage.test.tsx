@@ -13,6 +13,17 @@ vi.mock("./csv", async (importOriginal) => ({
   downloadCsv: (name: string, content: string) => downloads.push({name, content}),
 }));
 
+// The grid itself is tested in PreviewTable.test.tsx; here a plain list of the rows keeps the flow tests fast
+// (the full grid made each test take seconds and the file time out under the load of the whole suite).
+vi.mock("@mui/x-data-grid", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@mui/x-data-grid")>()),
+  DataGrid: ({rows}: { rows: { name: string }[] }) => <ul>{rows.map((r, i) => <li key={i}>{r.name}</li>)}</ul>,
+}));
+
+// each flow drives several MUI selects (1-2 s alone); under the parallel load of the whole suite that can pass
+// the default 5 s
+vi.setConfig({testTimeout: 15000});
+
 // The flow of the page against the fixtures: community, rule, preview, "Vorschau geprüft", apply, errors.
 
 const makeService = () => ({
