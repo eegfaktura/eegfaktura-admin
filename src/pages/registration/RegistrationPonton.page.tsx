@@ -1,7 +1,7 @@
 import React, {FC, useEffect} from "react";
 import {useForm, useWatch} from "react-hook-form";
 import {PontonRegister} from "../../model/eeg.model";
-import {Alert, Box, Button} from "@mui/material";
+import {Alert, Box, Button, Typography} from "@mui/material";
 import Snackbar, {SnackbarCloseReason} from "@mui/material/Snackbar";
 import FormInputComponent from "../../components/form/FormInput.component";
 import {Api, APIError} from "../../services/eeg.service";
@@ -53,7 +53,7 @@ const RegistrationPontonPage: FC = () => {
   };
 
   return (
-    <Box className={"flex-col-mgap"} style={{padding: "16px"}}>
+    <Box className={"flex-col-mgap"} sx={{p: 3}}>
       <Snackbar autoHideDuration={10000} open={open} onClose={handleClose}>
         <Alert
           onClose={handleClose}
@@ -65,7 +65,7 @@ const RegistrationPontonPage: FC = () => {
         </Alert>
       </Snackbar>
 
-      <h2>Ponton Verbindung</h2>
+      <Typography variant="h5" component="h1">Ponton Verbindung</Typography>
 
       <FormInputComponent name={"rcNumber"} label="EEG RC-Nummer" control={control} type="text"
                           placeholder={"z.b. GC100100"} rules={{required: "RC-Nummer erforderlich"}}/>

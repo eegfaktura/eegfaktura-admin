@@ -1,7 +1,8 @@
 import React, {FC, useEffect, useRef, useState} from "react";
 import {useForm} from "react-hook-form";
 import {
-  Alert, Autocomplete, Box, Button, CircularProgress, Table, TableBody, TableCell, TableHead, TableRow, TextField
+  Alert, Autocomplete, Box, Button, CircularProgress, Table, TableBody, TableCell, TableHead, TableRow, TextField,
+  Typography
 } from "@mui/material";
 import FormInputComponent from "../../components/form/FormInput.component";
 import {EMAIL_RULE} from "../../components/registration/AccountsEegProperties.component";
@@ -87,8 +88,8 @@ const RegistrationAccountsPage: FC = () => {
   }
 
   return (
-    <Box className={"flex-col-mgap"} style={{padding: "16px"}}>
-      <h2>EEG Accounts</h2>
+    <Box className={"flex-col-mgap"} sx={{p: 3}}>
+      <Typography variant="h5" component="h1">EEG Accounts</Typography>
       <Autocomplete
         options={eegs}
         value={eeg}
@@ -101,7 +102,7 @@ const RegistrationAccountsPage: FC = () => {
 
       {eeg && (
         <>
-          <h4>Accounts mit Zugang zu {eeg.tenant}</h4>
+          <Typography variant="h6" component="h2">Accounts mit Zugang zu {eeg.tenant}</Typography>
           {accounts === undefined ? <CircularProgress size={24}/> :
             accounts.length === 0 ? <div>Keine Accounts gefunden.</div> : (
               <Table size="small">
@@ -126,7 +127,7 @@ const RegistrationAccountsPage: FC = () => {
               </Table>
             )}
 
-          <h4>Account hinzufügen</h4>
+          <Typography variant="h6" component="h2">Account hinzufügen</Typography>
           <div>
             Die Person bekommt dieselben Rechte wie die anderen Accounts der EEG und eine Mail, um ihr Passwort zu
             setzen. Hat die E-Mail-Adresse schon einen Account, wird die EEG dort ergänzt. Entfernen eines Accounts
