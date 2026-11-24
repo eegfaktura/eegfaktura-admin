@@ -1,5 +1,5 @@
 import {FC, FormEvent, ReactNode} from "react";
-import {Alert, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, PaperProps} from "@mui/material";
+import {Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, PaperProps} from "@mui/material";
 import { create } from "zustand";
 import {submitAndClose} from "../common/submitAndClose";
 
@@ -41,15 +41,12 @@ export const CellEditDialog: FC = () => {
     >
         <DialogTitle>{header}</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Update
-          </DialogContentText>
           {error && <Alert severity="error">{error}</Alert>}
           {children}
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button type="submit" disabled={pending}>Subscribe</Button>
+          <Button onClick={onClose}>Abbrechen</Button>
+          <Button type="submit" disabled={pending}>Speichern</Button>
         </DialogActions>
     </Dialog>
   )

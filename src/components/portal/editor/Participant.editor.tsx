@@ -4,7 +4,6 @@ import {
   Button, Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   FormControl,
   FormControlLabel,
@@ -56,11 +55,8 @@ export const ParticipantCellEditDialog: FC = () => {
               },
             } as Partial<PaperProps>}
     >
-      <DialogTitle>Participant</DialogTitle>
+      <DialogTitle>Mitglied bearbeiten</DialogTitle>
       <DialogContent>
-        <DialogContentText>
-          Update Mitglied
-        </DialogContentText>
         {error && <Alert severity="error">{error}</Alert>}
         <FormControl fullWidth>
           <Controller
@@ -98,8 +94,8 @@ export const ParticipantCellEditDialog: FC = () => {
         </FormControl>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button type="submit" disabled={!formState.isDirty || pending}>Subscribe</Button>
+        <Button onClick={onClose}>Abbrechen</Button>
+        <Button type="submit" disabled={!formState.isDirty || pending}>Speichern</Button>
       </DialogActions>
     </Dialog>
   )

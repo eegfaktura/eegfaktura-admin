@@ -29,7 +29,7 @@ describe("CellEditDialog", () => {
     render(<CellEditDialog/>)
     act(() => editDialog(<div>Inhalt</div>, "Update ACTIVESINCE", () => save.promise))
 
-    userEvent.click(screen.getByRole("button", {name: "Subscribe"}))
+    userEvent.click(screen.getByRole("button", {name: "Speichern"}))
     // past the dialog's exit transition: a closed dialog would be gone by now
     await act(async () => { vi.advanceTimersByTime(1000) })
     expect(screen.getByText("Update ACTIVESINCE")).toBeInTheDocument()
@@ -46,8 +46,8 @@ describe("CellEditDialog", () => {
     render(<CellEditDialog/>)
     act(() => editDialog(<div>Inhalt</div>, "Zeile 1", () => { calls.push("1"); return first.promise }))
 
-    userEvent.click(screen.getByRole("button", {name: "Subscribe"}))
-    userEvent.click(screen.getByRole("button", {name: "Subscribe"}))
+    userEvent.click(screen.getByRole("button", {name: "Speichern"}))
+    userEvent.click(screen.getByRole("button", {name: "Speichern"}))
     expect(calls).toEqual(["1"])
 
     // cancelled while pending, another row opened: the first save's result must not close it
@@ -60,7 +60,7 @@ describe("CellEditDialog", () => {
     render(<CellEditDialog/>)
     act(() => editDialog(<div>Inhalt</div>, "Update ACTIVESINCE", () => Promise.reject(new Error("400"))))
 
-    userEvent.click(screen.getByRole("button", {name: "Subscribe"}))
+    userEvent.click(screen.getByRole("button", {name: "Speichern"}))
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Speichern fehlgeschlagen: 400")
     expect(screen.getByText("Update ACTIVESINCE")).toBeInTheDocument()
@@ -69,7 +69,7 @@ describe("CellEditDialog", () => {
   it("does not show the previous error when it is opened again", async () => {
     render(<CellEditDialog/>)
     act(() => editDialog(<div>Inhalt</div>, "Update ACTIVESINCE", () => Promise.reject(new Error("400"))))
-    userEvent.click(screen.getByRole("button", {name: "Subscribe"}))
+    userEvent.click(screen.getByRole("button", {name: "Speichern"}))
     await screen.findByRole("alert")
 
     act(() => editDialog(<div>Inhalt</div>, "Update INACTIVESINCE", () => Promise.resolve()))
@@ -86,11 +86,11 @@ describe("ParticipantCellEditDialog", () => {
     act(() => openParticipantDialog(row, onUpdate))
 
     userEvent.type(screen.getByLabelText("Nachname"), "x")
-    userEvent.click(screen.getByRole("button", {name: "Subscribe"}))
+    userEvent.click(screen.getByRole("button", {name: "Speichern"}))
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Speichern fehlgeschlagen: 400")
     expect(onUpdate).toHaveBeenCalledTimes(1)
-    expect(screen.getByText("Update Mitglied")).toBeInTheDocument()
+    expect(screen.getByText("Mitglied bearbeiten")).toBeInTheDocument()
   })
 
   it("closes when the save went through", async () => {
@@ -98,8 +98,8 @@ describe("ParticipantCellEditDialog", () => {
     act(() => openParticipantDialog(row, () => Promise.resolve()))
 
     userEvent.type(screen.getByLabelText("Nachname"), "x")
-    userEvent.click(screen.getByRole("button", {name: "Subscribe"}))
+    userEvent.click(screen.getByRole("button", {name: "Speichern"}))
 
-    await waitFor(() => expect(screen.queryByText("Update Mitglied")).not.toBeInTheDocument())
+    await waitFor(() => expect(screen.queryByText("Mitglied bearbeiten")).not.toBeInTheDocument())
   })
 })

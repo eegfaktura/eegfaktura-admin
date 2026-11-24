@@ -110,7 +110,7 @@ const ProcessStateEditor: FC<{params: GridRenderCellParams<Metering, string>, up
           </RadioGroup>)} />
 
         </FormControl>
-      </div>, "Update Prozess Status", handleSubmit(onUpdate, rejectInvalidDate))
+      </div>, "Prozessstatus ändern", handleSubmit(onUpdate, rejectInvalidDate))
     }} />
   )
 }
@@ -139,13 +139,13 @@ const EegParticipantMeterComponent: FC = () => {
     },
     { field: 'activeSince', headerName: 'Aktiv', flex: 0.5,
       renderCell: (params:GridRenderCellParams<Metering, string>) =>
-        <DateCellEditor params={params} label="Active seit ..." header="Update ACTIVESINCE" proto="ACTIVESINCE" propertyName="activeSince" updateMeter={onUpdateMeter} />,
+        <DateCellEditor params={params} label="Active seit ..." header="Aktiv seit ändern" proto="ACTIVESINCE" propertyName="activeSince" updateMeter={onUpdateMeter} />,
       valueFormatter: params =>
         moment(params?.value).format("DD/MM/YYYY")
     },
     { field: 'inactiveSince', headerName: 'Inaktiv', flex: 0.5,
       renderCell: (params:GridRenderCellParams<Metering, string>) =>
-        <DateCellEditor params={params} label="Inactive seit ..." header="Update INACTIVESINCE" proto="INACTIVESINCE" propertyName="inactiveSince" updateMeter={onUpdateMeter} />,
+        <DateCellEditor params={params} label="Inactive seit ..." header="Inaktiv seit ändern" proto="INACTIVESINCE" propertyName="inactiveSince" updateMeter={onUpdateMeter} />,
       valueFormatter: params =>
         moment(params?.value).format("DD/MM/YYYY")
     },
