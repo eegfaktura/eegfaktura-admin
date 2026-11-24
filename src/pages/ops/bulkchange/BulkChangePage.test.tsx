@@ -44,6 +44,10 @@ const toPreview = async (service: ReturnType<typeof makeService>) => {
   await screen.findByText("3 Vorschau");
 };
 
+const checkbox = () => screen.getByLabelText("Vorschau für EEG Massenänderung (TE000441) geprüft");
+// the section of a step, found by its heading
+const step = (heading: string) => screen.getByRole("heading", {name: heading}).closest("section") as HTMLElement;
+
 const applyButton = () => screen.getByRole("button", {name: "1 Änderung anwenden"});
 
 describe("BulkChangePage", () => {
@@ -67,7 +71,7 @@ describe("BulkChangePage", () => {
     const service = makeService();
     await toPreview(service);
     expect(applyButton()).toBeDisabled();
-    fireEvent.click(screen.getByLabelText("Vorschau geprüft"));
+    fireEvent.click(checkbox());
     expect(applyButton()).toBeEnabled();
     fireEvent.click(applyButton());
     await screen.findByText("Ergebnis");
@@ -122,13 +126,21 @@ describe("BulkChangePage", () => {
     expect(screen.queryByText("3 Vorschau")).toBeNull();
   });
 
-  it("409: nothing changed, the preview stays to try again", async () => {
+  it("step 4 names community and rule before the apply button", async () => {
+    await toPreview(makeService());
+    expect(within(step("3 Vorschau")).getByText("Gemeinschaft: EEG Massenänderung · Tenant TE000441 (RC RC100441) — "
+      + "Mandatsreferenz: aus Mitgliedsnummer kopieren „Lastschrift-‹Mitgliedsnummer›“, nur wo leer")).toBeInTheDocument();
+  });
+
+  it.each([[409, 6104], [413, 6107]])("%i: nothing changed, the error shows in step 4, the preview stays", async (status, code) => {
     const service = makeService();
-    service.apply.mockRejectedValue(new BulkChangeError(409, 6104, "gesperrt"));
+    service.apply.mockRejectedValue(new BulkChangeError(status, code, ""));
     await toPreview(service);
-    fireEvent.click(screen.getByLabelText("Vorschau geprüft"));
+    fireEvent.click(checkbox());
     fireEvent.click(applyButton());
-    expect(await screen.findByText(/läuft gerade eine Massenänderung/)).toBeInTheDocument();
+    const text = (content: string) => content.includes(`(${status})`);
+    await within(step("3 Vorschau")).findByText(text);
+    expect(screen.getAllByText(text)).toHaveLength(1);
     expect(applyButton()).toBeEnabled();
   });
 
@@ -136,21 +148,21 @@ describe("BulkChangePage", () => {
     const service = makeService();
     service.apply.mockRejectedValue(new BulkChangeError(400, 6102, ""));
     await toPreview(service);
-    fireEvent.click(screen.getByLabelText("Vorschau geprüft"));
+    fireEvent.click(checkbox());
     fireEvent.click(applyButton());
     expect(await screen.findByText(/Vorschau veraltet/)).toBeInTheDocument();
     expect(screen.queryByText("3 Vorschau")).toBeNull();
     fireEvent.click(screen.getByRole("button", {name: "Vorschau neu berechnen"}));
     await screen.findByText("3 Vorschau");
     expect(service.preview).toHaveBeenCalledTimes(2);
-    expect(screen.getByLabelText("Vorschau geprüft")).not.toBeChecked();
+    expect(checkbox()).not.toBeChecked();
   });
 
   it("500 on apply: outcome from the server, preview to be computed again", async () => {
     const service = makeService();
     service.apply.mockRejectedValue(new BulkChangeError(500, 6105, "Das Ergebnis der Massenänderung ist unklar."));
     await toPreview(service);
-    fireEvent.click(screen.getByLabelText("Vorschau geprüft"));
+    fireEvent.click(checkbox());
     fireEvent.click(applyButton());
     expect(await screen.findByText(/Ergebnis der Massenänderung ist unklar/)).toBeInTheDocument();
     expect(screen.getByRole("button", {name: "Vorschau neu berechnen"})).toBeInTheDocument();

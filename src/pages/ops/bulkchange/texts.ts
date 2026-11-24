@@ -1,4 +1,4 @@
-import {BulkAction, BulkChangeError, BulkClass, BulkCondition, BulkDirection, BulkField, BulkTariff} from "../../../services/bulkchange.service";
+import {BulkAction, BulkChangeError, BulkClass, BulkCommunity, BulkCondition, BulkDirection, BulkField, BulkRule, BulkTariff} from "../../../services/bulkchange.service";
 
 // German texts of the bulk change page. backend sends codes (classes, F1–F6, H1–H9, L1–L3, skip reasons,
 // error codes 6100–6107); the texts belong to admin (konzept-massenaenderungen.md, Fachliche Logik 7 and 8).
@@ -46,6 +46,23 @@ export const tariffLabel = (t: BulkTariff) => t.type !== "EEG" ? t.name
   : t.joiningFee > 0
     ? `${t.name} (Beitrittsgebühr ${t.joiningFee.toLocaleString("de-AT", {style: "currency", currency: "EUR"})})`
     : `${t.name} (ohne Beitrittsgebühr)`;
+
+// A value of the rule's field in plain text: "Kein SEPA", the tariff name, the date as entered.
+const valueText = (field: BulkField, v: string, tariffs: BulkTariff[] | null) =>
+  field === "DEBIT_TYPE" ? DEBIT_TYPE_LABELS[v] ?? v
+    : field === "PARTICIPANT_TARIFF" || field === "METER_TARIFF" ? tariffs?.find(t => t.id === v)?.name ?? v : v;
+
+// One line naming community and rule above the apply button, e.g.
+// "Gemeinschaft: EEG X · Tenant TE1 (RC RC1) — Einzugsart: Wert setzen „CORE (normale Lastschrift)“, nur wo leer"
+export function ruleSummary(rule: BulkRule, c: BulkCommunity, tariffs: BulkTariff[] | null): string {
+  const field = FIELD_LABELS[rule.field] + (rule.direction ? ` (${DIRECTION_LABELS[rule.direction]})` : "");
+  const action = rule.action === "CLEAR" ? clearLabel(rule.field) : ACTION_LABELS[rule.action];
+  const value = rule.action === "SET" ? ` „${valueText(rule.field, rule.value ?? "", tariffs)}“`
+    : rule.action === "COPY" ? ` „${rule.prefix ?? ""}‹Mitgliedsnummer›${rule.suffix ?? ""}“` : "";
+  const condition = rule.condition === "EQUALS"
+    ? `nur wo gleich „${valueText(rule.field, rule.conditionValue ?? "", tariffs)}“` : CONDITION_LABELS[rule.condition];
+  return `Gemeinschaft: ${c.name} · Tenant ${c.tenant} (RC ${c.rcNumber}) — ${field}: ${action}${value}, ${condition}`;
+}
 
 export const CLASS_LABELS: Record<BulkClass, string> = {
   CHANGED: "geändert",

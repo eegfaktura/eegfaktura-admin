@@ -1,5 +1,5 @@
 import {BulkChangeError} from "../../../services/bulkchange.service";
-import {codeText, describeError, tariffLabel, ERROR_TEXTS, HINT_TEXTS, RUN_HINT_TEXTS, SKIP_TEXTS} from "./texts";
+import {codeText, describeError, ruleSummary, tariffLabel, ERROR_TEXTS, HINT_TEXTS, RUN_HINT_TEXTS, SKIP_TEXTS} from "./texts";
 import previewResponse from "../../../services/__fixtures__/bulkchange/preview.response.json";
 import applyResponse from "../../../services/__fixtures__/bulkchange/apply.response.json";
 
@@ -44,6 +44,23 @@ describe("tariffLabel", () => {
     expect(tariffLabel({id: "a", name: "Mitgliedsbeitrag", type: "EEG", joiningFee: 50})).toMatch(/^Mitgliedsbeitrag \(Beitrittsgebühr .*50,00.*\)$/);
     expect(tariffLabel({id: "b", name: "Basis", type: "EEG", joiningFee: 0})).toBe("Basis (ohne Beitrittsgebühr)");
     expect(tariffLabel({id: "c", name: "Bezug", type: "VZP", joiningFee: 0})).toBe("Bezug");
+  });
+});
+
+describe("ruleSummary", () => {
+  const c = {name: "EEG A", tenant: "GC100001-002", rcNumber: "RC100001"};
+
+  it("names values in plain text and the condition value", () => {
+    expect(ruleSummary({field: "DEBIT_TYPE", action: "SET", value: "CORE", condition: "EQUALS", conditionValue: "NONE"}, c, null))
+      .toBe("Gemeinschaft: EEG A · Tenant GC100001-002 (RC RC100001) — Einzugsart: Wert setzen „CORE (normale Lastschrift)“, nur wo gleich „Kein SEPA“");
+  });
+
+  it("names the tariff and the direction; clear has no value", () => {
+    const tariffs = [{id: "t1", name: "Bezug", type: "VZP" as const, joiningFee: 0}];
+    expect(ruleSummary({field: "METER_TARIFF", action: "SET", value: "t1", condition: "ALL", direction: "CONSUMPTION"}, c, tariffs))
+      .toMatch(/— Zählpunkttarif \(Verbrauch\): Wert setzen „Bezug“, alle$/);
+    expect(ruleSummary({field: "PARTICIPANT_TARIFF", action: "CLEAR", condition: "EMPTY"}, c, tariffs))
+      .toMatch(/— Mitgliedstarif: kein Tarif, nur wo leer$/);
   });
 });
 
