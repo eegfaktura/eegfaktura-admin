@@ -3,9 +3,10 @@ import RegistrationPage from "../pages/registration/Registration.page";
 import RegistrationPontonPage from "../pages/registration/RegistrationPonton.page";
 import RegistrationAccountsPage from "../pages/registration/RegistrationAccounts.page";
 import RegistrationPageLayout from "../pages/registration/RegistrationPageLayout";
-import {DeleteForeverTwoTone, EditNoteTwoTone, ManageAccountsTwoTone} from "@mui/icons-material";
+import {DeleteForeverTwoTone, EditNoteTwoTone, ManageAccountsTwoTone, PlaylistAddCheckTwoTone} from "@mui/icons-material";
 import PortalPageLayout from "../pages/portal/PortalPageLayout";
 import RawDataDeletePage from "../pages/ops/RawDataDeletePage";
+import BulkChangePage from "../pages/ops/bulkchange/BulkChangePage";
 
 const appRoutes: RouteType[] = [
   {
@@ -59,6 +60,15 @@ const appRoutes: RouteType[] = [
     sidebarProps: {
       displayText: "Energiedaten löschen",
       icon: <DeleteForeverTwoTone/>
+    },
+  },
+  {
+    element: <BulkChangePage/>,
+    state: "bulkChange",
+    path: "/bulk-change",
+    sidebarProps: {
+      displayText: "Massenänderung",
+      icon: <PlaylistAddCheckTwoTone/>
     },
   }
 ];
