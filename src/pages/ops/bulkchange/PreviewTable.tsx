@@ -44,23 +44,27 @@ const RowChips: FC<{ row: BulkRow }> = ({row}) => (
 );
 
 const localeText = deDE.components.MuiDataGrid.defaultProps.localeText;
+const autoRowHeight = () => "auto" as const;
+
+const columnsFor = (field: BulkField): GridColDef<BulkRow>[] => [
+  {field: "participantNumber", headerName: "Mitgl.-Nr.", width: 110},
+  {field: "name", headerName: "Name", flex: 1, minWidth: 160},
+  ...(field === "METER_TARIFF"
+    ? [{field: "meteringPointId", headerName: "Zählpunkt", width: 250} as GridColDef<BulkRow>] : []),
+  {field: "oldText", headerName: "Bisher", flex: 1, minWidth: 140},
+  {field: "newText", headerName: "Neu", flex: 1, minWidth: 140},
+  {field: "class", headerName: "Ergebnis", width: 180, valueGetter: p => CLASS_LABELS[p.row.class] ?? p.row.class},
+  {field: "hints", headerName: "Hinweis / Fehler", flex: 1, minWidth: 220, sortable: false,
+    renderCell: p => <RowChips row={p.row}/>},
+];
 
 export const RowsTable: FC<{ field: BulkField, rows: BulkRow[] }> = ({field, rows}) => {
-  const columns: GridColDef<BulkRow>[] = [
-    {field: "participantNumber", headerName: "Mitgl.-Nr.", width: 110},
-    {field: "name", headerName: "Name", flex: 1, minWidth: 160},
-    ...(field === "METER_TARIFF"
-      ? [{field: "meteringPointId", headerName: "Zählpunkt", width: 250} as GridColDef<BulkRow>] : []),
-    {field: "oldText", headerName: "Bisher", flex: 1, minWidth: 140},
-    {field: "newText", headerName: "Neu", flex: 1, minWidth: 140},
-    {field: "class", headerName: "Ergebnis", width: 180, valueGetter: p => CLASS_LABELS[p.row.class] ?? p.row.class},
-    {field: "hints", headerName: "Hinweis / Fehler", flex: 1, minWidth: 220, sortable: false,
-      renderCell: p => <RowChips row={p.row}/>},
-  ];
+  // stable columns: new column objects on every render make the grid recompute its layout
+  const columns = useMemo(() => columnsFor(field), [field]);
   return (
     <Box sx={{height: "min(520px, 60vh)", width: "100%", backgroundColor: "white"}}>
       <DataGrid rows={rows} columns={columns} getRowId={rowKey} density="compact" disableRowSelectionOnClick
-                disableColumnFilter localeText={localeText} getRowHeight={() => "auto"}
+                disableColumnFilter localeText={localeText} getRowHeight={autoRowHeight}
                 sx={{"& .MuiDataGrid-cell": {py: 0.75}}}
                 initialState={{pagination: {paginationModel: {pageSize: 100}}}} pageSizeOptions={[25, 100]}/>
     </Box>
