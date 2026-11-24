@@ -32,9 +32,9 @@ const CommonEegPropertiesComponent: FC = () => {
         }}/>
       </Box>
       <FormInputComponent name={"name"} label="Kurzname" control={control} rules={{required: "Name fehlt"}} type="text"
-                          placeholder="Kurzname deiner EEG"/>
+                          placeholder="Kurzname der EEG"/>
       <FormInputComponent name={"description"} label="EEG Beschreibung" control={control}
-                          rules={{required: "Name fehlt"}} type="text" placeholder="Kurzbeschreibung deiner EEG"/>
+                          rules={{required: "Name fehlt"}} type="text" placeholder="Kurzbeschreibung der EEG"/>
       <FormInputComponent name={"rcNumber"} label="RC-Nummer" control={control} rules={{
         required: "RC-Nummer fehlt",
         pattern: {value: /^[A-Za-z0-9]*$/, message: "Tenant darf nur Zeichen und Ziffern enthalten"}
