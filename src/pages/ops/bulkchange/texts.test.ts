@@ -92,15 +92,15 @@ describe("describeError", () => {
       .toContain("Datum muss JJJJ-MM-TT sein");
   });
 
-  it("a failed apply shows the server's outcome and offers a new preview", () => {
-    const v = describeError(err(500, 6105, "Das Ergebnis der Massenänderung ist unklar. Bitte die Vorschau neu laden und prüfen."), "apply");
-    expect(v.text).toContain("Ergebnis der Massenänderung ist unklar");
-    expect(v.reloadPreview).toBe(true);
+  it("6105 on apply: nothing changed, the preview stays", () => {
+    const v = describeError(err(500, 6105, "x"), "apply");
+    expect(v.text).toContain("nichts geändert");
+    expect(v.reloadPreview).toBe(false);
   });
 
-  it.each([[502], [504], [0]])("apply without a backend answer (%i) is an unclear outcome", status => {
-    const v = describeError(err(status), "apply");
-    expect(v.text).toContain("Das Ergebnis ist unklar");
+  it.each([[500, 6108], [502, 0], [504, 0], [0, 0]])("apply %i/%i: unclear outcome, compute the preview again", (status, code) => {
+    const v = describeError(err(status, code), "apply");
+    expect(v.text).toContain("Ergebnis des Anwendens ist unklar");
     expect(v.reloadPreview).toBe(true);
   });
 

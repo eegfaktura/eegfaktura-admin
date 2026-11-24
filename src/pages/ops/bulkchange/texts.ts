@@ -127,10 +127,16 @@ export function describeError(e: unknown, op: BulkOperation): ErrorView {
   const server = err.serverText ? ` (${err.serverText})` : "";
   const view = (text: string, reloadPreview = false) => ({text, reloadPreview});
   if (err.status === 0 || err.status >= 500) {
+    // 6105: the transaction failed, nothing changed - the preview stays for another try. 6108 (the COMMIT
+    // failed), no answer at all or a gateway error: whether it was written is unknown - compute the preview again.
+    if (op === "apply" && err.code === 6105) {
+      return view("Die Massenänderung ist fehlgeschlagen; es wurde nichts geändert (500). Bitte später erneut "
+        + "versuchen.");
+    }
     if (op === "apply") {
-      return view("Das Anwenden ist fehlgeschlagen oder ohne Antwort geblieben. "
-        + (err.code === 6105 && err.serverText ? err.serverText : "Das Ergebnis ist unklar.")
-        + " Bitte die Vorschau neu berechnen und prüfen, was schon geändert ist.", true);
+      return view("Das Ergebnis des Anwendens ist unklar"
+        + (err.status ? ` (${err.status})` : " (keine Antwort vom Server)")
+        + ". Bitte die Vorschau neu berechnen und prüfen, was schon geändert ist.", true);
     }
     return view(`Der Server konnte die Anfrage nicht verarbeiten (${err.status || "keine Antwort"}); `
       + "bitte später erneut versuchen.");

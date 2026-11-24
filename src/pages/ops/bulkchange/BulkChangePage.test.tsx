@@ -211,14 +211,25 @@ describe("BulkChangePage", () => {
     expect(checkbox()).not.toBeChecked();
   });
 
-  it("500 on apply: outcome from the server, preview to be computed again", async () => {
+  it("6108 on apply: outcome unclear, the preview is dropped and offered again", async () => {
     const service = makeService();
-    service.apply.mockRejectedValue(new BulkChangeError(500, 6105, "Das Ergebnis der Massenänderung ist unklar."));
+    service.apply.mockRejectedValue(new BulkChangeError(500, 6108, ""));
     await toPreview(service);
     fireEvent.click(checkbox());
     fireEvent.click(applyButton());
-    expect(await screen.findByText(/Ergebnis der Massenänderung ist unklar/)).toBeInTheDocument();
+    expect(await screen.findByText(/Ergebnis des Anwendens ist unklar/)).toBeInTheDocument();
     expect(screen.getByRole("button", {name: "Vorschau neu berechnen"})).toBeInTheDocument();
+    expect(screen.queryByText("3 Vorschau")).toBeNull();
+  });
+
+  it("6105 on apply: nothing changed, the preview stays with the error in step 4", async () => {
+    const service = makeService();
+    service.apply.mockRejectedValue(new BulkChangeError(500, 6105, ""));
+    await toPreview(service);
+    fireEvent.click(checkbox());
+    fireEvent.click(applyButton());
+    expect(await within(step("3 Vorschau")).findByText(/nichts geändert/)).toBeInTheDocument();
+    expect(applyButton()).toBeEnabled();
   });
 
   it("403 when loading the communities names the role", async () => {
