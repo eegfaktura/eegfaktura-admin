@@ -29,7 +29,7 @@ const Sidebar = () => {
         {appRoutes.map((route, index) => (
           route.sidebarProps ? (
             <React.Fragment key={index}>
-              {route.sidebarProps.subheader && <ListSubheader>{route.sidebarProps.subheader}</ListSubheader>}
+              {route.sidebarProps.subheader && <ListSubheader disableSticky>{route.sidebarProps.subheader}</ListSubheader>}
               {route.child ? (
                 <SidebarItemCollapse item={route} />
               ) : (
