@@ -66,7 +66,7 @@ fetch(globalConfigUrl)
     console.log(e)
     root.render(
       <React.StrictMode>
-        <p>Ops... Something went wrong. Try again!</p>
+        <p>Das Verwaltungsportal konnte nicht geladen werden. Bitte die Seite neu laden.</p>
       </React.StrictMode>
     )
   })

@@ -20,6 +20,14 @@ export const dayToEpochMs = (value: Date | number | undefined | null): string | 
   return value === undefined || value === null ? undefined : value.toString()
 }
 
+// The day of a date cell. A meter without the date shows an empty cell; moment(undefined) would be today
+// (admin 261124-mm1).
+export const formatDay = (value: unknown): string => {
+  if (!value) return ""
+  const day = moment(value as moment.MomentInput)
+  return day.isValid() ? day.format("DD.MM.YYYY") : ""
+}
+
 // handleSubmit's second argument: the dialog shows the message and stays open, it would otherwise close as if saved
 export const rejectInvalidDate = () => {
   throw new Error("Datum fehlt oder ist ungültig")

@@ -25,7 +25,8 @@ const MainLayout = () => {
           height: "100vh",
           minHeight: "100vh",
           // maxHeight: "100vh",
-          // overview: "auto",
+          // a long page scrolls inside main and keeps its background
+          overflow: "auto",
           backgroundColor: "#fffaf2"
         }}
       >

@@ -16,6 +16,40 @@ this changelog highlights the changes relevant for overview and operations.
   only change is the CHANGELOG, such as the release PR, skip the image build and the checks (PR checks, security
   scan, Snyk Code; the weekly schedules still run). Tag pushes still build. A release promotes
   the image of the last commit before the release PR; it has the same content.
+- **The admin tool speaks German** (design review B1, B3, B4): the edit dialogs ("Speichern" / "Abbrechen", titles
+  such as "Mitglied bearbeiten", "Prozessstatus ändern"), the menu ("Registrierung", "EEG registrieren", "Ponton
+  Verbindung", "Gemeinschaften" for the former "Portal Manager"; "EEG Accounts" stays, the 409 message of
+  admin-backend names it), grid headers and labels of the portal, the buttons of the registration ("Zurück",
+  "Weiter", "Registrieren"; Ponton: "Speichern"), the Excel upload and its alerts, the start error. MUI and the
+  DataGrid and the date pickers use the German locale (pagination, filter, column menu, picker texts). The grids show
+  the process state as "Aktiv" / "Inaktiv" and the member type as "Privat" / "Unternehmen" (display only). Routes,
+  field keys and API values are unchanged.
+- **Menu** (B9, B10): the group "Betrieb" above "Energiedaten löschen" (a route sets it with
+  `sidebarProps.subheader`; entries added after it fall under it), submenu entries indented, the open page marked
+  with `aria-current="page"`, a working hover colour, brand "eegFaktura Admin". The start address `/` opens the
+  portal.
+- **Look** (B2, B11, B12, B13): white text on the primary colour (before grey, too little contrast; changes all
+  contained buttons and bars), the page headings of "EEG Accounts", "Ponton Verbindung", "Energiedaten löschen" and
+  of the first registration step (CommonEegProperties) as h1 with the theme's typography (Accounts and Ponton also
+  with the theme's padding; the later registration steps keep their h2), neutral placeholders in the registration
+  ("Kurzname der EEG"), a wider list of communities in the portal (fits at 1366px).
+
+### Fixed
+- **Empty date cells of a meter showed today** (admin 261124-mm1, B5): the columns "Aktiv" and "Inaktiv" in the
+  portal formatted a missing date as the current day. An empty value is an empty cell now; dates show as DD.MM.YYYY
+  (before DD/MM/YYYY).
+- **Portal: loading, empty and error states** (B7): a progress indicator while the communities load, "Keine
+  Gemeinschaften", an error message when loading fails (before an empty page and an uncaught rejection; a list
+  loaded before stays with the note that it is not up to date), "Keine Mitglieder" for an EEG without members and
+  "Keine Treffer für „…“" for a search without hits.
+- **Keyboard and screen reader** (B6): the community cards are buttons (Tab, Enter), the edit buttons of the grid
+  cells are named after their column (before all "directions"), the radio groups have real labels, the search
+  fields are named, the arrows of the Excel list are named.
+- **Long pages** (B8): the main area scrolls and keeps its background.
+- **Portal: members of the community chosen before** (admin 261124-mm2): when loading the members of another
+  community failed, the members of the one chosen before stayed under the new name. The list is cleared on every
+  change, a failed load shows "Mitglieder konnten nicht geladen werden." with a button "Neu laden", and a late answer
+  for a community that is no longer chosen is dropped.
 
 ## [1.3.0] – 2026-11-06
 

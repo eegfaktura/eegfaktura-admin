@@ -6,10 +6,12 @@ import { RouteType } from "../../routes/config";
 
 type Props = {
   item: RouteType;
+  // an entry of a submenu: indented below its parent
+  nested?: boolean;
 };
 
 
-const SidebarItem = ({ item }: Props) => {
+const SidebarItem = ({ item, nested }: Props) => {
   const theme = useTheme()
   const { appState } = useSelector((state: RootState) => state.appStateSlice);
 
@@ -18,13 +20,15 @@ const SidebarItem = ({ item }: Props) => {
       <ListItemButton
         component={Link}
         to={item.path}
+        aria-current={appState === item.state ? "page" : undefined}
         sx={{
-          "&: hover": {
+          "&:hover": {
             backgroundColor: `${theme.palette.primary.main}24`
           },
           backgroundColor: appState === item.state ? `${theme.palette.primary.main}34` : "unset",
           paddingY: "12px",
-          paddingX: "24px"
+          paddingRight: "24px",
+          paddingLeft: nested ? "40px" : "24px"
         }}
       >
         <ListItemIcon>

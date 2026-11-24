@@ -52,7 +52,7 @@ const SidebarItemCollapse = ({ item }: Props) => {
                 route.child ? (
                   <SidebarItemCollapse item={route} key={index} />
                 ) : (
-                  <SidebarItem item={route} key={index} />
+                  <SidebarItem item={route} key={index} nested />
                 )
               ) : null
             ))}

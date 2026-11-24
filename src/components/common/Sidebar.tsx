@@ -1,4 +1,4 @@
-import {AppBar, Drawer, List, Toolbar} from "@mui/material";
+import {AppBar, Drawer, List, ListSubheader, Toolbar} from "@mui/material";
 import sizeConfigs from "../../configs/sizeConfigs";
 import appRoutes from "../../routes/appRoutes";
 import SidebarItem from "./SidebarItem";
@@ -23,16 +23,19 @@ const Sidebar = () => {
 
         <AppBar position="static" color="primary">
           <Toolbar sx={{ marginBottom: "20px" }}>
-            <div style={{fontSize: "22px"}}><span>EEG </span><span style={{color: "#79dfb4"}}>Faktura ADMIN</span></div>
+            <div style={{fontSize: "22px"}}><span>eeg</span><span style={{color: "#79dfb4"}}>Faktura Admin</span></div>
           </Toolbar>
         </AppBar>
         {appRoutes.map((route, index) => (
           route.sidebarProps ? (
-            route.child ? (
-              <SidebarItemCollapse item={route} key={index} />
-            ) : (
-              <SidebarItem item={route} key={index} />
-            )
+            <React.Fragment key={index}>
+              {route.sidebarProps.subheader && <ListSubheader disableSticky>{route.sidebarProps.subheader}</ListSubheader>}
+              {route.child ? (
+                <SidebarItemCollapse item={route} />
+              ) : (
+                <SidebarItem item={route} />
+              )}
+            </React.Fragment>
           ) : null
         ))}
       </List>

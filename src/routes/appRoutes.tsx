@@ -13,7 +13,7 @@ const appRoutes: RouteType[] = [
     state: "registration",
     path: "/registration",
     sidebarProps: {
-      displayText: "Registration",
+      displayText: "Registrierung",
       icon: <EditNoteTwoTone />
     },
     child: [
@@ -22,7 +22,7 @@ const appRoutes: RouteType[] = [
         element: <RegistrationPage />,
         state: "registration.basedata",
         sidebarProps: {
-          displayText: "EEG Registration",
+          displayText: "EEG registrieren",
         },
       },
       {
@@ -30,7 +30,7 @@ const appRoutes: RouteType[] = [
         element: <RegistrationPontonPage />,
         state: "registration.ponton",
         sidebarProps: {
-          displayText: "Ponton Registration",
+          displayText: "Ponton Verbindung",
         }
       },
       {
@@ -48,7 +48,7 @@ const appRoutes: RouteType[] = [
     state: "portalManager",
     path: "/portal",
     sidebarProps: {
-      displayText: "Portal Manager",
+      displayText: "Gemeinschaften",
       icon: <ManageAccountsTwoTone/>
     },
   },
@@ -57,6 +57,7 @@ const appRoutes: RouteType[] = [
     state: "rawDataDelete",
     path: "/rawdata-delete",
     sidebarProps: {
+      subheader: "Betrieb",
       displayText: "Energiedaten löschen",
       icon: <DeleteForeverTwoTone/>
     },

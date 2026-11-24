@@ -72,7 +72,7 @@ const RawDataDeletePage: FC = () => {
 
   return (
     <Box sx={{maxWidth: 640, p: 3}}>
-      <Typography variant="h5" gutterBottom>Energiedaten löschen</Typography>
+      <Typography variant="h5" component="h1" gutterBottom>Energiedaten löschen</Typography>
 
       <Alert severity="warning" sx={{mb: 2}}>
         Löscht die Energiedaten <strong>eines Zählpunkts</strong> im gewählten Zeitraum

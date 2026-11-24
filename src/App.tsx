@@ -1,10 +1,13 @@
 import React from 'react';
 import MainLayout from "./components/layout/MainLayout";
 import { routes } from "./routes";
-import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import {hasAuthParams, useAuth} from "react-oidc-context";
 import {createTheme, ThemeOptions, ThemeProvider} from "@mui/material";
+import {deDE} from "@mui/material/locale";
+import {deDE as dataGridDeDE} from "@mui/x-data-grid";
 import {LocalizationProvider} from "@mui/x-date-pickers";
+import {deDE as datePickersDeDE} from "@mui/x-date-pickers/locales";
 import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
 import AccessDenied from "./components/layout/AccessDenied";
 import {hasSuperuserRole} from "./services/superuser";
@@ -19,12 +22,12 @@ export const IDENTITY_CONFIG = {
 export const METADATA_OIDC = {
 };
 
-export const themeOptions: ThemeOptions = {
+const themeOptions: ThemeOptions = {
   palette: {
     primary: {
       main: '#2B6860',
       light: '#88dcb6',
-      contrastText: '#b9bab9',
+      contrastText: '#fff',
     },
     secondary: {
       main: '#dc631e',
@@ -35,7 +38,8 @@ export const themeOptions: ThemeOptions = {
     },
   },
 };
-const theme = createTheme(themeOptions)
+// German texts of the MUI components and of the DataGrid (pagination, filter, column menu)
+const theme = createTheme(themeOptions, deDE, dataGridDeDE)
 
 function App() {
   const auth = useAuth()
@@ -67,11 +71,13 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-    <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale="de">
+    <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale="de"
+                          localeText={datePickersDeDE.components.MuiLocalizationProvider.defaultProps.localeText}>
     <div>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<MainLayout />}>
+            <Route index element={<Navigate to="/portal" replace />} />
             {routes}
           </Route>
         </Routes>

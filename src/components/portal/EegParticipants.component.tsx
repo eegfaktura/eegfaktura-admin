@@ -7,19 +7,19 @@ import {
   GridColDef,
 
 } from "@mui/x-data-grid";
-import {Box, createTheme, ThemeProvider} from "@mui/material";
+import {Alert, Box} from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import EegParticipantMeterComponent from "./EegParticipantMeter.component";
 import {useParticipantContext} from "./context/participant.context";
-import {themeOptions} from "../../App";
 import {GridRowSelectionModel} from "@mui/x-data-grid/models/gridRowSelectionModel";
 import {openParticipantDialog, ParticipantCellEditDialog} from "./editor/Participant.editor";
 import {Api} from "../../services/eeg.service";
 import {AdminUpdateData} from "../../model/admin.model";
+import {businessRoleLabel} from "../../model/displayLabels";
 
 const EegParticipantItem: FC = () => {
 
-  const {participants, selectParticipant, updateParticipant} = useParticipantContext()
+  const {participants, hasParticipants, searchItem, selectParticipant, updateParticipant} = useParticipantContext()
 
   function extractProperties<T extends object, K extends keyof T>(
     obj: T,
@@ -53,8 +53,8 @@ const EegParticipantItem: FC = () => {
 
   const columns: GridColDef<EegParticipant>[] = [
     { field: 'id'},
-    { field: 'firstName', headerName: 'First name', flex: 2 },
-    { field: 'lastName', headerName: 'Last name', flex: 2 },
+    { field: 'firstName', headerName: 'Vorname', flex: 2 },
+    { field: 'lastName', headerName: 'Nachname', flex: 2 },
     {
       field: 'status',
       headerName: 'Status',
@@ -62,9 +62,10 @@ const EegParticipantItem: FC = () => {
     },
     {
       field: 'businessRole',
-      headerName: 'Business Role',
-      description: 'Business Role of participant',
+      headerName: 'Mitgliedsart',
+      description: 'Privat oder Unternehmen',
       sortable: false,
+      valueFormatter: params => businessRoleLabel(params?.value),
       flex: 1.5,
       // renderCell: (params: GridRenderCellParams<EegParticipant, string>) =>
       //   <BusinessCellEditor
@@ -75,14 +76,14 @@ const EegParticipantItem: FC = () => {
     {
       field: 'actions',
       type: 'actions',
-      headerName: 'Actions',
+      headerName: 'Aktionen',
       width: 100,
       cellClassName: 'actions',
       getActions: ({ row }) => {
         return [
           <GridActionsCellItem
             icon={<EditIcon />}
-            label="Edit"
+            label="Bearbeiten"
             className="textPrimary"
             onClick={handleEditClick(row)}
             color="inherit"
@@ -93,16 +94,17 @@ const EegParticipantItem: FC = () => {
   ];
 
   if (participants === undefined || participants.length === 0) {
-    return <></>
+    return <Alert severity="info" sx={{mt: 2}}>
+      {hasParticipants && searchItem ? `Keine Treffer für „${searchItem}“` : "Keine Mitglieder"}
+    </Alert>
   }
 
   const onRowSelectionChanged = (selectionModel: GridRowSelectionModel, details: GridCallbackDetails) => {
     selectParticipant(participants.find(p => selectionModel.findIndex(pp => pp === p.id) >= 0))
   }
 
-  const theme = createTheme(themeOptions)
   return (
-    <ThemeProvider theme={theme}>
+    <>
     <Box sx={{ height: "50%", width: '100%', display: 'flex' }}>
       <DataGrid
         rows={participants}
@@ -138,7 +140,7 @@ const EegParticipantItem: FC = () => {
       />
     </Box>
       <ParticipantCellEditDialog />
-    </ThemeProvider>
+    </>
   )
 }
 

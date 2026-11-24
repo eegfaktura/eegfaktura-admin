@@ -2,7 +2,7 @@ import {FC} from "react";
 import {Metering} from "../../model/eeg.model";
 import {
   Box,
-  FormControl, FormControlLabel,
+  FormControl, FormControlLabel, FormLabel,
   IconButton,
   Radio,
   RadioGroup
@@ -18,14 +18,15 @@ import {AdminUpdateData} from "../../model/admin.model";
 import {CellEditDialog, editDialog} from "./CellEdit.dialog";
 import {GridRowModel} from "@mui/x-data-grid/models/gridRows";
 import {useParticipantContext} from "./context/participant.context";
-import {DateCellEditor, dayToEpochMs, rejectInvalidDate} from "./editor/DateCell.editor";
+import {DateCellEditor, dayToEpochMs, formatDay, rejectInvalidDate} from "./editor/DateCell.editor";
+import {processStateLabel} from "../../model/displayLabels";
 
 const CellEditInputElement1:FC<{params: GridRenderCellParams<Metering, string>, onStartEdit: (row: GridRowModel<Metering>) => void}> = ({params, onStartEdit}) => {
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-        <div style={{ width: "100%"}}>{params.value}</div>
-        <IconButton color="primary" sx={{ fontSize: "6px" }} aria-label="directions" onClick={() => onStartEdit(params.row)}>
+        <div style={{ width: "100%"}}>{params.formattedValue}</div>
+        <IconButton color="primary" sx={{ fontSize: "6px" }} aria-label={`${params.colDef.headerName ?? params.field} bearbeiten`} onClick={() => onStartEdit(params.row)}>
           <ModeEditRounded sx={{fontSize: "18px"}}/>
         </IconButton>
       </Box>
@@ -69,35 +70,36 @@ const ProcessStateEditor: FC<{params: GridRenderCellParams<Metering, string>, up
       editDialog (
       <div>
         <FormControl>
+          <FormLabel id="process-state-label">Prozessstatus</FormLabel>
           <Controller
             rules={{ required: true }}
             control={control}
             name="processState"
             render={({ field }) => (
           <RadioGroup
-            aria-labelledby="demo-radio-buttons-group-label"
+            aria-labelledby="process-state-label"
             {...field}
           >
-            <FormControlLabel value="ACTIVE" control={<Radio />} label="ACTIVE" />
+            <FormControlLabel value="ACTIVE" control={<Radio />} label="Aktiv" />
             {field.value === 'ACTIVE' && <Controller
               rules={{ required: true }}
               control={control}
               name="activeSince"
               render={({ field }) => (<DatePicker
-                label="Active seit ..."
+                label="Aktiv seit"
                 format="DD.MM.YYYY"
                 value={field.value ? moment(field.value) : null}
                 onChange={(newValue) => field.onChange((newValue?.isValid() ? newValue.toDate() : null) as unknown as Date)}
                 slotProps={{textField: {id: "date", size: "small", required: true, sx: {width: 220}}}}
                 />)}
             />}
-            <FormControlLabel value="INACTIVE" control={<Radio />} label="Zählpunkt INACTIVE" />
+            <FormControlLabel value="INACTIVE" control={<Radio />} label="Inaktiv" />
             {field.value === 'INACTIVE' && <Controller
                 rules={{ required: true }}
                 control={control}
                 name="inactiveSince"
                 render={({ field }) => (<DatePicker
-                  label="Inactive seit ..."
+                  label="Inaktiv seit"
                   format="DD.MM.YYYY"
                   value={field.value ? moment(field.value) : null}
                   onChange={(newValue) => field.onChange((newValue?.isValid() ? newValue.toDate() : null) as unknown as Date)}
@@ -110,7 +112,7 @@ const ProcessStateEditor: FC<{params: GridRenderCellParams<Metering, string>, up
           </RadioGroup>)} />
 
         </FormControl>
-      </div>, "Update Prozess Status", handleSubmit(onUpdate, rejectInvalidDate))
+      </div>, "Prozessstatus ändern", handleSubmit(onUpdate, rejectInvalidDate))
     }} />
   )
 }
@@ -126,28 +128,27 @@ const EegParticipantMeterComponent: FC = () => {
   }
 
   const columns: GridColDef<Metering>[] = [
-    { field: 'meteringPoint', headerName: 'Meter-Id', flex: 1.5},
+    { field: 'meteringPoint', headerName: 'Zählpunkt', flex: 1.5},
     { field: 'direction', headerName: 'Richtung', flex: 0.7 },
     { field: 'status', headerName: 'Zustand', flex: 0.7 },
     {
       field: 'processState',
-      headerName: 'Prozess Status',
-      description: 'This column has a value getter and is not sortable.',
+      headerName: 'Prozessstatus',
+      description: 'Nicht sortierbar',
       sortable: false,
       flex: 1,
+      valueFormatter: params => processStateLabel(params?.value),
       renderCell: (params: GridRenderCellParams<any, string>) => <ProcessStateEditor params={params} updateMeter={onUpdateMeter}/>
     },
     { field: 'activeSince', headerName: 'Aktiv', flex: 0.5,
       renderCell: (params:GridRenderCellParams<Metering, string>) =>
-        <DateCellEditor params={params} label="Active seit ..." header="Update ACTIVESINCE" proto="ACTIVESINCE" propertyName="activeSince" updateMeter={onUpdateMeter} />,
-      valueFormatter: params =>
-        moment(params?.value).format("DD/MM/YYYY")
+        <DateCellEditor params={params} label="Aktiv seit" header="Aktiv seit ändern" proto="ACTIVESINCE" propertyName="activeSince" updateMeter={onUpdateMeter} />,
+      valueFormatter: params => formatDay(params?.value)
     },
     { field: 'inactiveSince', headerName: 'Inaktiv', flex: 0.5,
       renderCell: (params:GridRenderCellParams<Metering, string>) =>
-        <DateCellEditor params={params} label="Inactive seit ..." header="Update INACTIVESINCE" proto="INACTIVESINCE" propertyName="inactiveSince" updateMeter={onUpdateMeter} />,
-      valueFormatter: params =>
-        moment(params?.value).format("DD/MM/YYYY")
+        <DateCellEditor params={params} label="Inaktiv seit" header="Inaktiv seit ändern" proto="INACTIVESINCE" propertyName="inactiveSince" updateMeter={onUpdateMeter} />,
+      valueFormatter: params => formatDay(params?.value)
     },
   ];
 

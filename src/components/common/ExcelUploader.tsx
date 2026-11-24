@@ -54,7 +54,7 @@ const ExcelUploader: React.FC<{onLoad:(fileName: string, data: ExcelData[]) => v
       onLoad(file.name, jsonData);
     } catch (error) {
       console.error("Error reading Excel file:", error);
-      alert("Failed to parse Excel file.");
+      alert("Die Datei konnte nicht gelesen werden.");
     }
   };
 
@@ -77,7 +77,7 @@ const ExcelUploader: React.FC<{onLoad:(fileName: string, data: ExcelData[]) => v
           cursor: 'pointer'
         }}
       >
-        Select Excel File
+        Excel-Datei wählen
       </Button>
     </div>
   );

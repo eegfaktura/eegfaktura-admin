@@ -3,6 +3,7 @@ import {render, screen} from '@testing-library/react';
 import {Provider} from "react-redux";
 import {makeStore} from "./redux/store";
 import App from './App';
+import {Api, EegService} from "./services/eeg.service";
 
 // Smoke test of the app shell: sign-in redirect, the page for accounts without the role
 // `superuser`, and the portal layout with the sidebar. Keycloak (react-oidc-context) is mocked.
@@ -30,6 +31,16 @@ const setAuth = (isAuthenticated: boolean, roles: string[] = []) => {
 // a fresh store per test: the app state set by one test must not carry over to the next
 const renderApp = () => render(<Provider store={makeStore()}><App/></Provider>);
 
+// the portal (start page) loads the communities
+const service = Api.eegService;
+beforeEach(() => {
+  window.history.pushState({}, "", "/");
+  Api.eegService = {getEeg: async () => []} as unknown as EegService;
+});
+afterEach(() => {
+  Api.eegService = service;
+});
+
 test('redirects to the sign-in when not authenticated', () => {
   setAuth(false);
   renderApp();
@@ -46,6 +57,22 @@ test('shows the access-denied page without the role superuser', () => {
 test('shows the portal with its sidebar for a superuser', () => {
   setAuth(true, ["superuser"]);
   renderApp();
-  expect(screen.getByText("Faktura ADMIN")).toBeInTheDocument();
+  expect(screen.getByText("Faktura Admin")).toBeInTheDocument();
   expect(screen.queryByText("Kein Zugriff auf das Verwaltungsportal")).not.toBeInTheDocument();
+});
+
+test('opens the portal on the start address, marked in the menu', async () => {
+  setAuth(true, ["superuser"]);
+  renderApp();
+  expect(window.location.pathname).toBe("/portal");
+  expect(await screen.findByText("Keine Gemeinschaften")).toBeInTheDocument();
+  expect(screen.getByRole("link", {name: "Gemeinschaften"})).toHaveAttribute("aria-current", "page");
+  expect(screen.getByRole("link", {name: "Energiedaten löschen"})).not.toHaveAttribute("aria-current");
+});
+
+test('shows the group "Betrieb" in the menu', () => {
+  setAuth(true, ["superuser"]);
+  renderApp();
+  expect(screen.getByText("Betrieb")).toBeInTheDocument();
+  expect(screen.getByRole("link", {name: "Energiedaten löschen"})).toBeInTheDocument();
 });

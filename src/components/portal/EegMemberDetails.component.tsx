@@ -1,7 +1,7 @@
 import React, {FC, useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import {selectedEeg} from "../../redux/features/eegStateSlice";
-import {Box, CircularProgress, Grid} from "@mui/material";
+import {Alert, Box, Button, CircularProgress, Grid} from "@mui/material";
 import {Api} from "../../services/eeg.service";
 import {EegMember} from "../../model/eeg.model";
 import {EegParticipantsComponent} from "./EegParticipants.component";
@@ -17,20 +17,30 @@ const EegMemberDetailsComponent: FC = () => {
   const eegSelected = useSelector(selectedEeg)
   const [loading, setLoading] = useState<boolean>(false)
   const [eeg, setEeg] = useState<EegMember>()
+  const [loadError, setLoadError] = useState<string>()
+  // counts "Neu laden": loads the members of the same community again
+  const [reload, setReload] = useState(0)
 
   const {participantsLoaded, selectParticipant} = useParticipantContext()
 
   useEffect(() => {
     selectParticipant(undefined);
     if (eegSelected) {
+      // the members of the community chosen before must not stay, also when this load fails; the answer for a
+      // community that is no longer chosen is dropped (admin 261124-mm2)
+      let current = true
+      participantsLoaded([])
+      setLoadError(undefined)
       setLoading(true)
       setEeg(eegSelected)
-      Api.eegService.getParticipants(eegSelected.tenant).then(p => {
-        participantsLoaded(p)
-      }).finally(() => setLoading(false))
+      Api.eegService.getParticipants(eegSelected.tenant)
+        .then(p => { if (current) participantsLoaded(p) })
+        .catch(() => { if (current) setLoadError("Mitglieder konnten nicht geladen werden.") })
+        .finally(() => { if (current) setLoading(false) })
+      return () => { current = false }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the context functions are new on every render; listing them would refetch in a loop
-  }, [eegSelected])
+  }, [eegSelected, reload])
 
   if (!eeg) {
     return (
@@ -57,14 +67,14 @@ const EegMemberDetailsComponent: FC = () => {
         </Grid>
         <Grid item xs={2}>
           <div className="item-box">
-            <div style={{fontSize:"12px"}}>Mode</div>
+            <div style={{fontSize:"12px"}}>Verteilung</div>
             <div>{eeg.allocationMode}</div>
           </div>
         </Grid>
         <Grid item xs={1}>
           <div className="item-box">
             <div style={{fontSize:"12px"}}>Online</div>
-            <div>{eeg.online ? "Yes" : "No"}</div>
+            <div>{eeg.online ? "Ja" : "Nein"}</div>
           </div>
         </Grid>
         <Grid item xs={2}>
@@ -75,21 +85,28 @@ const EegMemberDetailsComponent: FC = () => {
         </Grid>
         <Grid item xs={2}>
           <div className="item-box">
-            <div style={{fontSize:"12px"}}>Contact</div>
+            <div style={{fontSize:"12px"}}>Kontakt</div>
             <div>{eeg.contactPerson}</div>
           </div>
         </Grid>
         <Grid item xs={2}>
           <div className="item-box">
-            <div style={{fontSize:"12px"}}>Area</div>
+            <div style={{fontSize:"12px"}}>Region</div>
             <div>{areaLabel(eeg.area)}</div>
           </div>
         </Grid>
       </Grid>
-      <Box>
-        <SearchBarComponent />
-        <EegParticipantsComponent />
-      </Box>
+      {loadError ? (
+        <Alert severity="error" sx={{mt: 2}}
+               action={<Button color="inherit" size="small" onClick={() => setReload(n => n + 1)}>Neu laden</Button>}>
+          {loadError}
+        </Alert>
+      ) : (
+        <Box>
+          <SearchBarComponent />
+          <EegParticipantsComponent />
+        </Box>
+      )}
     </Box>
   )
 }

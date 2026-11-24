@@ -51,8 +51,8 @@ export const SearchInputComponent:FC<{setSearchItem: (item: string|undefined) =>
       <SearchIcon />
     </SearchIconWrapper>
     <StyledInputBase
-      placeholder="Search…"
-      inputProps={{ 'aria-label': 'search' }}
+      placeholder="Suchen…"
+      inputProps={{ 'aria-label': 'Gemeinschaften suchen' }}
       spellCheck={false}
       onInput={(e: ChangeEvent<HTMLInputElement>) => setSearchItem(e.target?.value)}
     />

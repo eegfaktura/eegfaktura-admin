@@ -4,10 +4,10 @@ import {
   Button, Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   FormControl,
   FormControlLabel,
+  FormLabel,
   Radio,
   PaperProps, RadioGroup, TextField
 } from "@mui/material";
@@ -56,23 +56,21 @@ export const ParticipantCellEditDialog: FC = () => {
               },
             } as Partial<PaperProps>}
     >
-      <DialogTitle>Participant</DialogTitle>
+      <DialogTitle>Mitglied bearbeiten</DialogTitle>
       <DialogContent>
-        <DialogContentText>
-          Update Mitglied
-        </DialogContentText>
         {error && <Alert severity="error">{error}</Alert>}
         <FormControl fullWidth>
+          <FormLabel id="participant-business-role-label">Mitgliedsart</FormLabel>
           <Controller
             rules={{ required: true }}
             control={control}
             name="businessRole"
             render={({ field }) => (<RadioGroup row
-              aria-labelledby="demo-radio-buttons-group-label"
+              aria-labelledby="participant-business-role-label"
               {...field}
             >
               <FormControlLabel value="EEG_PRIVATE" control={<Radio />} label="Privat" />
-              <FormControlLabel value="EEG_BUSINESS" control={<Radio />} label="Business" />
+              <FormControlLabel value="EEG_BUSINESS" control={<Radio />} label="Unternehmen" />
             </RadioGroup>)}
           />
 
@@ -98,8 +96,8 @@ export const ParticipantCellEditDialog: FC = () => {
         </FormControl>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button type="submit" disabled={!formState.isDirty || pending}>Subscribe</Button>
+        <Button onClick={onClose}>Abbrechen</Button>
+        <Button type="submit" disabled={!formState.isDirty || pending}>Speichern</Button>
       </DialogActions>
     </Dialog>
   )
