@@ -134,11 +134,7 @@ export class BulkChangeService {
   }
 
   async preview(tenant: string, rule: BulkRule): Promise<BulkPreview> {
-    const p = await this.call<BulkPreview>("POST", "/bulkchange/preview", tenant, {rule});
-    return {
-      ...p, counts: {...p.counts, unchangedNotInFile: p.counts?.unchangedNotInFile ?? 0},
-      runHints: p.runHints ?? [], rows: normRows(p.rows), notFound: p.notFound ?? [],
-    };
+    return normPreview(await this.call<BulkPreview>("POST", "/bulkchange/preview", tenant, {rule}));
   }
 
   async apply(tenant: string, rule: BulkRule, items: BulkApplyItem[]): Promise<BulkApplyResult> {
@@ -171,6 +167,13 @@ export class BulkChangeService {
     return await res.json();
   }
 }
+
+// The preview as the page reads it: lists never null, the FROM_FILE fields always there (backend omits them for
+// the other rules and when they are empty). Takes the answer as it arrives, missing fields included.
+export const normPreview = (p: BulkPreview): BulkPreview => ({
+  ...p, counts: {...p.counts, unchangedNotInFile: p.counts?.unchangedNotInFile ?? 0},
+  runHints: p.runHints ?? [], rows: normRows(p.rows), notFound: p.notFound ?? [],
+});
 
 // Go encodes an empty slice as null (e.g. a preview without matches): the page always gets arrays.
 const normRows = (rows: BulkRow[] | null | undefined): BulkRow[] =>

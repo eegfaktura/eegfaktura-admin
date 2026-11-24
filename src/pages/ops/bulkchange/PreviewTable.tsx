@@ -115,9 +115,9 @@ const FILTERS: Record<Filter, (r: BulkRow) => boolean> = {
 
 export const num = (n: number) => n.toLocaleString("de-AT");
 
-// e.g. "1 geändert (davon 1 mit Hinweis) · 2 unverändert (1 Bedingung nicht erfüllt, 1 hat schon den Zielwert) · …"
 export const unchangedTotal = (c: BulkPreview["counts"]) => c.unchangedCondition + c.unchangedTarget + c.unchangedNotInFile;
 
+// e.g. "1 geändert (davon 1 mit Hinweis) · 2 unverändert (1 Bedingung nicht erfüllt, 1 hat schon den Zielwert) · …"
 export function countsLine(c: BulkPreview["counts"]): string {
   const notInFile = c.unchangedNotInFile ? `, ${num(c.unchangedNotInFile)} nicht in der Datei` : "";
   return `${num(c.changed)} geändert (davon ${num(c.withHint)} mit Hinweis) · ${num(unchangedTotal(c))} unverändert `

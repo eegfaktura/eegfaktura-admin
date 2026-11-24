@@ -6,9 +6,10 @@ import communities from "../../../services/__fixtures__/bulkchange/communities.r
 import tariffs from "../../../services/__fixtures__/bulkchange/tariffs.response.json";
 import previewEmpty from "../../../services/__fixtures__/bulkchange/preview.empty.response.json";
 import rawPreviewResponse from "../../../services/__fixtures__/bulkchange/preview.response.json";
+import {BulkPreview, normPreview} from "../../../services/bulkchange.service";
 
-// as the service hands it on (counter for "not in the file" and notFound filled in)
-const previewResponse = {...rawPreviewResponse, counts: {...rawPreviewResponse.counts, unchangedNotInFile: 0}, notFound: []};
+// as the service hands it on
+const previewResponse = normPreview(rawPreviewResponse as BulkPreview);
 import applyResponse from "../../../services/__fixtures__/bulkchange/apply.response.json";
 
 const downloads = vi.hoisted(() => [] as { name: string, content: string }[]);
@@ -188,7 +189,7 @@ describe("BulkChangePage flows", {timeout: 15000}, () => {
 
   it("a preview without matches says so", async () => {
     const service = makeService();
-    service.preview.mockResolvedValue({...previewEmpty, counts: {...previewEmpty.counts, unchangedNotInFile: 0}, notFound: []});
+    service.preview.mockResolvedValue(normPreview(previewEmpty as unknown as BulkPreview));
     await toPreview(service);
     expect(screen.getByText("Die Regel trifft kein Mitglied dieser Gemeinschaft.")).toBeInTheDocument();
     expect(screen.getByText("Nichts zu ändern.")).toBeInTheDocument();

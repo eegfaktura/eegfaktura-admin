@@ -1,13 +1,13 @@
 import React from "react";
 import {fireEvent, render, screen, within} from "@testing-library/react";
 import PreviewTable, {countsLine, presentCodes, RowsTable} from "./PreviewTable";
-import {BulkPreview} from "../../../services/bulkchange.service";
+import {BulkPreview, normPreview} from "../../../services/bulkchange.service";
 import previewResponse from "../../../services/__fixtures__/bulkchange/preview.response.json";
 import previewFileResponse from "../../../services/__fixtures__/bulkchange/preview.file.response.json";
 
-// as the service hands them on: the counter for "not in the file" and the list notFound always there
-const preview = {...previewResponse, counts: {...previewResponse.counts, unchangedNotInFile: 0}, notFound: []} as BulkPreview;
-const filePreview = previewFileResponse as BulkPreview;
+// as the service hands them on
+const preview = normPreview(previewResponse as BulkPreview);
+const filePreview = normPreview(previewFileResponse as BulkPreview);
 
 describe("PreviewTable", () => {
   it("the legend lists only the codes of this preview", () => {

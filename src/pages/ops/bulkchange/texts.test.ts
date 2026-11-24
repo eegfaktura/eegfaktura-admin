@@ -14,7 +14,7 @@ describe("texts of the codes", () => {
     expect(ERROR_TEXTS[c].long.length).toBeGreaterThan(ERROR_TEXTS[c].short.length);
   });
 
-  it.each(codes("H", 9))("hint %s has a short and a long text", c => {
+  it.each(codes("H", 10))("hint %s has a short and a long text", c => {
     expect(HINT_TEXTS[c].short).not.toBe("");
     expect(HINT_TEXTS[c].long.length).toBeGreaterThan(HINT_TEXTS[c].short.length);
   });

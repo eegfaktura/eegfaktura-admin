@@ -1,7 +1,7 @@
 # Bulk change — contract fixtures (copies)
 
 Copies of `api/testdata/bulkchange/*.json` of **eegfaktura-backend**, branch `feat/bulk-change-from-file`
-(value from file, konzept Teil 2), **source commit `6d8a4a936b3f33312b3905a0ba2beb82bdb86c51`**; the files of
+(value from file, konzept Teil 2), **source commit `de5cb28d447d1db15c9cca995a55333f8f5dc776`**; the files of
 the first release (eegfaktura/eegfaktura-backend#165) are unchanged there.
 The files are unchanged; backend's `api/bulkChangeContract_test.go` checks the same files against its handlers,
 `src/services/bulkchange.contract.test.ts` checks the admin side against these copies.

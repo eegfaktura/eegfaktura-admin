@@ -1,5 +1,4 @@
 import {BulkAction, BulkCondition, BulkDirection, BulkField, BulkFileValue, BulkRule, BulkTariff} from "../../../services/bulkchange.service";
-import {MAX_FILE_VALUES} from "./fileValues";
 
 // The rule matrix of konzept-massenaenderungen.md (Tech Design A), the same as backend's BulkRule.Validate:
 // the form offers only these combinations and builds the request body from them.
@@ -8,6 +7,8 @@ export const FIELDS: BulkField[] = ["DEBIT_TYPE", "MANDATE_REFERENCE", "MANDATE_
 export const CONDITIONS: BulkCondition[] = ["ALL", "EMPTY", "EQUALS"];
 export const DIRECTIONS: BulkDirection[] = ["CONSUMPTION", "GENERATOR"];
 export const DEBIT_TYPES = ["CORE", "B2B", "NONE"];
+// Most values one "Wert aus Datei" run may carry (backend refuses more, BulkMaxFileValues).
+export const MAX_FILE_VALUES = 5000;
 
 // The mandate reference has no value that is the same for all: only copy (with text before/after), a value per
 // member from a file, or clear. The mandate date can come from a file too (Teil 2).
