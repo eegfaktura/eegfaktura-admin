@@ -6,8 +6,9 @@ import {defineConfig} from 'vite'
 // Replaces create-react-app (react-scripts). Kept as before:
 // - the output goes to build/ (Dockerfile: ADD build ...), with source maps as react-scripts made them;
 // - the variables in .env* keep their prefix REACT_APP_ (read through import.meta.env);
-// - the dev server runs on port 3000 (strict: the Keycloak client's redirect URI) with proxies for the two
-//   backends the app calls: /admin and /energystore (.env.development points REACT_APP_ENERGY_SERVER_URL there).
+// - the dev server runs on port 3000 (strict: the Keycloak client's redirect URI) with proxies for the
+//   backends the app calls: /admin, /energystore and /api (eegfaktura-backend, only /api/bulkchange/... is used;
+//   .env.development points REACT_APP_ENERGY_SERVER_URL and REACT_APP_API_SERVER_URL there).
 // The runtime configuration (/config/keycloak-config.json) is rendered by Caddy and not part of the build.
 export default defineConfig({
   plugins: [react()],
@@ -30,6 +31,12 @@ export default defineConfig({
         target: 'http://localhost:9081',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/energystore/, ''),
+      },
+      // eegfaktura-backend on its local port (as in eegfaktura-web); the admin ingress rewrites the same way
+      '/api': {
+        target: 'http://localhost:9080',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
   },

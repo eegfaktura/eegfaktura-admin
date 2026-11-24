@@ -12,6 +12,7 @@ import {
 } from "../model/eeg.model";
 import {AuthService} from "./auth.service";
 import {PortalService} from "./portal.service";
+import {BulkChangeService} from "./bulkchange.service";
 
 const ADMIN_API_SERVER = import.meta.env.REACT_APP_ADMIN_SERVER_URL;
 
@@ -31,6 +32,7 @@ export class APIError extends Error {
 interface IApi {
   eegService: EegService
   portalService: PortalService
+  bulkChangeService: BulkChangeService
 }
 
 export const Api = {} as IApi
