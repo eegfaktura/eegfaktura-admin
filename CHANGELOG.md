@@ -8,6 +8,24 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+### Added
+- **Page „Massenänderung“ for the VFEEG support** (konzept-massenaenderungen.md): one rule on one community —
+  direct debit type, mandate reference (copy from the member number, optionally with fixed text before/after, or
+  clear), mandate date, member tariff, metering point tariff (per direction); condition all / only where empty / only
+  where equal. Mandatory preview with counts, run hints L1–L3, filters and old → new per hit with errors F1–F6 and
+  hints H1–H9 (German texts in admin, backend sends codes); CSV download of the preview on click (UTF-8 with BOM, `;`,
+  formula cells neutralised, no IBAN); apply only after „Vorschau geprüft“; result with written and skipped hits.
+  No undo: a wrong run is corrected with a new one. The tariff is entered as its ID (UUID); the preview shows its
+  name.
+
+### Contract
+- **admin calls eegfaktura-backend directly from the browser** under `/api/bulkchange/…` (`GET communities`,
+  `POST preview`, `POST apply`; realm role `superuser`, community in the header `tenant`). New build variable
+  `REACT_APP_API_SERVER_URL` (`/api`), dev proxy `/api` → backend port 9080. Needs backend with the bulk change
+  (eegfaktura-backend#165) and the ingress rule `/api/bulkchange` on the admin host (gitops, platform,
+  docker-compose); deploy order backend → ingress → admin. Fixtures copied from backend
+  `api/testdata/bulkchange` (commit cdd64aa) in `src/services/__fixtures__/bulkchange/`.
+
 ### Changed
 - Dependabot (Docker base images): no more major updates (legacy system, replaced by v3 in the medium term; majors
   only for security reasons, decision 23.10.2026), patch and minor updates come in one weekly grouped PR, new versions
