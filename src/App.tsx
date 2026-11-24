@@ -1,7 +1,7 @@
 import React from 'react';
 import MainLayout from "./components/layout/MainLayout";
 import { routes } from "./routes";
-import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import {hasAuthParams, useAuth} from "react-oidc-context";
 import {createTheme, ThemeOptions, ThemeProvider} from "@mui/material";
 import {deDE} from "@mui/material/locale";
@@ -75,6 +75,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<MainLayout />}>
+            <Route index element={<Navigate to="/portal" replace />} />
             {routes}
           </Route>
         </Routes>

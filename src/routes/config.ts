@@ -9,5 +9,7 @@ export type RouteType = {
   sidebarProps?: {
     displayText: string,
     icon?: ReactNode;
+    // a heading in the menu above this entry, for a group of entries
+    subheader?: string;
   };
 };

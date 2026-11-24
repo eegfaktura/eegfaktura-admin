@@ -57,6 +57,7 @@ const appRoutes: RouteType[] = [
     state: "rawDataDelete",
     path: "/rawdata-delete",
     sidebarProps: {
+      subheader: "Betrieb",
       displayText: "Energiedaten löschen",
       icon: <DeleteForeverTwoTone/>
     },
