@@ -41,6 +41,10 @@ this changelog highlights the changes relevant for overview and operations.
   cells are named after their column (before all "directions"), the radio groups have real labels, the search
   fields are named, the arrows of the Excel list are named.
 - **Long pages** (B8): the main area scrolls and keeps its background.
+- **Portal: members of the community chosen before** (admin 261124-mm2): when loading the members of another
+  community failed, the members of the one chosen before stayed under the new name. The list is cleared on every
+  change, a failed load shows "Mitglieder konnten nicht geladen werden.", and a late answer for a community that is
+  no longer chosen is dropped.
 
 ## [1.3.0] – 2026-11-06
 

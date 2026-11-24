@@ -1,7 +1,7 @@
 import React, {FC, useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import {selectedEeg} from "../../redux/features/eegStateSlice";
-import {Box, CircularProgress, Grid} from "@mui/material";
+import {Alert, Box, CircularProgress, Grid} from "@mui/material";
 import {Api} from "../../services/eeg.service";
 import {EegMember} from "../../model/eeg.model";
 import {EegParticipantsComponent} from "./EegParticipants.component";
@@ -17,17 +17,25 @@ const EegMemberDetailsComponent: FC = () => {
   const eegSelected = useSelector(selectedEeg)
   const [loading, setLoading] = useState<boolean>(false)
   const [eeg, setEeg] = useState<EegMember>()
+  const [loadError, setLoadError] = useState<string>()
 
   const {participantsLoaded, selectParticipant} = useParticipantContext()
 
   useEffect(() => {
     selectParticipant(undefined);
     if (eegSelected) {
+      // the members of the community chosen before must not stay, also when this load fails; the answer for a
+      // community that is no longer chosen is dropped (admin 261124-mm2)
+      let current = true
+      participantsLoaded([])
+      setLoadError(undefined)
       setLoading(true)
       setEeg(eegSelected)
-      Api.eegService.getParticipants(eegSelected.tenant).then(p => {
-        participantsLoaded(p)
-      }).finally(() => setLoading(false))
+      Api.eegService.getParticipants(eegSelected.tenant)
+        .then(p => { if (current) participantsLoaded(p) })
+        .catch(() => { if (current) setLoadError("Mitglieder konnten nicht geladen werden.") })
+        .finally(() => { if (current) setLoading(false) })
+      return () => { current = false }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the context functions are new on every render; listing them would refetch in a loop
   }, [eegSelected])
@@ -86,10 +94,12 @@ const EegMemberDetailsComponent: FC = () => {
           </div>
         </Grid>
       </Grid>
-      <Box>
-        <SearchBarComponent />
-        <EegParticipantsComponent />
-      </Box>
+      {loadError ? <Alert severity="error" sx={{mt: 2}}>{loadError}</Alert> : (
+        <Box>
+          <SearchBarComponent />
+          <EegParticipantsComponent />
+        </Box>
+      )}
     </Box>
   )
 }
