@@ -85,6 +85,22 @@ describe("bulk change contract", () => {
     expect(JSON.parse(init.body)).toEqual(applyRequest);
   });
 
+  it("an empty preview may come with null lists: the page gets empty arrays", async () => {
+    answer(200, {counts: {changed: 0, withHint: 0, unchangedCondition: 0, unchangedTarget: 0, errors: 0}, runHints: null, rows: null});
+    const res = await service.preview("TE000441", buildRule(fixtureForm));
+    expect(res.rows).toEqual([]);
+    expect(res.runHints).toEqual([]);
+    expect(applyItems(res)).toEqual([]);
+  });
+
+  it("null lists of apply and of a row's hints become empty arrays", async () => {
+    answer(200, {changed: 0, skipped: null, runHints: null, rows: [{...applyResponse.rows[0], hints: null}]});
+    const res = await service.apply("TE000441", applyRequest.rule as never, applyRequest.items);
+    expect(res.skipped).toEqual([]);
+    expect(res.runHints).toEqual([]);
+    expect(res.rows[0].hints).toEqual([]);
+  });
+
   it("reads code and text of the error body", async () => {
     answer(409, errorResponse);
     const err = await service.apply("TE000441", applyRequest.rule as never, applyRequest.items).catch(e => e);

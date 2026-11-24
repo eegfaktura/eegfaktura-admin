@@ -123,11 +123,13 @@ export class BulkChangeService {
   }
 
   async preview(tenant: string, rule: BulkRule): Promise<BulkPreview> {
-    return this.call("POST", "/bulkchange/preview", tenant, {rule});
+    const p = await this.call<BulkPreview>("POST", "/bulkchange/preview", tenant, {rule});
+    return {...p, runHints: p.runHints ?? [], rows: normRows(p.rows)};
   }
 
   async apply(tenant: string, rule: BulkRule, items: BulkApplyItem[]): Promise<BulkApplyResult> {
-    return this.call("POST", "/bulkchange/apply", tenant, {rule, items});
+    const r = await this.call<BulkApplyResult>("POST", "/bulkchange/apply", tenant, {rule, items});
+    return {...r, skipped: r.skipped ?? [], runHints: r.runHints ?? [], rows: normRows(r.rows)};
   }
 
   private async call<T>(method: string, path: string, tenant?: string, body?: unknown): Promise<T> {
@@ -149,6 +151,10 @@ export class BulkChangeService {
     return await res.json();
   }
 }
+
+// Go encodes an empty slice as null (e.g. a preview without matches): the page always gets arrays.
+const normRows = (rows: BulkRow[] | null | undefined): BulkRow[] =>
+  (rows ?? []).map(r => ({...r, hints: r.hints ?? []}));
 
 // Reads {"error": {code, error, message}}; the auth middleware answers 401/403 without a body.
 async function toError(res: Response): Promise<BulkChangeError> {

@@ -170,6 +170,15 @@ describe("BulkChangePage", () => {
     expect(screen.queryByText("3 Vorschau")).toBeNull();
   });
 
+  it("a preview without matches says so", async () => {
+    const service = makeService();
+    service.preview.mockResolvedValue({counts: {changed: 0, withHint: 0, unchangedCondition: 0, unchangedTarget: 0, errors: 0},
+      runHints: [], rows: []});
+    await toPreview(service);
+    expect(screen.getByText("Die Regel trifft kein Mitglied dieser Gemeinschaft.")).toBeInTheDocument();
+    expect(screen.getByText("Nichts zu ändern.")).toBeInTheDocument();
+  });
+
   it("step 4 names community and rule before the apply button", async () => {
     await toPreview(makeService());
     expect(within(step("3 Vorschau")).getByText("Gemeinschaft: EEG Massenänderung · Tenant TE000441 (RC RC100441) — "
