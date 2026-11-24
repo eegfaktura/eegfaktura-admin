@@ -1,5 +1,5 @@
 import {BulkPreview, BulkRow} from "../../../services/bulkchange.service";
-import {csvCell, csvFileName, previewCsv} from "./csv";
+import {csvCell, csvFileName, downloadCsv, previewCsv} from "./csv";
 import previewResponse from "../../../services/__fixtures__/bulkchange/preview.response.json";
 
 describe("csvCell", () => {
@@ -56,5 +56,31 @@ describe("csvFileName", () => {
   ] as const)("names the filter %s", (filter, slug) => {
     expect(csvFileName("TE000441", "MANDATE_REFERENCE", filter, "2026-11-25"))
       .toBe(`massenaenderung-TE000441-mandate_reference-${slug}-2026-11-25.csv`);
+  });
+});
+
+describe("downloadCsv", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  it("clicks a link that is in the document, removes it and revokes the URL afterwards", () => {
+    vi.useFakeTimers();
+    const revoke = vi.fn();
+    vi.stubGlobal("URL", {createObjectURL: () => "blob:x", revokeObjectURL: revoke});
+    let attached = false;
+    let name = "";
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) {
+      attached = document.body.contains(this);
+      name = this.download;
+    });
+    downloadCsv("a.csv", "x");
+    expect(attached).toBe(true);
+    expect(name).toBe("a.csv");
+    expect(document.querySelector("a")).toBeNull();
+    expect(revoke).not.toHaveBeenCalled();
+    vi.runAllTimers();
+    expect(revoke).toHaveBeenCalledWith("blob:x");
   });
 });

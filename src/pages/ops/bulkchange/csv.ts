@@ -42,6 +42,9 @@ export function downloadCsv(fileName: string, content: string) {
   const a = document.createElement("a");
   a.href = url;
   a.download = fileName;
+  // Firefox only follows a link that is in the document; the URL is revoked after the download has started
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }
