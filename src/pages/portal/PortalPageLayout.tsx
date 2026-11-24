@@ -65,7 +65,7 @@ const PortalPageLayout = () => {
   return (
     <Box height="100%" flex={1}>
       <Grid container height="100%" flexDirection={"row"}>
-        <Grid item xs={2} height="100%">
+        <Grid item xs={3} height="100%">
           <Box display="flex" flexDirection="column" height="100%" sx={{p: 2}}>
             <SearchInputComponent setSearchItem={setFilterString}></SearchInputComponent>
             <div style={{padding: "5px", fontWeight: "bold"}}>Gemeinschaften</div>
@@ -86,7 +86,7 @@ const PortalPageLayout = () => {
             </div>
           </Box>
         </Grid>
-        <Grid item xs={10} width="100%" height="100%" overflow="auto">
+        <Grid item xs={9} width="100%" height="100%" overflow="auto">
           <ParticipantProvider>
             <EegMemberDetailsComponent />
           </ParticipantProvider>
