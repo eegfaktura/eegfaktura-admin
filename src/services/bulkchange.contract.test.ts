@@ -116,6 +116,14 @@ describe("bulk change contract", () => {
     expect(err).toMatchObject({status: 403, code: 0, serverText: ""});
   });
 
+  it("a failed token renew is 401 and sends nothing", async () => {
+    const fetchMock = answer(200, communities);
+    const expired = new BulkChangeService({getToken: async () => { throw new Error("Token expired"); }} as unknown as AuthService);
+    const err = await expired.apply("TE000441", applyRequest.rule as never, applyRequest.items).catch(e => e);
+    expect(err).toMatchObject({status: 401, code: 0});
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("reports status 0 when no answer arrives", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
     const err = await service.apply("TE000441", applyRequest.rule as never, applyRequest.items).catch(e => e);

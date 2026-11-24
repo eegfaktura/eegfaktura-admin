@@ -133,7 +133,13 @@ export class BulkChangeService {
   }
 
   private async call<T>(method: string, path: string, tenant?: string, body?: unknown): Promise<T> {
-    const token = await this.authService.getToken();
+    let token: string;
+    try {
+      token = await this.authService.getToken();
+    } catch {
+      // no session or the silent renew failed: nothing was sent, the user has to sign in again
+      throw new BulkChangeError(401, 0, "");
+    }
     const headers: Record<string, string> = {'Authorization': `Bearer ${token}`};
     if (tenant) headers['tenant'] = tenant;
     if (body !== undefined) headers['Content-Type'] = 'application/json';
