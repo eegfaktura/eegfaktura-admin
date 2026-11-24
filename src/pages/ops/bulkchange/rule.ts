@@ -1,4 +1,4 @@
-import {BulkAction, BulkCondition, BulkDirection, BulkField, BulkRule} from "../../../services/bulkchange.service";
+import {BulkAction, BulkCondition, BulkDirection, BulkField, BulkRule, BulkTariff} from "../../../services/bulkchange.service";
 
 // The rule matrix of konzept-massenaenderungen.md (Tech Design A), the same as backend's BulkRule.Validate:
 // the form offers only these combinations and builds the request body from them.
@@ -19,6 +19,15 @@ export const valueKind = (field: BulkField): ValueKind =>
   field === "DEBIT_TYPE" ? "debitType"
     : field === "MANDATE_REFERENCE" ? "text"
       : field === "MANDATE_DATE" ? "date" : "tariff";
+
+// The tariffs a tariff rule can use: members only type EEG, metering points VZP for consumption and EZP for
+// generation (none before the direction is chosen). backend checks the same (F4).
+export function tariffOptions(tariffs: BulkTariff[], field: BulkField, direction: BulkDirection | ""): BulkTariff[] {
+  const type = field === "PARTICIPANT_TARIFF" ? "EEG"
+    : field === "METER_TARIFF" && direction === "CONSUMPTION" ? "VZP"
+      : field === "METER_TARIFF" && direction === "GENERATOR" ? "EZP" : null;
+  return type ? tariffs.filter(t => t.type === type) : [];
+}
 
 export interface RuleForm {
   field: BulkField;
@@ -57,7 +66,7 @@ export function valueProblem(kind: ValueKind, v: string, setting: boolean, today
       if (!ISO_DATE.test(t) || Number.isNaN(Date.parse(t))) return "Datum ungültig";
       return setting && t > today ? "Datum liegt in der Zukunft" : null;
     case "tariff":
-      return UUID.test(t) ? null : "Tarif-ID ungültig (UUID, z. B. aus dem Tarif in eegFaktura)";
+      return UUID.test(t) ? null : "Tarif wählen";
   }
   return null;
 }

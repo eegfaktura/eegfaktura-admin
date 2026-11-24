@@ -1,5 +1,5 @@
 import {BulkChangeError} from "../../../services/bulkchange.service";
-import {codeText, describeError, ERROR_TEXTS, HINT_TEXTS, RUN_HINT_TEXTS, SKIP_TEXTS} from "./texts";
+import {codeText, describeError, tariffLabel, ERROR_TEXTS, HINT_TEXTS, RUN_HINT_TEXTS, SKIP_TEXTS} from "./texts";
 import previewResponse from "../../../services/__fixtures__/bulkchange/preview.response.json";
 import applyResponse from "../../../services/__fixtures__/bulkchange/apply.response.json";
 
@@ -36,6 +36,14 @@ describe("texts of the codes", () => {
 
   it("shows an unknown code instead of hiding it", () => {
     expect(codeText(HINT_TEXTS, "H99")).toEqual({short: "H99", long: "Unbekannter Code H99"});
+  });
+});
+
+describe("tariffLabel", () => {
+  it("member tariffs name the joining fee, metering point tariffs only the name", () => {
+    expect(tariffLabel({id: "a", name: "Mitgliedsbeitrag", type: "EEG", joiningFee: 50})).toMatch(/^Mitgliedsbeitrag \(Beitrittsgebühr .*50,00.*\)$/);
+    expect(tariffLabel({id: "b", name: "Basis", type: "EEG", joiningFee: 0})).toBe("Basis (ohne Beitrittsgebühr)");
+    expect(tariffLabel({id: "c", name: "Bezug", type: "VZP", joiningFee: 0})).toBe("Bezug");
   });
 });
 

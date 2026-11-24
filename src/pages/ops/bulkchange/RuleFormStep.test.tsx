@@ -2,12 +2,14 @@ import React, {useState} from "react";
 import {fireEvent, render, screen, within} from "@testing-library/react";
 import RuleFormStep from "./RuleFormStep";
 import {initialForm, RuleForm} from "./rule";
+import {BulkTariff} from "../../../services/bulkchange.service";
+import tariffs from "../../../services/__fixtures__/bulkchange/tariffs.response.json";
 
 // The form offers only the combinations of the matrix.
 
 const Harness = () => {
   const [form, setForm] = useState<RuleForm>(initialForm());
-  return <RuleFormStep form={form} onChange={setForm}/>;
+  return <RuleFormStep form={form} tariffs={tariffs as BulkTariff[]} onChange={setForm}/>;
 };
 
 // a menu that was just closed stays in the DOM during its exit transition (labelled like the select): the
@@ -66,6 +68,27 @@ describe("RuleFormStep", () => {
     expect(screen.queryByLabelText("Bisheriger Wert")).toBeNull();
     choose("Bedingung", "nur wo gleich …");
     expect(options("Bisheriger Wert")).toEqual(["CORE (normale Lastschrift)", "B2B (Firmenlastschrift)", "Kein SEPA"]);
+  });
+
+  it("member tariff: only EEG tariffs, with the joining fee", () => {
+    render(<Harness/>);
+    choose("Feld", "Mitgliedstarif");
+    const opts = options("Neuer Wert");
+    expect(opts).toHaveLength(1);
+    expect(opts[0]).toMatch(/^Mitgliedsbeitrag \(Beitrittsgebühr .*50,00/);
+  });
+
+  it("metering point tariff: no tariff before the direction, then VZP or EZP; a new direction drops the tariff", () => {
+    render(<Harness/>);
+    choose("Feld", "Zählpunkttarif");
+    expect(screen.getAllByLabelText("Neuer Wert")[0]).toHaveAttribute("aria-disabled", "true");
+    expect(screen.getByText("Zuerst die Richtung wählen")).toBeInTheDocument();
+    choose("Richtung", "Verbrauch");
+    expect(options("Neuer Wert")).toEqual(["Bezug"]);
+    choose("Neuer Wert", "Bezug");
+    choose("Richtung", "Erzeugung");
+    expect(screen.queryByText("Bezug")).toBeNull();
+    expect(options("Neuer Wert")).toEqual(["Einspeisung"]);
   });
 
   it("a new field starts a new rule", () => {

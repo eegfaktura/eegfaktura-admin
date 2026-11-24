@@ -1,12 +1,12 @@
-import React, {FC, useState} from "react";
+import React, {FC, useEffect, useState} from "react";
 import {Alert, Box, Button, Checkbox, Divider, FormControlLabel, Stack, Typography} from "@mui/material";
 import {Api} from "../../../services/eeg.service";
-import {applyItems, BulkApplyResult, BulkChangeService, BulkCommunity, BulkPreview, BulkRow, BulkRule} from "../../../services/bulkchange.service";
+import {applyItems, BulkApplyResult, BulkChangeService, BulkCommunity, BulkPreview, BulkRow, BulkRule, BulkTariff} from "../../../services/bulkchange.service";
 import CommunityStep from "./CommunityStep";
 import RuleFormStep from "./RuleFormStep";
 import PreviewTable, {Filter} from "./PreviewTable";
 import ApplyResult from "./ApplyResult";
-import {buildRule, formProblems, initialForm, RuleForm, todayIso} from "./rule";
+import {buildRule, formProblems, initialForm, RuleForm, todayIso, valueKind} from "./rule";
 import {describeError, ErrorView} from "./texts";
 import {csvFileName, downloadCsv, previewCsv} from "./csv";
 
@@ -28,6 +28,23 @@ const BulkChangePage: FC<{ service?: BulkChangeService }> = ({service = Api.bulk
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ErrorView | null>(null);
   const [result, setResult] = useState<{ rule: BulkRule, data: BulkApplyResult, previewRows: BulkRow[] } | null>(null);
+  const [tariffs, setTariffs] = useState<BulkTariff[] | null>(null);
+  const [tariffError, setTariffError] = useState<string | null>(null);
+
+  // the tariffs of the chosen community, for the tariff rules
+  const tenant = community?.tenant;
+  useEffect(() => {
+    setTariffs(null);
+    setTariffError(null);
+    if (!tenant) return;
+    let current = true;
+    service.tariffs(tenant)
+      .then(l => current && setTariffs(l))
+      .catch(e => current && setTariffError(describeError(e, "communities").text));
+    return () => {
+      current = false;
+    };
+  }, [service, tenant]);
 
   const resetFlow = () => {
     setPreview(null);
@@ -94,12 +111,20 @@ const BulkChangePage: FC<{ service?: BulkChangeService }> = ({service = Api.bulk
       <Stack spacing={3}>
         <section>
           <Typography variant="h6" gutterBottom>1 Gemeinschaft</Typography>
-          <CommunityStep service={service} value={community} onChange={c => {setCommunity(c); resetFlow();}}/>
+          <CommunityStep service={service} value={community} onChange={c => {
+            setCommunity(c);
+            // a tariff of the previous community does not belong to the new one
+            if (valueKind(form.field) === "tariff") setForm({...form, value: "", conditionValue: ""});
+            resetFlow();
+          }}/>
         </section>
 
         <section>
           <Typography variant="h6" gutterBottom>2 Regel</Typography>
-          <RuleFormStep form={form} onChange={f => {setForm(f); resetFlow();}}/>
+          {tariffError && valueKind(form.field) === "tariff" && (
+            <Alert severity="error" sx={{mb: 2}}>Tarife der Gemeinschaft konnten nicht geladen werden: {tariffError}</Alert>
+          )}
+          <RuleFormStep form={form} tariffs={tariffs} onChange={f => {setForm(f); resetFlow();}}/>
           <Button variant="outlined" sx={{mt: 2}} onClick={runPreview} disabled={!ruleReady || busy}>
             Vorschau berechnen
           </Button>

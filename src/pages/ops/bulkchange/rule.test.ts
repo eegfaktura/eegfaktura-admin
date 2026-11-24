@@ -1,4 +1,6 @@
-import {actionsFor, buildRule, FIELDS, formProblems, initialForm, RuleForm, todayIso, valueKind} from "./rule";
+import {actionsFor, buildRule, FIELDS, formProblems, initialForm, RuleForm, tariffOptions, todayIso, valueKind} from "./rule";
+import {BulkTariff} from "../../../services/bulkchange.service";
+import tariffFixture from "../../../services/__fixtures__/bulkchange/tariffs.response.json";
 
 const TARIFF = "3f2a5c1e-1111-4222-8333-444455556666";
 
@@ -10,6 +12,25 @@ describe("rule matrix", () => {
 
   it("value kinds per field", () => {
     expect(FIELDS.map(valueKind)).toEqual(["debitType", "text", "date", "tariff", "tariff"]);
+  });
+});
+
+describe("tariffOptions", () => {
+  const tariffs = tariffFixture as BulkTariff[];
+  const names = (l: BulkTariff[]) => l.map(t => t.name);
+
+  it("member tariff: only type EEG", () => {
+    expect(names(tariffOptions(tariffs, "PARTICIPANT_TARIFF", ""))).toEqual(["Mitgliedsbeitrag"]);
+  });
+
+  it("metering point tariff: VZP for consumption, EZP for generation, none without direction", () => {
+    expect(names(tariffOptions(tariffs, "METER_TARIFF", "CONSUMPTION"))).toEqual(["Bezug"]);
+    expect(names(tariffOptions(tariffs, "METER_TARIFF", "GENERATOR"))).toEqual(["Einspeisung"]);
+    expect(tariffOptions(tariffs, "METER_TARIFF", "")).toEqual([]);
+  });
+
+  it("no tariffs for the other fields", () => {
+    expect(tariffOptions(tariffs, "DEBIT_TYPE", "")).toEqual([]);
   });
 });
 
@@ -46,7 +67,7 @@ describe("formProblems", () => {
 
   it("set needs a value of the field's kind", () => {
     expect(formProblems(initialForm("DEBIT_TYPE"), today).value).toBe("Wert fehlt");
-    expect(formProblems({...initialForm("PARTICIPANT_TARIFF"), value: "Tarif A"}, today).value).toMatch(/Tarif-ID ungültig/);
+    expect(formProblems({...initialForm("PARTICIPANT_TARIFF"), value: "Tarif A"}, today).value).toBe("Tarif wählen");
     expect(formProblems({...initialForm("MANDATE_DATE"), value: "25.11.2026"}, today).value).toBe("Datum ungültig");
   });
 

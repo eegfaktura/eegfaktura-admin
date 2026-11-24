@@ -1,4 +1,4 @@
-import {BulkAction, BulkChangeError, BulkClass, BulkCondition, BulkDirection, BulkField} from "../../../services/bulkchange.service";
+import {BulkAction, BulkChangeError, BulkClass, BulkCondition, BulkDirection, BulkField, BulkTariff} from "../../../services/bulkchange.service";
 
 // German texts of the bulk change page. backend sends codes (classes, F1–F6, H1–H9, L1–L3, skip reasons,
 // error codes 6100–6107); the texts belong to admin (konzept-massenaenderungen.md, Fachliche Logik 7 and 8).
@@ -40,6 +40,12 @@ export const DEBIT_TYPE_LABELS: Record<string, string> = {
   B2B: "B2B (Firmenlastschrift)",
   NONE: "Kein SEPA",
 };
+
+// A tariff in the dropdown; member tariffs (EEG) name their joining fee, which a new tariff makes due (H7).
+export const tariffLabel = (t: BulkTariff) => t.type !== "EEG" ? t.name
+  : t.joiningFee > 0
+    ? `${t.name} (Beitrittsgebühr ${t.joiningFee.toLocaleString("de-AT", {style: "currency", currency: "EUR"})})`
+    : `${t.name} (ohne Beitrittsgebühr)`;
 
 export const CLASS_LABELS: Record<BulkClass, string> = {
   CHANGED: "geändert",

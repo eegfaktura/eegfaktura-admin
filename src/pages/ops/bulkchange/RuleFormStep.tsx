@@ -1,11 +1,12 @@
 import React, {FC} from "react";
 import {MenuItem, Stack, TextField, Typography} from "@mui/material";
-import {BulkDirection} from "../../../services/bulkchange.service";
-import {actionsFor, CONDITIONS, DEBIT_TYPES, DIRECTIONS, FIELDS, formProblems, RuleForm, todayIso, valueKind, withField} from "./rule";
-import {ACTION_LABELS, clearLabel, CONDITION_LABELS, DEBIT_TYPE_LABELS, DIRECTION_LABELS, FIELD_LABELS} from "./texts";
+import {BulkDirection, BulkTariff} from "../../../services/bulkchange.service";
+import {actionsFor, CONDITIONS, DEBIT_TYPES, DIRECTIONS, FIELDS, formProblems, RuleForm, tariffOptions, todayIso, valueKind, withField} from "./rule";
+import {ACTION_LABELS, clearLabel, CONDITION_LABELS, DEBIT_TYPE_LABELS, DIRECTION_LABELS, FIELD_LABELS, tariffLabel} from "./texts";
 
 // Step 2: the rule. Only the combinations of the matrix are offered (rule.ts); a changed field starts afresh.
-const RuleFormStep: FC<{ form: RuleForm, onChange: (f: RuleForm) => void }> = ({form, onChange}) => {
+// tariffs: the active tariffs of the community, null while they load (or when loading failed).
+const RuleFormStep: FC<{ form: RuleForm, tariffs: BulkTariff[] | null, onChange: (f: RuleForm) => void }> = ({form, tariffs, onChange}) => {
   const set = (patch: Partial<RuleForm>) => onChange({...form, ...patch});
   const problems = formProblems(form);
   const kind = valueKind(form.field);
@@ -24,8 +25,17 @@ const RuleFormStep: FC<{ form: RuleForm, onChange: (f: RuleForm) => void }> = ({
       case "date":
         return <TextField type="date" {...common} InputLabelProps={{shrink: true}}
                           inputProps={setting ? {max: todayIso()} : undefined}/>;
-      case "tariff":
-        return <TextField {...common} placeholder="z. B. 3f2a…-…" helperText={problem ?? "Tarif-ID (UUID); der Tarifname steht in der Vorschau"}/>;
+      case "tariff": {
+        const options = tariffOptions(tariffs ?? [], form.field, form.direction);
+        const why = form.field === "METER_TARIFF" && !form.direction ? "Zuerst die Richtung wählen"
+          : tariffs === null ? "Tarife der Gemeinschaft fehlen"
+            : options.length === 0 ? "Die Gemeinschaft hat keinen passenden aktiven Tarif" : problem;
+        return (
+          <TextField select {...common} disabled={options.length === 0} helperText={why ?? " "}>
+            {options.map(t => <MenuItem key={t.id} value={t.id}>{tariffLabel(t)}</MenuItem>)}
+          </TextField>
+        );
+      }
       default:
         return <TextField {...common}/>;
     }
@@ -47,7 +57,7 @@ const RuleFormStep: FC<{ form: RuleForm, onChange: (f: RuleForm) => void }> = ({
         {form.field === "METER_TARIFF" && (
           <TextField select label="Richtung" value={form.direction} fullWidth
                      helperText={problems.direction ?? " "}
-                     onChange={e => set({direction: e.target.value as BulkDirection})}>
+                     onChange={e => set({direction: e.target.value as BulkDirection, value: "", conditionValue: ""})}>
             {DIRECTIONS.map(d => <MenuItem key={d} value={d}>{DIRECTION_LABELS[d]}</MenuItem>)}
           </TextField>
         )}

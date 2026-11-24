@@ -3,6 +3,7 @@ import {fireEvent, render, screen, waitFor, within} from "@testing-library/react
 import BulkChangePage from "./BulkChangePage";
 import {BulkChangeError, BulkChangeService} from "../../../services/bulkchange.service";
 import communities from "../../../services/__fixtures__/bulkchange/communities.response.json";
+import tariffs from "../../../services/__fixtures__/bulkchange/tariffs.response.json";
 import previewResponse from "../../../services/__fixtures__/bulkchange/preview.response.json";
 import applyResponse from "../../../services/__fixtures__/bulkchange/apply.response.json";
 
@@ -18,6 +19,7 @@ const makeService = () => ({
   communities: vi.fn().mockResolvedValue(communities),
   preview: vi.fn().mockResolvedValue(previewResponse),
   apply: vi.fn().mockResolvedValue(applyResponse),
+  tariffs: vi.fn().mockResolvedValue(tariffs),
 });
 
 // a menu that was just closed stays in the DOM during its exit transition (labelled like the select): the
@@ -87,6 +89,16 @@ describe("BulkChangePage", () => {
     const lines = downloads[0].content.split("\r\n").filter(l => l !== "");
     expect(lines).toHaveLength(2);
     expect(lines[1]).toContain("H6 Mandatsänderung");
+  });
+
+  it("loads the tariffs of the chosen community for the tariff rules", async () => {
+    const service = makeService();
+    await toPreview(service);
+    expect(service.tariffs).toHaveBeenCalledWith("TE000441");
+    choose("Feld", "Mitgliedstarif");
+    fireEvent.mouseDown(screen.getAllByLabelText("Neuer Wert")[0]);
+    fireEvent.click(within(screen.getAllByRole("listbox").slice(-1)[0]).getByRole("option", {name: /^Mitgliedsbeitrag/}));
+    expect(screen.getByRole("button", {name: "Vorschau berechnen"})).toBeEnabled();
   });
 
   it("a change of the rule drops the preview", async () => {
