@@ -8,8 +8,9 @@ import {describeError} from "./texts";
 const CommunityStep: FC<{
   service: BulkChangeService,
   value: BulkCommunity | null,
+  disabled: boolean,
   onChange: (c: BulkCommunity | null) => void,
-}> = ({service, value, onChange}) => {
+}> = ({service, value, disabled, onChange}) => {
   const [list, setList] = useState<BulkCommunity[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,6 +41,7 @@ const CommunityStep: FC<{
     <Autocomplete
       options={list}
       value={value}
+      disabled={disabled}
       onChange={(_, c) => onChange(c)}
       isOptionEqualToValue={(a, b) => a.tenant === b.tenant}
       getOptionLabel={c => `${c.name} · Tenant ${c.tenant} · ${c.rcNumber}`}

@@ -8,8 +8,9 @@ import {ErrorView, ruleSummary} from "./texts";
 // apply button; an apply error that keeps the preview (409, 413, …) is shown here, next to the button.
 const ApplyStep: FC<{
   community: BulkCommunity, rule: BulkRule, tariffs: BulkTariff[] | null, changedCount: number,
-  checked: boolean, onCheck: (v: boolean) => void, busy: boolean, error: ErrorView | null, onApply: () => void,
-}> = ({community, rule, tariffs, changedCount, checked, onCheck, busy, error, onApply}) => (
+  checked: boolean, onCheck: (v: boolean) => void, busy: boolean, applying: boolean, error: ErrorView | null,
+  onApply: () => void,
+}> = ({community, rule, tariffs, changedCount, checked, onCheck, busy, applying, error, onApply}) => (
   <Stack spacing={2}>
     <Typography sx={{fontWeight: 500}}>{ruleSummary(rule, community, tariffs)}</Typography>
     <Alert severity="info">
@@ -30,7 +31,7 @@ const ApplyStep: FC<{
           </Button>
         </Stack>
       )}
-    {busy && <LinearProgress aria-label="Anwenden läuft"/>}
+    {applying && <LinearProgress aria-label="Anwenden läuft"/>}
     {error && <Alert severity="error">{error.text}</Alert>}
   </Stack>
 );

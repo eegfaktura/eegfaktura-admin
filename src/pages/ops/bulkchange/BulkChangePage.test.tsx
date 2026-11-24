@@ -119,6 +119,39 @@ describe("BulkChangePage", () => {
     expect(downloads[0].content.split("\r\n").filter(l => l !== "")).toHaveLength(1 + applyResponse.rows.length);
   });
 
+  it("says why the preview cannot be computed yet", async () => {
+    render(<BulkChangePage service={makeService() as unknown as BulkChangeService}/>);
+    await screen.findByLabelText(/Gemeinschaft \(Name/);
+    expect(screen.getByRole("button", {name: "Vorschau berechnen"})).toBeDisabled();
+    expect(screen.getByText("Zuerst die Gemeinschaft wählen.")).toBeInTheDocument();
+  });
+
+  it("while a preview is computed: progress, locked form, the old preview stays", async () => {
+    const service = makeService();
+    await toPreview(service);
+    let resolve: (v: unknown) => void = () => undefined;
+    service.preview.mockReturnValue(new Promise(r => { resolve = r; }));
+    fireEvent.click(screen.getByRole("button", {name: "Vorschau berechnen"}));
+    expect(screen.getByRole("progressbar", {name: "Vorschau wird berechnet"})).toBeInTheDocument();
+    expect(screen.getByLabelText(/Gemeinschaft \(Name/)).toBeDisabled();
+    expect(screen.getAllByLabelText("Feld")[0]).toHaveAttribute("aria-disabled", "true");
+    expect(screen.getByText("3 Vorschau")).toBeInTheDocument();
+    expect(applyButton()).toBeDisabled();
+    resolve(previewResponse);
+    await waitFor(() => expect(screen.queryByRole("progressbar")).toBeNull());
+    expect(screen.getAllByLabelText("Feld")[0]).not.toHaveAttribute("aria-disabled");
+  });
+
+  it("while apply runs: progress in step 4", async () => {
+    const service = makeService();
+    service.apply.mockReturnValue(new Promise(() => undefined));
+    await toPreview(service);
+    fireEvent.click(checkbox());
+    fireEvent.click(applyButton());
+    expect(within(step("3 Vorschau")).getByRole("progressbar", {name: "Anwenden läuft"})).toBeInTheDocument();
+    expect(applyButton()).toBeDisabled();
+  });
+
   it("a change of the rule drops the preview", async () => {
     const service = makeService();
     await toPreview(service);

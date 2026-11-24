@@ -1,9 +1,9 @@
 import React, {FC, useEffect, useState} from "react";
-import {Alert, Box, Button, Divider, Stack, Typography} from "@mui/material";
+import {Alert, Box, Button, Divider, LinearProgress, Stack, Typography} from "@mui/material";
 import {Api} from "../../../services/eeg.service";
 import {applyItems, BulkApplyResult, BulkChangeService, BulkCommunity, BulkPreview, BulkRow, BulkRule, BulkTariff} from "../../../services/bulkchange.service";
 import CommunityStep from "./CommunityStep";
-import RuleFormStep from "./RuleFormStep";
+import RuleFormStep, {TariffStatus} from "./RuleFormStep";
 import PreviewTable, {Filter} from "./PreviewTable";
 import ApplyResult from "./ApplyResult";
 import ApplyStep from "./ApplyStep";
@@ -27,7 +27,8 @@ const BulkChangePage: FC<{ service?: BulkChangeService }> = ({service = Api.bulk
   const [form, setForm] = useState<RuleForm>(initialForm());
   const [preview, setPreview] = useState<PreviewState | null>(null);
   const [checked, setChecked] = useState(false);
-  const [busy, setBusy] = useState(false);
+  // the call that runs: the form is locked meanwhile, the old preview stays visible until the new one arrives
+  const [busy, setBusy] = useState<"preview" | "apply" | null>(null);
   const [error, setError] = useState<{ view: ErrorView, op: BulkOperation } | null>(null);
   const [result, setResult] = useState<{ tenant: string, rule: BulkRule, data: BulkApplyResult, previewRows: BulkRow[] } | null>(null);
   const [tariffs, setTariffs] = useState<BulkTariff[] | null>(null);
@@ -55,27 +56,36 @@ const BulkChangePage: FC<{ service?: BulkChangeService }> = ({service = Api.bulk
     setResult(null);
   };
 
-  const ruleReady = community !== null && Object.keys(formProblems(form)).length === 0;
+  const problems = Object.values(formProblems(form));
+  const ruleReady = community !== null && problems.length === 0;
+  // why "Vorschau berechnen" cannot be clicked yet
+  const notReady = community === null ? "Zuerst die Gemeinschaft wählen."
+    : problems.length > 0 ? `Regel unvollständig: ${problems[0]}.` : null;
+  const tariffStatus: TariffStatus = community === null ? "noCommunity"
+    : tariffError ? "error" : tariffs === null ? "loading" : "ready";
   const changedCount = preview?.data.counts.changed ?? 0;
 
   const runPreview = async () => {
     if (!community) return;
     const rule = buildRule(form);
-    setBusy(true);
-    resetFlow();
+    setBusy("preview");
+    setChecked(false);
+    setError(null);
+    setResult(null);
     try {
       const data = await service.preview(community.tenant, rule);
       setPreview({community, tenant: community.tenant, rule, data});
     } catch (e) {
+      setPreview(null);
       setError({view: describeError(e, "preview"), op: "preview"});
     } finally {
-      setBusy(false);
+      setBusy(null);
     }
   };
 
   const runApply = async () => {
     if (!preview) return;
-    setBusy(true);
+    setBusy("apply");
     setError(null);
     try {
       const data = await service.apply(preview.tenant, preview.rule, applyItems(preview.data));
@@ -91,7 +101,7 @@ const BulkChangePage: FC<{ service?: BulkChangeService }> = ({service = Api.bulk
         setChecked(false);
       }
     } finally {
-      setBusy(false);
+      setBusy(null);
     }
   };
 
@@ -110,7 +120,7 @@ const BulkChangePage: FC<{ service?: BulkChangeService }> = ({service = Api.bulk
       <Stack spacing={3}>
         <section>
           <Typography variant="h6" component="h2" gutterBottom>1 Gemeinschaft</Typography>
-          <CommunityStep service={service} value={community} onChange={c => {
+          <CommunityStep service={service} value={community} disabled={busy !== null} onChange={c => {
             setCommunity(c);
             // a tariff of the previous community does not belong to the new one
             if (valueKind(form.field) === "tariff") setForm({...form, value: "", conditionValue: ""});
@@ -123,15 +133,20 @@ const BulkChangePage: FC<{ service?: BulkChangeService }> = ({service = Api.bulk
           {tariffError && valueKind(form.field) === "tariff" && (
             <Alert severity="error" sx={{mb: 2}}>Tarife der Gemeinschaft konnten nicht geladen werden: {tariffError}</Alert>
           )}
-          <RuleFormStep form={form} tariffs={tariffs} onChange={f => {setForm(f); resetFlow();}}/>
-          <Button variant="outlined" sx={{mt: 2}} onClick={runPreview} disabled={!ruleReady || busy}>
-            Vorschau berechnen
-          </Button>
+          <RuleFormStep form={form} tariffs={tariffs} tariffStatus={tariffStatus} disabled={busy !== null}
+                        onChange={f => {setForm(f); resetFlow();}}/>
+          <Stack direction="row" spacing={2} alignItems="center" sx={{mt: 2}}>
+            <Button variant="outlined" onClick={runPreview} disabled={!ruleReady || busy !== null}>
+              Vorschau berechnen
+            </Button>
+            {notReady && <Typography variant="caption" color="text.secondary">{notReady}</Typography>}
+          </Stack>
+          {busy === "preview" && <LinearProgress aria-label="Vorschau wird berechnet" sx={{mt: 1}}/>}
         </section>
 
         {error && !(error.op === "apply" && preview) && (
           <Alert severity="error" action={error.view.reloadPreview && (
-            <Button color="inherit" size="small" onClick={runPreview} disabled={busy || !ruleReady}>
+            <Button color="inherit" size="small" onClick={runPreview} disabled={busy !== null || !ruleReady}>
               Vorschau neu berechnen
             </Button>
           )}>
@@ -146,7 +161,7 @@ const BulkChangePage: FC<{ service?: BulkChangeService }> = ({service = Api.bulk
             <PreviewTable field={preview.rule.field} preview={preview.data} onDownload={download}/>
             <Typography variant="h6" component="h2" sx={{mt: 3}} gutterBottom>4 Anwenden</Typography>
             <ApplyStep community={preview.community} rule={preview.rule} tariffs={tariffs} changedCount={changedCount}
-                       checked={checked} onCheck={setChecked} busy={busy} onApply={runApply}
+                       checked={checked} onCheck={setChecked} busy={busy !== null} applying={busy === "apply"} onApply={runApply}
                        error={error?.op === "apply" ? error.view : null}/>
           </section>
         )}

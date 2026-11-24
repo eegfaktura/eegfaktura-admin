@@ -1,15 +1,16 @@
 import React, {useState} from "react";
 import {fireEvent, render, screen, within} from "@testing-library/react";
-import RuleFormStep from "./RuleFormStep";
+import RuleFormStep, {TariffStatus} from "./RuleFormStep";
 import {initialForm, RuleForm} from "./rule";
 import {BulkTariff} from "../../../services/bulkchange.service";
 import tariffs from "../../../services/__fixtures__/bulkchange/tariffs.response.json";
 
 // The form offers only the combinations of the matrix.
 
-const Harness = () => {
-  const [form, setForm] = useState<RuleForm>(initialForm());
-  return <RuleFormStep form={form} tariffs={tariffs as BulkTariff[]} onChange={setForm}/>;
+const Harness = ({status = "ready", disabled = false, field}: { status?: TariffStatus, disabled?: boolean, field?: RuleForm["field"] }) => {
+  const [form, setForm] = useState<RuleForm>(initialForm(field));
+  return <RuleFormStep form={form} tariffs={status === "ready" ? tariffs as BulkTariff[] : null} tariffStatus={status}
+                       disabled={disabled} onChange={setForm}/>;
 };
 
 // a menu that was just closed stays in the DOM during its exit transition (labelled like the select): the
@@ -89,6 +90,24 @@ describe("RuleFormStep", () => {
     choose("Richtung", "Erzeugung");
     expect(screen.queryByText("Bezug")).toBeNull();
     expect(options("Neuer Wert")).toEqual(["Einspeisung"]);
+  });
+
+  it.each([
+    ["noCommunity", "Zuerst die Gemeinschaft wählen"],
+    ["loading", "Tarife werden geladen …"],
+    ["error", "Tarife konnten nicht geladen werden"],
+  ] as const)("tariff without list (%s) says why", (status, text) => {
+    render(<Harness status={status} field="PARTICIPANT_TARIFF"/>);
+    expect(screen.getByText(text)).toBeInTheDocument();
+    expect(screen.getAllByLabelText("Neuer Wert")[0]).toHaveAttribute("aria-disabled", "true");
+    ["Tarife konnten nicht geladen werden", "Tarife werden geladen …", "Zuerst die Gemeinschaft wählen"]
+      .filter(t => t !== text).forEach(t => expect(screen.queryByText(t)).toBeNull());
+  });
+
+  it("disabled locks every input", () => {
+    render(<Harness disabled field="MANDATE_REFERENCE"/>);
+    ["Feld", "Aktion", "Bedingung"].forEach(l => expect(screen.getAllByLabelText(l)[0]).toHaveAttribute("aria-disabled", "true"));
+    expect(screen.getByLabelText("Text davor (optional)")).toBeDisabled();
   });
 
   it("a new field starts a new rule", () => {
