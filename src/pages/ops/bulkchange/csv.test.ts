@@ -32,7 +32,7 @@ describe("previewCsv", () => {
 
   it("starts with the BOM, uses ; and CRLF, one line per preview row", () => {
     const csv = previewCsv("MANDATE_REFERENCE", preview.rows);
-    expect(csv.startsWith("﻿Mitgliedsnummer;Name;Feld;bisher;neu;Ergebnis;Hinweis/Fehler\r\n")).toBe(true);
+    expect(csv.startsWith("\uFEFFMitgliedsnummer;Name;Feld;Bisher;Neu;Ergebnis;Hinweis/Fehler\r\n")).toBe(true);
     const lines = csv.slice(1).split("\r\n").filter(l => l !== "");
     expect(lines).toHaveLength(1 + preview.rows.length);
     expect(lines[1]).toBe("1;Anna Muster;Mandatsreferenz;leer (Mitgliedsnummer gilt);Lastschrift-1;geändert;H6 Mandatsänderung");
@@ -52,7 +52,7 @@ describe("previewCsv", () => {
 
 describe("csvFileName", () => {
   it.each([
-    ["all", "alle"], ["changed", "geaendert"], ["hint", "mit-hinweis"], ["error", "fehler"], ["unchanged", "unveraendert"],
+    ["all", "alle"], ["changed", "geaendert"], ["hint", "mit-hinweis"], ["error", "fehler"], ["unchanged", "unveraendert"], ["result", "ergebnis"],
   ] as const)("names the filter %s", (filter, slug) => {
     expect(csvFileName("TE000441", "MANDATE_REFERENCE", filter, "2026-11-25"))
       .toBe(`massenaenderung-TE000441-mandate_reference-${slug}-2026-11-25.csv`);

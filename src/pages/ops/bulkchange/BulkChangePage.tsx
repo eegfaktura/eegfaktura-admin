@@ -27,7 +27,7 @@ const BulkChangePage: FC<{ service?: BulkChangeService }> = ({service = Api.bulk
   const [checked, setChecked] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ErrorView | null>(null);
-  const [result, setResult] = useState<{ rule: BulkRule, data: BulkApplyResult, previewRows: BulkRow[] } | null>(null);
+  const [result, setResult] = useState<{ tenant: string, rule: BulkRule, data: BulkApplyResult, previewRows: BulkRow[] } | null>(null);
   const [tariffs, setTariffs] = useState<BulkTariff[] | null>(null);
   const [tariffError, setTariffError] = useState<string | null>(null);
 
@@ -77,7 +77,7 @@ const BulkChangePage: FC<{ service?: BulkChangeService }> = ({service = Api.bulk
     setError(null);
     try {
       const data = await service.apply(preview.tenant, preview.rule, applyItems(preview.data));
-      setResult({rule: preview.rule, data, previewRows: preview.data.rows});
+      setResult({tenant: preview.tenant, rule: preview.rule, data, previewRows: preview.data.rows});
       setPreview(null);
       setChecked(false);
     } catch (e) {
@@ -168,7 +168,9 @@ const BulkChangePage: FC<{ service?: BulkChangeService }> = ({service = Api.bulk
           <section>
             <Divider sx={{mb: 2}}/>
             <Typography variant="h6" gutterBottom>Ergebnis</Typography>
-            <ApplyResult field={result.rule.field} result={result.data} previewRows={result.previewRows}/>
+            <ApplyResult field={result.rule.field} result={result.data} previewRows={result.previewRows}
+                         onDownload={rows => downloadCsv(csvFileName(result.tenant, result.rule.field, "result", todayIso()),
+                           previewCsv(result.rule.field, rows))}/>
           </section>
         )}
       </Stack>

@@ -74,7 +74,8 @@ describe("BulkChangePage", () => {
     expect(service.apply).toHaveBeenCalledWith("TE000441", expect.objectContaining({field: "MANDATE_REFERENCE"}),
       [{participantId: "d4410000-0000-4000-8000-000000000001", expectedOld: null, expectedNew: "Lastschrift-1"}]);
     expect(screen.getByText(/1 übersprungen/)).toBeInTheDocument();
-    expect(screen.getByText(/CHANGED_SINCE_PREVIEW: Seit der Vorschau geändert/)).toBeInTheDocument();
+    expect(screen.getByText("Seit der Vorschau geändert — nicht geschrieben.")).toBeInTheDocument();
+    expect(screen.queryByText(/CHANGED_SINCE_PREVIEW/)).toBeNull();
     expect(screen.getByText("3 Anna Muster")).toBeInTheDocument();
     expect(screen.queryByRole("button", {name: "1 Änderung anwenden"})).toBeNull();
   });
@@ -99,6 +100,19 @@ describe("BulkChangePage", () => {
     fireEvent.mouseDown(screen.getAllByLabelText("Neuer Wert")[0]);
     fireEvent.click(within(screen.getAllByRole("listbox").slice(-1)[0]).getByRole("option", {name: /^Mitgliedsbeitrag/}));
     expect(screen.getByRole("button", {name: "Vorschau berechnen"})).toBeEnabled();
+  });
+
+  it("the result can be downloaded as CSV of the written rows", async () => {
+    downloads.length = 0;
+    const service = makeService();
+    await toPreview(service);
+    fireEvent.click(screen.getByLabelText(/^Vorschau .*geprüft$/));
+    fireEvent.click(applyButton());
+    await screen.findByText("Geschrieben");
+    const buttons = screen.getAllByRole("button", {name: "Herunterladen (CSV)"});
+    fireEvent.click(buttons[buttons.length - 1]);
+    expect(downloads[0].name).toMatch(/^massenaenderung-TE000441-mandate_reference-ergebnis-/);
+    expect(downloads[0].content.split("\r\n").filter(l => l !== "")).toHaveLength(1 + applyResponse.rows.length);
   });
 
   it("a change of the rule drops the preview", async () => {
