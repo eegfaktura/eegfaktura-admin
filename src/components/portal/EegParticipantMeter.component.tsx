@@ -19,12 +19,13 @@ import {CellEditDialog, editDialog} from "./CellEdit.dialog";
 import {GridRowModel} from "@mui/x-data-grid/models/gridRows";
 import {useParticipantContext} from "./context/participant.context";
 import {DateCellEditor, dayToEpochMs, formatDay, rejectInvalidDate} from "./editor/DateCell.editor";
+import {processStateLabel} from "../../model/displayLabels";
 
 const CellEditInputElement1:FC<{params: GridRenderCellParams<Metering, string>, onStartEdit: (row: GridRowModel<Metering>) => void}> = ({params, onStartEdit}) => {
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-        <div style={{ width: "100%"}}>{params.value}</div>
+        <div style={{ width: "100%"}}>{params.formattedValue}</div>
         <IconButton color="primary" sx={{ fontSize: "6px" }} aria-label={`${params.colDef.headerName ?? params.field} bearbeiten`} onClick={() => onStartEdit(params.row)}>
           <ModeEditRounded sx={{fontSize: "18px"}}/>
         </IconButton>
@@ -136,6 +137,7 @@ const EegParticipantMeterComponent: FC = () => {
       description: 'Nicht sortierbar',
       sortable: false,
       flex: 1,
+      valueFormatter: params => processStateLabel(params?.value),
       renderCell: (params: GridRenderCellParams<any, string>) => <ProcessStateEditor params={params} updateMeter={onUpdateMeter}/>
     },
     { field: 'activeSince', headerName: 'Aktiv', flex: 0.5,

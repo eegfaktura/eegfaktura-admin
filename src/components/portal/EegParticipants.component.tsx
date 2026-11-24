@@ -15,6 +15,7 @@ import {GridRowSelectionModel} from "@mui/x-data-grid/models/gridRowSelectionMod
 import {openParticipantDialog, ParticipantCellEditDialog} from "./editor/Participant.editor";
 import {Api} from "../../services/eeg.service";
 import {AdminUpdateData} from "../../model/admin.model";
+import {businessRoleLabel} from "../../model/displayLabels";
 
 const EegParticipantItem: FC = () => {
 
@@ -62,8 +63,9 @@ const EegParticipantItem: FC = () => {
     {
       field: 'businessRole',
       headerName: 'Mitgliedsart',
-      description: 'Privat oder Business',
+      description: 'Privat oder Unternehmen',
       sortable: false,
+      valueFormatter: params => businessRoleLabel(params?.value),
       flex: 1.5,
       // renderCell: (params: GridRenderCellParams<EegParticipant, string>) =>
       //   <BusinessCellEditor
