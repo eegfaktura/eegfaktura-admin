@@ -1,4 +1,5 @@
 import {BulkField, BulkRow} from "../../../services/bulkchange.service";
+import type {Filter} from "./PreviewTable";
 import {CLASS_LABELS, codeText, ERROR_TEXTS, FIELD_LABELS, HINT_TEXTS} from "./texts";
 
 // Download of the preview for the ticket (konzept-massenaenderungen.md, Tech Design A): UTF-8 with BOM, separator
@@ -17,7 +18,7 @@ const notes = (r: BulkRow) => [
   ...r.hints.map(h => `${h} ${codeText(HINT_TEXTS, h).short}`),
 ].join(", ");
 
-// All rows of the preview, whatever the filter on the page shows.
+// The rows of the preview as the page shows them under the current filter.
 export function previewCsv(field: BulkField, rows: BulkRow[]): string {
   const meter = field === "METER_TARIFF";
   const header = ["Mitgliedsnummer", "Name", ...(meter ? ["Zählpunkt"] : []), "Feld", "bisher", "neu", "Ergebnis",
@@ -26,6 +27,14 @@ export function previewCsv(field: BulkField, rows: BulkRow[]): string {
     FIELD_LABELS[field], r.oldText, r.newText, CLASS_LABELS[r.class] ?? r.class, notes(r)]);
   return "﻿" + [header, ...lines].map(l => l.map(csvCell).join(";")).join("\r\n") + "\r\n";
 }
+
+const FILTER_SLUGS: Record<Filter, string> = {
+  all: "alle", changed: "geaendert", hint: "mit-hinweis", error: "fehler", unchanged: "unveraendert",
+};
+
+// e.g. massenaenderung-TE000441-mandate_reference-mit-hinweis-2026-11-25.csv: the filter is part of the name
+export const csvFileName = (tenant: string, field: BulkField, filter: Filter, date: string) =>
+  `massenaenderung-${tenant}-${field.toLowerCase()}-${FILTER_SLUGS[filter]}-${date}.csv`;
 
 export function downloadCsv(fileName: string, content: string) {
   const url = URL.createObjectURL(new Blob([content], {type: "text/csv;charset=utf-8"}));

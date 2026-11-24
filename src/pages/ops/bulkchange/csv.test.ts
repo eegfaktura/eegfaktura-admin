@@ -1,5 +1,5 @@
 import {BulkPreview, BulkRow} from "../../../services/bulkchange.service";
-import {csvCell, previewCsv} from "./csv";
+import {csvCell, csvFileName, previewCsv} from "./csv";
 import previewResponse from "../../../services/__fixtures__/bulkchange/preview.response.json";
 
 describe("csvCell", () => {
@@ -47,5 +47,14 @@ describe("previewCsv", () => {
     expect(csv).toContain("Mitgliedsnummer;Name;Zählpunkt;Feld;");
     expect(csv).toContain(`7;"'=HYPERLINK(""x"")";AT0030000000000000000000000000001;Zählpunkttarif;kein Tarif;Tarif A;geändert;`);
     expect(csv.toLowerCase()).not.toContain("iban");
+  });
+});
+
+describe("csvFileName", () => {
+  it.each([
+    ["all", "alle"], ["changed", "geaendert"], ["hint", "mit-hinweis"], ["error", "fehler"], ["unchanged", "unveraendert"],
+  ] as const)("names the filter %s", (filter, slug) => {
+    expect(csvFileName("TE000441", "MANDATE_REFERENCE", filter, "2026-11-25"))
+      .toBe(`massenaenderung-TE000441-mandate_reference-${slug}-2026-11-25.csv`);
   });
 });

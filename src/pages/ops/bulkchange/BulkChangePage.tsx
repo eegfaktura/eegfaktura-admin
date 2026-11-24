@@ -4,11 +4,11 @@ import {Api} from "../../../services/eeg.service";
 import {applyItems, BulkApplyResult, BulkChangeService, BulkCommunity, BulkPreview, BulkRow, BulkRule} from "../../../services/bulkchange.service";
 import CommunityStep from "./CommunityStep";
 import RuleFormStep from "./RuleFormStep";
-import PreviewTable from "./PreviewTable";
+import PreviewTable, {Filter} from "./PreviewTable";
 import ApplyResult from "./ApplyResult";
 import {buildRule, formProblems, initialForm, RuleForm, todayIso} from "./rule";
 import {describeError, ErrorView} from "./texts";
-import {downloadCsv, previewCsv} from "./csv";
+import {csvFileName, downloadCsv, previewCsv} from "./csv";
 
 // Bulk change of master data for the VFEEG support (konzept-massenaenderungen.md): one community, one rule,
 // mandatory preview, apply only after "Vorschau geprüft". Any change of community or rule drops the preview.
@@ -76,10 +76,9 @@ const BulkChangePage: FC<{ service?: BulkChangeService }> = ({service = Api.bulk
     }
   };
 
-  const download = () => {
-    if (!preview || !community) return;
-    downloadCsv(`massenaenderung-${community.tenant}-${preview.rule.field.toLowerCase()}-${todayIso()}.csv`,
-      previewCsv(preview.rule.field, preview.data.rows));
+  const download = (rows: BulkRow[], filter: Filter) => {
+    if (!preview) return;
+    downloadCsv(csvFileName(preview.tenant, preview.rule.field, filter, todayIso()), previewCsv(preview.rule.field, rows));
   };
 
   return (

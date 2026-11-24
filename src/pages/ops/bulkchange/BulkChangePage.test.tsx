@@ -6,6 +6,12 @@ import communities from "../../../services/__fixtures__/bulkchange/communities.r
 import previewResponse from "../../../services/__fixtures__/bulkchange/preview.response.json";
 import applyResponse from "../../../services/__fixtures__/bulkchange/apply.response.json";
 
+const downloads = vi.hoisted(() => [] as { name: string, content: string }[]);
+vi.mock("./csv", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./csv")>()),
+  downloadCsv: (name: string, content: string) => downloads.push({name, content}),
+}));
+
 // The flow of the page against the fixtures: community, rule, preview, "Vorschau geprüft", apply, errors.
 
 const makeService = () => ({
@@ -69,6 +75,18 @@ describe("BulkChangePage", () => {
     expect(screen.getByText(/CHANGED_SINCE_PREVIEW: Seit der Vorschau geändert/)).toBeInTheDocument();
     expect(screen.getByText("3 Anna Muster")).toBeInTheDocument();
     expect(screen.queryByRole("button", {name: "1 Änderung anwenden"})).toBeNull();
+  });
+
+  it("the CSV holds the rows of the current filter and names the filter", async () => {
+    downloads.length = 0;
+    await toPreview(makeService());
+    fireEvent.click(screen.getByRole("button", {name: "mit Hinweis (1)"}));
+    fireEvent.click(screen.getByRole("button", {name: "Herunterladen (CSV)"}));
+    expect(downloads).toHaveLength(1);
+    expect(downloads[0].name).toMatch(/^massenaenderung-TE000441-mandate_reference-mit-hinweis-\d{4}-\d{2}-\d{2}\.csv$/);
+    const lines = downloads[0].content.split("\r\n").filter(l => l !== "");
+    expect(lines).toHaveLength(2);
+    expect(lines[1]).toContain("H6 Mandatsänderung");
   });
 
   it("a change of the rule drops the preview", async () => {

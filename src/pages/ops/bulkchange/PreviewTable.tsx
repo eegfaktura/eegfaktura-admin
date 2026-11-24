@@ -51,7 +51,7 @@ export const RowsTable: FC<{ field: BulkField, rows: BulkRow[] }> = ({field, row
   );
 };
 
-type Filter = "all" | "changed" | "hint" | "error" | "unchanged";
+export type Filter = "all" | "changed" | "hint" | "error" | "unchanged";
 
 const FILTERS: Record<Filter, (r: BulkRow) => boolean> = {
   all: () => true,
@@ -61,7 +61,7 @@ const FILTERS: Record<Filter, (r: BulkRow) => boolean> = {
   unchanged: r => r.class === "UNCHANGED_CONDITION" || r.class === "UNCHANGED_TARGET",
 };
 
-const PreviewTable: FC<{ field: BulkField, preview: BulkPreview, onDownload: () => void }> = ({field, preview, onDownload}) => {
+const PreviewTable: FC<{ field: BulkField, preview: BulkPreview, onDownload: (rows: BulkRow[], filter: Filter) => void }> = ({field, preview, onDownload}) => {
   const [filter, setFilter] = useState<Filter>("all");
   const rows = useMemo(() => preview.rows.filter(FILTERS[filter]), [preview, filter]);
   const c = preview.counts;
@@ -82,7 +82,7 @@ const PreviewTable: FC<{ field: BulkField, preview: BulkPreview, onDownload: () 
           <ToggleButton value="error">Fehler ({c.errors})</ToggleButton>
           <ToggleButton value="unchanged">unverändert ({c.unchangedCondition + c.unchangedTarget})</ToggleButton>
         </ToggleButtonGroup>
-        <Button variant="outlined" onClick={onDownload} disabled={preview.rows.length === 0}>
+        <Button variant="outlined" onClick={() => onDownload(rows, filter)} disabled={rows.length === 0}>
           Herunterladen (CSV)
         </Button>
       </Stack>
