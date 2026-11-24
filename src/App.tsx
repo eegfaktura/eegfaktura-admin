@@ -24,7 +24,7 @@ export const themeOptions: ThemeOptions = {
     primary: {
       main: '#2B6860',
       light: '#88dcb6',
-      contrastText: '#b9bab9',
+      contrastText: '#fff',
     },
     secondary: {
       main: '#dc631e',
