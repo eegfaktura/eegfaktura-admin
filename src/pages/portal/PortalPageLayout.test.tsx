@@ -3,7 +3,7 @@ import {render, screen, waitFor} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {Provider} from "react-redux";
 import {makeStore} from "../../redux/store";
-import {selectedEeg} from "../../redux/features/eegStateSlice";
+import {selectedEeg, setEegAll} from "../../redux/features/eegStateSlice";
 import {Api, EegService} from "../../services/eeg.service";
 import {EegMember} from "../../model/eeg.model";
 import PortalPageLayout from "./PortalPageLayout";
@@ -20,9 +20,11 @@ afterEach(() => {
   Api.eegService = service
 })
 
-const mount = (getEeg: () => Promise<EegMember[]>) => {
+// loaded: the list in the store from an earlier visit of the portal
+const mount = (getEeg: () => Promise<EegMember[]>, loaded: EegMember[] = []) => {
   Api.eegService = {getEeg} as unknown as EegService
   const store = makeStore()
+  store.dispatch(setEegAll(loaded))
   render(<Provider store={store}><PortalPageLayout/></Provider>)
   return store
 }
@@ -64,5 +66,12 @@ describe("portal: loading the communities", () => {
     mount(() => Promise.reject(new Error("500")))
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Gemeinschaften konnten nicht geladen werden.")
+  })
+
+  it("keeps a list loaded before and says that it is not up to date when loading again fails", async () => {
+    mount(() => Promise.reject(new Error("500")), eegs)
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Neu laden fehlgeschlagen, die Liste ist nicht aktuell.")
+    expect(screen.getByRole("button", {name: /TE100001/})).toBeInTheDocument()
   })
 })

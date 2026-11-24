@@ -69,6 +69,9 @@ const PortalPageLayout = () => {
           <Box display="flex" flexDirection="column" height="100%" sx={{p: 2}}>
             <SearchInputComponent setSearchItem={setFilterString}></SearchInputComponent>
             <div style={{padding: "5px", fontWeight: "bold"}}>Gemeinschaften</div>
+            {loadState === "failed" && (
+              <Alert severity="error" sx={{mb: 1}}>Neu laden fehlgeschlagen, die Liste ist nicht aktuell.</Alert>
+            )}
             <div style={{overflow: "auto", flex: "1"}}>
               <Box style={{display: "flex", flexDirection: "column", rowGap: "10px", width: "100%", padding: "12px"}}
                    overflow="auto">
