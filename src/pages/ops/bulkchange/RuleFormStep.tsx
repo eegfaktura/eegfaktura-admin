@@ -1,7 +1,7 @@
 import React, {FC} from "react";
 import {MenuItem, Stack, TextField, Typography} from "@mui/material";
 import {BulkDirection, BulkTariff} from "../../../services/bulkchange.service";
-import {actionsFor, CONDITIONS, DEBIT_TYPES, DIRECTIONS, FIELDS, formProblems, RuleForm, tariffOptions, todayIso, valueKind, withField} from "./rule";
+import {actionsFor, CONDITIONS, DEBIT_TYPES, DIRECTIONS, FIELDS, formProblems, RuleForm, tariffOptions, todayIso, valueKind, initialForm} from "./rule";
 import {ACTION_LABELS, clearLabel, CONDITION_LABELS, DEBIT_TYPE_LABELS, DIRECTION_LABELS, FIELD_LABELS, tariffLabel} from "./texts";
 
 // Step 2: the rule. Only the combinations of the matrix are offered (rule.ts); a changed field starts afresh.
@@ -56,7 +56,7 @@ const RuleFormStep: FC<{
     <Stack spacing={2}>
       <Stack direction={{xs: "column", md: "row"}} spacing={2}>
         <TextField select disabled={disabled} label="Feld" value={form.field} fullWidth
-                   onChange={e => onChange(withField(e.target.value as RuleForm["field"]))}>
+                   onChange={e => onChange(initialForm(e.target.value as RuleForm["field"]))}>
           {FIELDS.map(f => <MenuItem key={f} value={f}>{FIELD_LABELS[f]}</MenuItem>)}
         </TextField>
         <TextField select disabled={disabled} label="Aktion" value={form.action} fullWidth

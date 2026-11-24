@@ -1,4 +1,4 @@
-import React, {FC, useCallback, useEffect, useState} from "react";
+import React, {FC, useEffect, useState} from "react";
 import {Alert, Autocomplete, Button, CircularProgress, Stack, TextField} from "@mui/material";
 import {BulkChangeService, BulkCommunity} from "../../../services/bulkchange.service";
 import {describeError} from "./texts";
@@ -14,15 +14,22 @@ const CommunityStep: FC<{
   const [list, setList] = useState<BulkCommunity[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(() => {
+  // "Neu laden" counts up; an answer that arrives after a newer load or after unmount is dropped
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    let current = true;
     setError(null);
     setList(null);
     service.communities()
-      .then(l => setList([...l].sort((a, b) => a.name.localeCompare(b.name, "de"))))
-      .catch(e => setError(describeError(e, "communities").text));
-  }, [service]);
+      .then(l => current && setList([...l].sort((a, b) => a.name.localeCompare(b.name, "de"))))
+      .catch(e => current && setError(describeError(e, "communities").text));
+    return () => {
+      current = false;
+    };
+  }, [service, attempt]);
 
-  useEffect(load, [load]);
+  const load = () => setAttempt(a => a + 1);
 
   if (error) {
     return (

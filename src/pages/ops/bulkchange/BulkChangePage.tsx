@@ -43,7 +43,7 @@ const BulkChangePage: FC<{ service?: BulkChangeService }> = ({service = Api.bulk
     let current = true;
     service.tariffs(tenant)
       .then(l => current && setTariffs(l))
-      .catch(e => current && setTariffError(describeError(e, "communities").text));
+      .catch(e => current && setTariffError(describeError(e, "tariffs").text));
     return () => {
       current = false;
     };

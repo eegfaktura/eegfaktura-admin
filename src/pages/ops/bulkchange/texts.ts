@@ -112,7 +112,7 @@ export const SKIP_TEXTS: Record<string, string> = {
 export const codeText = (table: Record<string, CodeText>, code: string): CodeText =>
   table[code] ?? {short: code, long: `Unbekannter Code ${code}`};
 
-export type BulkOperation = "communities" | "preview" | "apply";
+export type BulkOperation = "communities" | "tariffs" | "preview" | "apply";
 
 export interface ErrorView {
   text: string;
