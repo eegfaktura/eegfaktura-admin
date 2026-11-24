@@ -9,6 +9,9 @@ interface ParticipantContextProps {
   selectedParticipant?: EegParticipant;
   selectedMeters?: Metering[];
   participants: EegParticipant[];
+  // the community has members, also when the search hides all of them
+  hasParticipants: boolean;
+  searchItem?: string;
   setSearchItem: (item: string | undefined) => void;
 }
 
@@ -42,6 +45,8 @@ export const ParticipantProvider:FC<{children: ReactNode}> = ({children}) => {
     },
     selectedParticipant: selectedParticipant,
     participants: participants,
+    hasParticipants: allParticipants.length > 0,
+    searchItem: searchItem,
     updateMeter: (meter: Metering) => {
       setAllParticipants(all => all.map(
         s => s.id === meter.participantId

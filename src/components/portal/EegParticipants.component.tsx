@@ -19,7 +19,7 @@ import {AdminUpdateData} from "../../model/admin.model";
 
 const EegParticipantItem: FC = () => {
 
-  const {participants, selectParticipant, updateParticipant} = useParticipantContext()
+  const {participants, hasParticipants, searchItem, selectParticipant, updateParticipant} = useParticipantContext()
 
   function extractProperties<T extends object, K extends keyof T>(
     obj: T,
@@ -93,7 +93,9 @@ const EegParticipantItem: FC = () => {
   ];
 
   if (participants === undefined || participants.length === 0) {
-    return <Alert severity="info" sx={{mt: 2}}>Keine Mitglieder</Alert>
+    return <Alert severity="info" sx={{mt: 2}}>
+      {hasParticipants && searchItem ? `Keine Treffer für „${searchItem}“` : "Keine Mitglieder"}
+    </Alert>
   }
 
   const onRowSelectionChanged = (selectionModel: GridRowSelectionModel, details: GridCallbackDetails) => {
