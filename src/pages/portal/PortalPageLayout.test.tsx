@@ -8,7 +8,8 @@ import {Api, EegService} from "../../services/eeg.service";
 import {EegMember} from "../../model/eeg.model";
 import PortalPageLayout from "./PortalPageLayout";
 
-// The list of communities in the portal: usable with the keyboard and a screen reader.
+// The list of communities in the portal: usable with the keyboard and a screen reader, and it says when it is
+// loading, empty or failed instead of showing an empty page.
 
 vi.mock("../../components/portal/EegMemberDetails.component", () => ({default: () => null}))
 
@@ -42,5 +43,26 @@ describe("portal: list of communities", () => {
     mount(async () => eegs)
 
     expect(await screen.findByRole("textbox", {name: "Gemeinschaften suchen"})).toBeInTheDocument()
+  })
+})
+
+describe("portal: loading the communities", () => {
+  it("shows a progress indicator while loading", () => {
+    mount(() => new Promise(() => {}))
+
+    expect(screen.getByRole("progressbar", {name: "Gemeinschaften werden geladen"})).toBeInTheDocument()
+  })
+
+  it("says when there are no communities", async () => {
+    mount(async () => [])
+
+    expect(await screen.findByText("Keine Gemeinschaften")).toBeInTheDocument()
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument()
+  })
+
+  it("shows an error when the list cannot be loaded", async () => {
+    mount(() => Promise.reject(new Error("500")))
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Gemeinschaften konnten nicht geladen werden.")
   })
 })

@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from "react";
-import {Box, Card, CardActionArea, CardContent, Grid} from "@mui/material";
+import {Alert, Box, Card, CardActionArea, CardContent, CircularProgress, Grid} from "@mui/material";
 import {Api} from "../../services/eeg.service";
 import {EegMember} from "../../model/eeg.model";
 import EegMemberDetailsComponent from "../../components/portal/EegMemberDetails.component";
@@ -19,9 +19,15 @@ const PortalPageLayout = () => {
   const members = useSelector(allEegs)
   const eegSelected = useSelector(selectedEeg)
   const [filterString, setFilterString] = useState<string | undefined>()
+  const [loadState, setLoadState] = useState<"loading" | "loaded" | "failed">("loading")
 
   useEffect(() => {
-    Api.eegService.getEeg().then(eegs => dispatch(setEegAll(eegs)))
+    Api.eegService.getEeg()
+      .then(eegs => {
+        dispatch(setEegAll(eegs))
+        setLoadState("loaded")
+      })
+      .catch(() => setLoadState("failed"))
   }, [dispatch]);
 
   const filteredMembers = useMemo(() => {
@@ -44,8 +50,16 @@ const PortalPageLayout = () => {
     </React.Fragment>
   );
 
-  if (members === undefined || members.length === 0) {
-    return <></>
+  // a list loaded before stays visible while it is loaded again
+  if (members.length === 0) {
+    switch (loadState) {
+      case "loading":
+        return <Box sx={{display: "flex", justifyContent: "center", p: 3}}><CircularProgress aria-label="Gemeinschaften werden geladen"/></Box>
+      case "failed":
+        return <Box sx={{p: 3}}><Alert severity="error">Gemeinschaften konnten nicht geladen werden.</Alert></Box>
+      default:
+        return <Box sx={{p: 3}}><Alert severity="info">Keine Gemeinschaften</Alert></Box>
+    }
   }
 
   return (

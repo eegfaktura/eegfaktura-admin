@@ -7,7 +7,7 @@ import {
   GridColDef,
 
 } from "@mui/x-data-grid";
-import {Box, ThemeProvider} from "@mui/material";
+import {Alert, Box, ThemeProvider} from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import EegParticipantMeterComponent from "./EegParticipantMeter.component";
 import {useParticipantContext} from "./context/participant.context";
@@ -93,7 +93,7 @@ const EegParticipantItem: FC = () => {
   ];
 
   if (participants === undefined || participants.length === 0) {
-    return <></>
+    return <Alert severity="info" sx={{mt: 2}}>Keine Mitglieder</Alert>
   }
 
   const onRowSelectionChanged = (selectionModel: GridRowSelectionModel, details: GridCallbackDetails) => {
