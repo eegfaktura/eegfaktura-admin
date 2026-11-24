@@ -43,10 +43,10 @@ describe("RuleFormStep", () => {
     expect(screen.queryByLabelText("Richtung")).toBeNull();
   });
 
-  it("mandate reference: only copy with text before/after or clear, no value for all", () => {
+  it("mandate reference: copy with text before/after, value from file or clear, no value for all", () => {
     render(<Harness/>);
     choose("Feld", "Mandatsreferenz");
-    expect(options("Aktion")).toEqual(["aus Mitgliedsnummer kopieren", "leer setzen (Mitgliedsnummer gilt)"]);
+    expect(options("Aktion")).toEqual(["aus Mitgliedsnummer kopieren", "Wert aus Datei", "leer setzen (Mitgliedsnummer gilt)"]);
     expect(screen.queryByLabelText("Neuer Wert")).toBeNull();
     expect(screen.getByLabelText("Text davor (optional)")).toBeInTheDocument();
     expect(screen.getByLabelText("Text danach (optional)")).toBeInTheDocument();

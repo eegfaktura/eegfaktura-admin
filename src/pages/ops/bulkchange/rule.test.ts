@@ -6,8 +6,10 @@ const TARIFF = "3f2a5c1e-1111-4222-8333-444455556666";
 
 describe("rule matrix", () => {
   it("the mandate reference only copies or clears, every other field sets or clears", () => {
-    expect(actionsFor("MANDATE_REFERENCE")).toEqual(["COPY", "CLEAR"]);
-    FIELDS.filter(f => f !== "MANDATE_REFERENCE").forEach(f => expect(actionsFor(f)).toEqual(["SET", "CLEAR"]));
+    expect(actionsFor("MANDATE_REFERENCE")).toEqual(["COPY", "FROM_FILE", "CLEAR"]);
+    expect(actionsFor("MANDATE_DATE")).toEqual(["SET", "FROM_FILE", "CLEAR"]);
+    FIELDS.filter(f => f !== "MANDATE_REFERENCE" && f !== "MANDATE_DATE")
+      .forEach(f => expect(actionsFor(f)).toEqual(["SET", "CLEAR"]));
   });
 
   it("value kinds per field", () => {
@@ -89,5 +91,23 @@ describe("formProblems", () => {
 
   it("todayIso is the local date", () => {
     expect(todayIso(new Date(2026, 0, 5, 23, 30))).toBe("2026-01-05");
+  });
+});
+
+describe("value from file", () => {
+  const form = (fileValues: RuleForm["fileValues"]): RuleForm =>
+    ({...initialForm("MANDATE_DATE"), action: "FROM_FILE", fileValues});
+
+  it("needs a file with values, at most 5,000", () => {
+    expect(formProblems(form(null)).value).toBe("Vorlage ausfüllen und laden");
+    expect(formProblems(form([])).value).toMatch(/keine Zeile/);
+    const many = Array.from({length: 5001}, (_, i) => ({participantNumber: String(i), value: "2024-01-01"}));
+    expect(formProblems(form(many)).value).toMatch(/Höchstens 5.000/);
+    expect(formProblems(form(many.slice(0, 5000)))).toEqual({});
+  });
+
+  it("sends the values, no value key", () => {
+    const values = [{participantNumber: "7", value: "2024-01-01"}];
+    expect(buildRule(form(values))).toEqual({field: "MANDATE_DATE", action: "FROM_FILE", condition: "ALL", values});
   });
 });

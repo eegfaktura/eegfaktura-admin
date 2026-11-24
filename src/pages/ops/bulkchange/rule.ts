@@ -1,4 +1,4 @@
-import {BulkAction, BulkCondition, BulkDirection, BulkField, BulkRule, BulkTariff} from "../../../services/bulkchange.service";
+import {BulkAction, BulkCondition, BulkDirection, BulkField, BulkFileValue, BulkRule, BulkTariff} from "../../../services/bulkchange.service";
 
 // The rule matrix of konzept-massenaenderungen.md (Tech Design A), the same as backend's BulkRule.Validate:
 // the form offers only these combinations and builds the request body from them.
@@ -7,10 +7,14 @@ export const FIELDS: BulkField[] = ["DEBIT_TYPE", "MANDATE_REFERENCE", "MANDATE_
 export const CONDITIONS: BulkCondition[] = ["ALL", "EMPTY", "EQUALS"];
 export const DIRECTIONS: BulkDirection[] = ["CONSUMPTION", "GENERATOR"];
 export const DEBIT_TYPES = ["CORE", "B2B", "NONE"];
+// Most values one "Wert aus Datei" run may carry (backend refuses more, BulkMaxFileValues).
+export const MAX_FILE_VALUES = 5000;
 
-// The mandate reference has no value that is the same for all: only copy (with text before/after) or clear.
+// The mandate reference has no value that is the same for all: only copy (with text before/after), a value per
+// member from a file, or clear. The mandate date can come from a file too (Teil 2).
 export const actionsFor = (field: BulkField): BulkAction[] =>
-  field === "MANDATE_REFERENCE" ? ["COPY", "CLEAR"] : ["SET", "CLEAR"];
+  field === "MANDATE_REFERENCE" ? ["COPY", "FROM_FILE", "CLEAR"]
+    : field === "MANDATE_DATE" ? ["SET", "FROM_FILE", "CLEAR"] : ["SET", "CLEAR"];
 
 // What a value of the field is: drives the input of "Wert setzen" and of "nur wo gleich …".
 export type ValueKind = "debitType" | "text" | "date" | "tariff";
@@ -38,11 +42,13 @@ export interface RuleForm {
   condition: BulkCondition;
   conditionValue: string;
   direction: BulkDirection | "";
+  // FROM_FILE: the values of the loaded template (null while no usable file is loaded)
+  fileValues: BulkFileValue[] | null;
 }
 
 export const initialForm = (field: BulkField = "DEBIT_TYPE"): RuleForm => ({
   field, action: actionsFor(field)[0], value: "", prefix: "", suffix: "",
-  condition: "ALL", conditionValue: "", direction: "",
+  condition: "ALL", conditionValue: "", direction: "", fileValues: null,
 });
 
 
@@ -85,6 +91,11 @@ export function formProblems(f: RuleForm, today = todayIso()): Partial<Record<"v
     const p = valueProblem(kind, f.value, true, today);
     if (p) out.value = p;
   }
+  if (f.action === "FROM_FILE") {
+    if (!f.fileValues) out.value = "Vorlage ausfüllen und laden";
+    else if (f.fileValues.length === 0) out.value = "Die Datei hat keine Zeile mit Mitgliedsnummer und Wert";
+    else if (f.fileValues.length > MAX_FILE_VALUES) out.value = `Höchstens ${MAX_FILE_VALUES.toLocaleString("de-AT")} Zeilen mit Wert je Lauf`;
+  }
   if (f.condition === "EQUALS") {
     const p = valueProblem(kind, f.conditionValue, false, today);
     if (p) out.conditionValue = p;
@@ -102,6 +113,7 @@ export function buildRule(f: RuleForm): BulkRule {
     if (f.prefix) rule.prefix = f.prefix;
     if (f.suffix) rule.suffix = f.suffix;
   }
+  if (f.action === "FROM_FILE" && f.fileValues) rule.values = f.fileValues;
   if (f.condition === "EQUALS") rule.conditionValue = f.conditionValue.trim();
   if (f.field === "METER_TARIFF" && f.direction) rule.direction = f.direction;
   return rule;

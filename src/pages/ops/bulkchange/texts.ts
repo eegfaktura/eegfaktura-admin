@@ -1,6 +1,6 @@
 import {BulkAction, BulkChangeError, BulkClass, BulkCommunity, BulkCondition, BulkDirection, BulkField, BulkRule, BulkTariff} from "../../../services/bulkchange.service";
 
-// German texts of the bulk change page. backend sends codes (classes, F1–F6, H1–H9, L1–L3, skip reasons,
+// German texts of the bulk change page. backend sends codes (classes, F1–F8, H1–H10, L1–L3, skip reasons,
 // error codes 6100–6107); the texts belong to admin (konzept-massenaenderungen.md, Fachliche Logik 7 and 8).
 
 export const FIELD_LABELS: Record<BulkField, string> = {
@@ -15,6 +15,7 @@ export const ACTION_LABELS: Record<BulkAction, string> = {
   SET: "Wert setzen",
   CLEAR: "leer setzen",
   COPY: "aus Mitgliedsnummer kopieren",
+  FROM_FILE: "Wert aus Datei",
 };
 
 // "leer setzen" reads differently per field: an empty tariff is "kein Tarif".
@@ -58,7 +59,8 @@ export function ruleSummary(rule: BulkRule, c: BulkCommunity, tariffs: BulkTarif
   const field = FIELD_LABELS[rule.field] + (rule.direction ? ` (${DIRECTION_LABELS[rule.direction]})` : "");
   const action = rule.action === "CLEAR" ? clearLabel(rule.field) : ACTION_LABELS[rule.action];
   const value = rule.action === "SET" ? ` „${valueText(rule.field, rule.value ?? "", tariffs)}“`
-    : rule.action === "COPY" ? ` „${rule.prefix ?? ""}‹Mitgliedsnummer›${rule.suffix ?? ""}“` : "";
+    : rule.action === "COPY" ? ` „${rule.prefix ?? ""}‹Mitgliedsnummer›${rule.suffix ?? ""}“`
+      : rule.action === "FROM_FILE" ? ` (${(rule.values?.length ?? 0).toLocaleString("de-AT")} Zeilen)` : "";
   const condition = rule.condition === "EQUALS"
     ? `nur wo gleich „${valueText(rule.field, rule.conditionValue ?? "", tariffs)}“` : CONDITION_LABELS[rule.condition];
   return `Gemeinschaft: ${c.name} · Tenant ${c.tenant} (RC ${c.rcNumber}) — ${field}: ${action}${value}, ${condition}`;
@@ -68,8 +70,12 @@ export const CLASS_LABELS: Record<BulkClass, string> = {
   CHANGED: "geändert",
   UNCHANGED_CONDITION: "unverändert: Bedingung nicht erfüllt",
   UNCHANGED_TARGET: "unverändert: hat schon den Zielwert",
+  UNCHANGED_NOT_IN_FILE: "unverändert: nicht in der Datei",
   ERROR: "Fehler — wird nicht geändert",
 };
+
+// A member number of the file without a member in the community (FROM_FILE).
+export const NOT_FOUND_LABEL = "nicht in der Gemeinschaft gefunden";
 
 export interface CodeText {
   short: string;
@@ -77,12 +83,14 @@ export interface CodeText {
 }
 
 export const ERROR_TEXTS: Record<string, CodeText> = {
-  F1: {short: "Referenz ungültig", long: "Die Mandatsreferenz wäre ungültig: höchstens 35 Zeichen, nur Buchstaben, Ziffern und + ? / - : ( ) . , ' (keine Leerzeichen, keine Umlaute)."},
+  F1: {short: "Referenz ungültig", long: "Die Mandatsreferenz wäre ungültig: höchstens 35 Zeichen, nur Buchstaben, Ziffern, Leerzeichen (nicht am Anfang oder Ende) und + ? / - : ( ) . , ' (keine Umlaute, kein _)."},
   F2: {short: "Referenz vergeben", long: "Referenz bereits vergeben (in dieser oder einer EEG mit derselben Gläubiger-ID)."},
-  F3: {short: "Datum ungültig", long: "Das Mandatsdatum ist ungültig oder liegt in der Zukunft."},
+  F3: {short: "Datum ungültig", long: "Das Mandatsdatum ist ungültig (nicht lesbar oder vor 1900) oder liegt in der Zukunft."},
   F4: {short: "Tarif passt nicht", long: "Der Tarif passt nicht: nicht in dieser Gemeinschaft, archiviert, falscher Typ oder falsche Richtung."},
   F5: {short: "Quellfeld leer", long: "Die Mitgliedsnummer ist leer; der Wert bleibt, wie er ist."},
   F6: {short: "keine Bankverbindung", long: "Das Mitglied hat keine Bankverbindung; es wird keine angelegt."},
+  F7: {short: "Nummer mehrfach vergeben", long: "Die Mitgliedsnummer aus der Datei gehört in dieser Gemeinschaft mehreren Mitgliedern; keines davon wird geändert."},
+  F8: {short: "widersprüchliche Werte", long: "Die Mitgliedsnummer steht mehrfach in der Datei, mit verschiedenen Werten; das Mitglied wird nicht geändert."},
 };
 
 export const HINT_TEXTS: Record<string, CodeText> = {
@@ -95,6 +103,7 @@ export const HINT_TEXTS: Record<string, CodeText> = {
   H7: {short: "Beitrittsgebühr", long: "Der neue Tarif hat eine Beitrittsgebühr: fällig bei der ersten Energieabrechnung des Mitglieds, sonst über „Gebühr anfordern“."},
   H8: {short: "dritter USt-Satz", long: "Der USt-Satz der Beitrittsgebühr ist weder 0 % noch in der Gemeinschaft schon verwendet: Ein dritter USt-Satz auf einer Rechnung bricht die Abrechnung ab."},
   H9: {short: "kein Tarif", long: "Kein Tarif: Preis und Beitrittsgebühr fehlen in der Abrechnung."},
+  H10: {short: "Leerzeichen", long: "Die Mandatsreferenz enthält Leerzeichen. SEPA erlaubt sie, aber nicht jede Bank nimmt sie an – mit der Bank der Gemeinschaft klären."},
 };
 
 export const RUN_HINT_TEXTS: Record<string, string> = {

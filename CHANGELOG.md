@@ -8,6 +8,29 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+### Added
+- **Bulk change: value from file** (konzept-massenaenderungen.md, Teil 2). New action „Wert aus Datei“ for the
+  mandate reference and the mandate date: the support downloads the template `public/vorlage-massenaenderung.xlsx`
+  (columns Mitgliedsnummer, Name, Mandatsreferenz, Mandatsdatum; numbers and references as text, the date as date),
+  fills it in and loads it (XLSX, XLS or CSV; the columns are found by their headers, a missing one is named). A
+  summary counts rows, rows without value or number and duplicate numbers; a cell over 100 characters is refused with
+  its row number. The file is read in the browser only; backend gets number and value of the rule's field. Date cells
+  (also of 1904 workbooks) and `T.M.JJJJ` become `JJJJ-MM-TT`, a formatted number is taken as Excel shows it
+  (`0007`), an error cell (`#N/A`) is empty. The preview shows „unverändert: nicht in der Datei“, the errors F7/F8,
+  the new hint H10 (blank in the reference) and the numbers of the file without a member of the community (also in
+  the CSV of „alle“). At most 5,000 rows with a value.
+
+### Changed
+- The Excel upload of the registration and the bulk change template read files through one helper
+  (`src/components/common/readWorkbook.ts`: UTF-8 CSV, cells of text formats as written); no change for the upload.
+- The rule form updates the form from its current state (a file read ends after an await and must not bring back an
+  older form).
+
+### Contract
+- Sends the action `FROM_FILE` with `values`; reads `counts.unchangedNotInFile`, `notFound` (both may be missing),
+  the class `UNCHANGED_NOT_IN_FILE`, F7/F8 and H10; F1 now allows blanks inside a reference. Needs the backend with this action (eegfaktura-backend, branch
+  `feat/bulk-change-from-file`); an older one answers 400. Fixture copies `*.file.*.json`, source commit in their README.
+
 ## [1.4.0] – 2026-11-24
 
 ### Added

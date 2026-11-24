@@ -9,6 +9,10 @@ import applyResponse from "./__fixtures__/bulkchange/apply.response.json";
 import tariffs from "./__fixtures__/bulkchange/tariffs.response.json";
 import previewEmpty from "./__fixtures__/bulkchange/preview.empty.response.json";
 import errorResponse from "./__fixtures__/bulkchange/error.response.json";
+import previewFileRequest from "./__fixtures__/bulkchange/preview.file.request.json";
+import previewFileResponse from "./__fixtures__/bulkchange/preview.file.response.json";
+import applyFileRequest from "./__fixtures__/bulkchange/apply.file.request.json";
+import applyFileResponse from "./__fixtures__/bulkchange/apply.file.response.json";
 
 // Contract with eegfaktura-backend (copies of api/testdata/bulkchange, source commit in the fixtures' README):
 // the page builds exactly these request bodies and reads these answers.
@@ -68,7 +72,9 @@ describe("bulk change contract", () => {
   it("posts the preview with the tenant in the header, never in the body", async () => {
     const fetchMock = answer(200, previewResponse);
     const res = await service.preview("TE000441", buildRule(fixtureForm));
-    expect(res.counts).toEqual({changed: 1, withHint: 1, unchangedCondition: 1, unchangedTarget: 1, errors: 1});
+    // backend omits unchangedNotInFile outside FROM_FILE; the service fills in 0
+    expect(res.counts).toEqual({changed: 1, withHint: 1, unchangedCondition: 1, unchangedTarget: 1, errors: 1, unchangedNotInFile: 0});
+    expect(res.notFound).toEqual([]);
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toMatch(/\/bulkchange\/preview$/);
     expect(init.method).toBe("POST");
@@ -89,7 +95,7 @@ describe("bulk change contract", () => {
   it("reads the preview without hits of the fixture", async () => {
     answer(200, previewEmpty);
     const res = await service.preview("TE000441", buildRule(fixtureForm));
-    expect(res).toEqual(previewEmpty);
+    expect(res).toEqual({...previewEmpty, counts: {...previewEmpty.counts, unchangedNotInFile: 0}, notFound: []});
     expect(applyItems(res)).toEqual([]);
   });
 
@@ -107,6 +113,29 @@ describe("bulk change contract", () => {
     expect(res.skipped).toEqual([]);
     expect(res.runHints).toEqual([]);
     expect(res.rows[0].hints).toEqual([]);
+  });
+
+  // Value from file (konzept Teil 2): the form sends only number and value of the chosen columns.
+  const fileForm = {...initialForm("MANDATE_REFERENCE"), action: "FROM_FILE" as const, fileValues: previewFileRequest.rule.values};
+
+  it("the file rule builds the preview request of the fixture", () => {
+    expect({rule: buildRule(fileForm)}).toEqual(previewFileRequest);
+  });
+
+  it("reads the file preview: not in the file, F8 and the numbers not found", async () => {
+    answer(200, previewFileResponse);
+    const res = await service.preview("TE000441", buildRule(fileForm));
+    expect(res.counts.unchangedNotInFile).toBe(1);
+    expect(res.notFound).toEqual(["0009"]);
+    expect(res.rows.map(r => r.class)).toContain("UNCHANGED_NOT_IN_FILE");
+    expect(applyItems(res)).toEqual(applyFileRequest.items);
+  });
+
+  it("apply sends the file rule again with its values", async () => {
+    const fetchMock = answer(200, applyFileResponse);
+    const res = await service.apply("TE000441", buildRule(fileForm), applyFileRequest.items);
+    expect(res.changed).toBe(1);
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual(applyFileRequest);
   });
 
   it("reads code and text of the error body", async () => {

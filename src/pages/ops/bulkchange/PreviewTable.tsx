@@ -8,6 +8,9 @@ import {DataGrid, deDE, GridColDef} from "@mui/x-data-grid";
 import {BulkField, BulkPreview, BulkRow, rowKey} from "../../../services/bulkchange.service";
 import {CLASS_LABELS, codeText, ERROR_TEXTS, HINT_TEXTS, RUN_HINT_TEXTS} from "./texts";
 
+// Most numbers listed in the "not found" alert; the CSV has all.
+const NOT_FOUND_SHOWN = 50;
+
 // Step 3: counts per class, run hints on top, filters, the table old → new with hint and error chips, and a
 // legend of the codes in this preview.
 
@@ -107,17 +110,19 @@ const FILTERS: Record<Filter, (r: BulkRow) => boolean> = {
   changed: r => r.class === "CHANGED",
   hint: r => r.class === "CHANGED" && r.hints.length > 0,
   error: r => r.class === "ERROR",
-  unchanged: r => r.class === "UNCHANGED_CONDITION" || r.class === "UNCHANGED_TARGET",
+  unchanged: r => r.class === "UNCHANGED_CONDITION" || r.class === "UNCHANGED_TARGET" || r.class === "UNCHANGED_NOT_IN_FILE",
 };
 
 export const num = (n: number) => n.toLocaleString("de-AT");
 
+export const unchangedTotal = (c: BulkPreview["counts"]) => c.unchangedCondition + c.unchangedTarget + c.unchangedNotInFile;
+
 // e.g. "1 geändert (davon 1 mit Hinweis) · 2 unverändert (1 Bedingung nicht erfüllt, 1 hat schon den Zielwert) · …"
 export function countsLine(c: BulkPreview["counts"]): string {
-  const unchanged = c.unchangedCondition + c.unchangedTarget;
-  return `${num(c.changed)} geändert (davon ${num(c.withHint)} mit Hinweis) · ${num(unchanged)} unverändert `
+  const notInFile = c.unchangedNotInFile ? `, ${num(c.unchangedNotInFile)} nicht in der Datei` : "";
+  return `${num(c.changed)} geändert (davon ${num(c.withHint)} mit Hinweis) · ${num(unchangedTotal(c))} unverändert `
     + `(${num(c.unchangedCondition)} Bedingung nicht erfüllt, ${num(c.unchangedTarget)} `
-    + `${c.unchangedTarget === 1 ? "hat" : "haben"} schon den Zielwert) · ${num(c.errors)} Fehler `
+    + `${c.unchangedTarget === 1 ? "hat" : "haben"} schon den Zielwert${notInFile}) · ${num(c.errors)} Fehler `
     + `(${c.errors === 1 ? "wird" : "werden"} nicht geändert)`;
 }
 
@@ -128,6 +133,13 @@ const PreviewTable: FC<{ field: BulkField, preview: BulkPreview, onDownload: (ro
   return (
     <Stack spacing={2}>
       <RunHints codes={preview.runHints}/>
+      {preview.notFound.length > 0 && (
+        <Alert severity="warning">
+          <strong>Nicht in der Gemeinschaft gefunden: {num(preview.notFound.length)} {preview.notFound.length === 1 ? "Nummer" : "Nummern"} aus der Datei</strong> — werden nicht geändert (in der CSV unter „alle“):{" "}
+          {preview.notFound.slice(0, NOT_FOUND_SHOWN).join(", ")}
+          {preview.notFound.length > NOT_FOUND_SHOWN ? " …" : ""}
+        </Alert>
+      )}
       <Typography sx={{fontWeight: 500}}>{countsLine(c)}</Typography>
       <Stack direction={{xs: "column", md: "row"}} spacing={2} justifyContent="space-between">
         <ToggleButtonGroup size="small" exclusive value={filter} onChange={(_, v) => v && setFilter(v)}>
@@ -135,7 +147,7 @@ const PreviewTable: FC<{ field: BulkField, preview: BulkPreview, onDownload: (ro
           <ToggleButton value="changed">geändert ({num(c.changed)})</ToggleButton>
           <ToggleButton value="hint">mit Hinweis ({num(c.withHint)})</ToggleButton>
           <ToggleButton value="error">Fehler ({num(c.errors)})</ToggleButton>
-          <ToggleButton value="unchanged">unverändert ({num(c.unchangedCondition + c.unchangedTarget)})</ToggleButton>
+          <ToggleButton value="unchanged">unverändert ({num(unchangedTotal(c))})</ToggleButton>
         </ToggleButtonGroup>
         <Button variant="outlined" onClick={() => onDownload(rows, filter)} disabled={rows.length === 0}>
           Herunterladen (CSV)

@@ -1,10 +1,13 @@
 import React from "react";
 import {fireEvent, render, screen, within} from "@testing-library/react";
 import PreviewTable, {countsLine, presentCodes, RowsTable} from "./PreviewTable";
-import {BulkPreview} from "../../../services/bulkchange.service";
+import {BulkPreview, normPreview} from "../../../services/bulkchange.service";
 import previewResponse from "../../../services/__fixtures__/bulkchange/preview.response.json";
+import previewFileResponse from "../../../services/__fixtures__/bulkchange/preview.file.response.json";
 
-const preview = previewResponse as BulkPreview;
+// as the service hands them on
+const preview = normPreview(previewResponse as BulkPreview);
+const filePreview = normPreview(previewFileResponse as BulkPreview);
 
 describe("PreviewTable", () => {
   it("the legend lists only the codes of this preview", () => {
@@ -27,10 +30,18 @@ describe("PreviewTable", () => {
   });
 
   it("counts line: singular and plural, grouped numbers", () => {
-    expect(countsLine({changed: 1234, withHint: 1, unchangedCondition: 0, unchangedTarget: 1, errors: 1}))
+    expect(countsLine({changed: 1234, withHint: 1, unchangedCondition: 0, unchangedTarget: 1, errors: 1, unchangedNotInFile: 0}))
       .toMatch(/^1.234 geändert .* 1 hat schon den Zielwert\) · 1 Fehler \(wird nicht geändert\)$/);
-    expect(countsLine({changed: 0, withHint: 0, unchangedCondition: 2, unchangedTarget: 2, errors: 2}))
+    expect(countsLine({changed: 0, withHint: 0, unchangedCondition: 2, unchangedTarget: 2, errors: 2, unchangedNotInFile: 0}))
       .toMatch(/2 haben schon den Zielwert\) · 2 Fehler \(werden nicht geändert\)$/);
+  });
+
+  it("value from file: members not in the file count as unchanged, numbers not found are listed", () => {
+    expect(countsLine(filePreview.counts)).toMatch(/2 unverändert \(0 Bedingung nicht erfüllt, 1 hat schon den Zielwert, 1 nicht in der Datei\)/);
+    render(<PreviewTable field="MANDATE_REFERENCE" preview={filePreview} onDownload={() => undefined}/>);
+    expect(screen.getByText(/Nicht in der Gemeinschaft gefunden: 1 Nummer aus der Datei/)).toBeInTheDocument();
+    expect(screen.getByText(/0009/)).toBeInTheDocument();
+    expect(screen.getByRole("button", {name: "unverändert (2)"})).toBeInTheDocument();
   });
 });
 
