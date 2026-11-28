@@ -57,7 +57,8 @@ const CommonEegPropertiesComponent: FC = () => {
       <FormSelectComponent name={"businessInfo.legal"} label="Rechtsform" control={control} options={[
         {key: "verein", value: "Verein"},
         {key: "genossenschaft", value: "Genossenschaft"},
-        {key: "gesellschaft", value: "Gesellschaft"}]}/>
+        {key: "gesellschaft", value: "Gesellschaft"},
+        {key: "keine", value: "Keine"}]}/>
       {/* new communities only with dynamic allocation (platform#229, E6) */}
       <FormSelectComponent name={"grid.allocation"} label="Verteilung" control={control} options={[
         {key: "DYNAMIC", value: "Dynamisch"}]} placeholder="Verteilung"
