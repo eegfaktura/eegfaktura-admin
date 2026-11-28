@@ -8,6 +8,11 @@ this changelog highlights the changes relevant for overview and operations.
 
 ## [Unreleased]
 
+### Added
+- **Legal form „Keine“** (platform#287): the registration offers „Keine“ (`keine`) besides Verein, Genossenschaft and
+  Gesellschaft, for communities without a legal entity (GEA, P2P). Needs eegfaktura-admin-backend and
+  eegfaktura-backend with `keine`; before that, registering with „Keine“ fails.
+
 ## [1.5.0] – 2026-11-24
 
 ### Added

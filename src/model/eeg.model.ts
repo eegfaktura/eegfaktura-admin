@@ -13,7 +13,7 @@ export interface Eeg {
 
 export interface EegBusiness {
   businessInfo: {
-    legal: 'verein' | 'genossenschaft' | 'gesellschaft';
+    legal: 'verein' | 'genossenschaft' | 'gesellschaft' | 'keine';
     settlementInterval: 'MONTHLY' | "ANNUAL" | "BIANNUAL" | "QUARTER";
   }
 }
